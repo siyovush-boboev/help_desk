@@ -1,0 +1,267 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body,
+header,
+main,
+nav,
+.logo,
+.user-info,
+.main-content,
+.sandwitch {
+    background-color: #EDF0F9;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+.logo,
+.user-info,
+.main-content,
+nav,
+.sandwitch {
+    margin: 10px;
+    border-radius: 12px;
+    width: 100%;
+}
+
+.main-content,
+.user-info {
+    background-color: #fff;
+}
+
+.logo,
+nav,
+.sandwitch {
+    background-color: #069EA1;
+    margin-right: 0;
+    max-width: 240px;
+    width: 100%;
+}
+
+.sandwitch {
+    display: none;
+}
+
+main {
+    display: flex;
+    position: relative;
+    min-height: calc(100vh - 80px);
+    max-height: 100vh;
+    overflow: auto;
+}
+
+header {
+    margin-top: 10px;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 80%;
+    padding: 0 8px;
+}
+
+.user-info {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.user-text {
+    width: 200px;
+    text-align: right;
+    font-size: 14px;
+    line-height: 1.1;
+}
+
+.user-text * {
+    margin: 0;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #e5e5e5;
+    border-radius: 50%;
+    margin: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    padding: 3px;
+    gap: 4px;
+}
+
+svg {
+    display: inline;
+}
+
+.navbar-link {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 200;
+    min-height: 60px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 14px;
+}
+
+.navbar-link a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.navbar-link a:hover {
+    color: #1ad3d6;
+    transition: 0.5s;
+}
+
+.navbar-link a.active {
+    text-decoration: underline;
+    pointer-events: none;
+}
+
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+    line-height: normal;
+    font-weight: 100;
+    height: auto;
+    min-height: 60px;
+    justify-content: center;
+}
+
+.dropdown-container a,
+.dropdown-container div {
+    margin: 0;
+    padding: 4px 0;
+    line-height: normal;
+    vertical-align: middle;
+}
+
+.dropdown-container2 a {
+    padding-left: 24px;
+}
+
+.dropdown-toggler {
+    cursor: pointer;
+}
+
+.dropdown-toggler:first-child {
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-link,
+.dropdown-link2 {
+    display: none;
+}
+
+.dropdown-toggler:hover {
+    color: #1ad3d6;
+    transition: 0.5s;
+}
+
+.login-card {
+    color: #000;
+    max-width: 720px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.login-left {
+    background-color: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+input[type="checkbox"]:checked,
+button[type="submit"] {
+    background-color: #069EA1;
+}
+
+.auth-page-link {
+    color: #069EA1;
+}
+
+.btn-submit:hover {
+    background-color: rgb(6, 203, 207);
+    transition: background-color 0.3s ease;
+}
+
+.main-content {
+    padding: 24px 10px;
+}
+
+
+
+
+@media (max-width: 768px) {
+    nav {
+        position: absolute;
+        top: 0;
+        left: -1000px;
+        transition: left 0.3s ease;
+    }
+
+    .sandwitch,
+    .user-info {
+        width: 50px;
+        font-size: 36px;
+        justify-content: center;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        color: white;
+        cursor: pointer;
+        margin-right: 10px;
+        padding-right: 0;
+    }
+
+    header {
+        background-color: #069EA1;
+        border-radius: 12px;
+        margin: 10px 10px 0 10px;
+    }
+
+    .user-avatar {
+        margin: 0;
+    }
+
+    .logo {
+        justify-content: center;
+    }
+
+    .user-text {
+        display: none;
+    }
+
+    .main-login-container {
+        height: auto !important;
+        margin-top: 20px;
+    }
+}

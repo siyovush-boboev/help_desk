@@ -1,0 +1,55 @@
+.DS_Store
+node_modules/
+dist/
+.env
+.env.*
+*.log
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+coverage/
+.vscode/
+.idea/
+*.iml
+*.tsbuildinfo
+*.tgz
+.cache/
+output/
+build/
+public/build/
+*.local
+*.bak
+
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+debug/
+
+# PostgreSQL
+*.sql
+*.dump
+
+# Vite
+.vite/
+
+# Bootstrap
+bootstrap/
+
+# React / Vue builds
+*.map
+
+# Optional: exclude compiled templates/assets
+# *.min.*
+assets/generated/
+
+# Local secrets or creds
+secret.*
+config.local.*

@@ -1,0 +1,193 @@
+{
+	"Главная": {
+		"breadcrumbs": "Главная",
+		"searchbar": true,
+		"delete_button": false,
+		"filter_button": true,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": false,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Открыто",
+				"Закрыто",
+				"Всего"
+			],
+			"rows": [
+				"DEFAULT",
+				"Всего"
+			]
+		}
+	},
+	"Заявки": {
+		"breadcrumbs": "Главная/Заявки",
+		"searchbar": true,
+		"delete_button": true,
+		"filter_button": true,
+		"show_hide_button": true,
+		"create_button": true,
+		"pagination": true,
+		"table": {
+			"columns": [
+				"CHECKMARK",
+				"№",
+				"Статус",
+				"Приоритет",
+				"Наименование заявки",
+				"Заявитель",
+				"Дата/Время",
+				"Исполнитель",
+				"Дата/Время"
+			]
+		}
+	},
+	"Пользователи": {
+		"breadcrumbs": "Пользователи",
+		"searchbar": true,
+		"delete_button": true,
+		"filter_button": true,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": true,
+		"table": {
+			"columns": [
+				"Имя",
+				"Логин",
+				"Подразделение",
+				"Системная Роль",
+				"Телефон",
+				"E-mail",
+				"Действия"
+			]
+		}
+	},
+	"Статусы": {
+		"breadcrumbs": "Справочник/Статусы",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Иконки",
+				"Наименование",
+				"Тип",
+				"Действия"
+			]
+		}
+	},
+	"Приоритеты": {
+		"breadcrumbs": "Справочник/Приоритеты",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Иконки",
+				"Наименование",
+				"Тип",
+				"Действия"
+			]
+		}
+	},
+	"Департаменты": {
+		"breadcrumbs": "Справочник/Департаменты",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Действия"
+			]
+		}
+	},
+	"Отделы": {
+		"breadcrumbs": "Справочник/Список Отделов",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Действия"
+			]
+		}
+	},
+	"Филиалы": {
+		"breadcrumbs": "Справочник/Список Филиалов",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Адрес",
+				"Дата открытия",
+				"Почтовый индекс",
+				"Короткое наименование",
+				"Статус",
+				"Действия"
+			]
+		}
+	},
+	"Офисы ЦБО": {
+		"breadcrumbs": "Справочник/Список ЦБО",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Адрес",
+				"Дата открытия",
+				"Филиал",
+				"Статус",
+				"Действия"
+			]
+		}
+	},
+	"Роли": {
+		"breadcrumbs": "Справочник/Роли",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Описание",
+				"Действия"
+			]
+		}
+	},
+	"Привелигия": {
+		"breadcrumbs": "Справочник/Привелигия",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Наименование",
+				"Описание",
+				"Действия"
+			]
+		}
+	},
+	"Оборудования": {
+		"breadcrumbs": "Справочник/Оборудования/Банкоматы",
+		"searchbar": true,
+		"create_button": true,
+		"table": {
+			"columns": [
+				"№",
+				"Номер банкомата",
+				"Филиал",
+				"Подразделение",
+				"Адрес банкомата",
+				"Тип оборудования",
+				"Действия"
+			]
+		}
+	}
+}
