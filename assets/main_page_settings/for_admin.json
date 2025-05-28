@@ -66,7 +66,11 @@
 	"Статусы": {
 		"breadcrumbs": "Справочник/Статусы",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -80,7 +84,11 @@
 	"Приоритеты": {
 		"breadcrumbs": "Справочник/Приоритеты",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -94,7 +102,11 @@
 	"Департаменты": {
 		"breadcrumbs": "Справочник/Департаменты",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -106,7 +118,11 @@
 	"Отделы": {
 		"breadcrumbs": "Справочник/Список Отделов",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -118,7 +134,11 @@
 	"Филиалы": {
 		"breadcrumbs": "Справочник/Список Филиалов",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -135,7 +155,11 @@
 	"Офисы ЦБО": {
 		"breadcrumbs": "Справочник/Список ЦБО",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -151,7 +175,11 @@
 	"Роли": {
 		"breadcrumbs": "Справочник/Роли",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -161,10 +189,14 @@
 			]
 		}
 	},
-	"Привелигия": {
-		"breadcrumbs": "Справочник/Привелигия",
+	"Привелигии": {
+		"breadcrumbs": "Справочник/Привелигии",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",
@@ -174,10 +206,74 @@
 			]
 		}
 	},
-	"Оборудования": {
+	"Банкоматы": {
 		"breadcrumbs": "Справочник/Оборудования/Банкоматы",
 		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
 		"create_button": true,
+		"pagination": false,
+		"table": {
+			"columns": [
+				"№",
+				"Номер банкомата",
+				"Филиал",
+				"Подразделение",
+				"Адрес банкомата",
+				"Тип оборудования",
+				"Действия"
+			]
+		}
+	},
+	"Терминалы": {
+		"breadcrumbs": "Справочник/Оборудования/Терминалы",
+		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": false,
+		"table": {
+			"columns": [
+				"№",
+				"Номер банкомата",
+				"Филиал",
+				"Подразделение",
+				"Адрес банкомата",
+				"Тип оборудования",
+				"Действия"
+			]
+		}
+	},
+	"Пос-терминалы": {
+		"breadcrumbs": "Справочник/Оборудования/Пос-терминалы",
+		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": false,
+		"table": {
+			"columns": [
+				"№",
+				"Номер банкомата",
+				"Филиал",
+				"Подразделение",
+				"Адрес банкомата",
+				"Тип оборудования",
+				"Действия"
+			]
+		}
+	},
+	"ЦО+ЭО": {
+		"breadcrumbs": "Справочник/Оборудования/ЦО+ЭО",
+		"searchbar": true,
+		"delete_button": false,
+		"filter_button": false,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": false,
 		"table": {
 			"columns": [
 				"№",

@@ -81,7 +81,7 @@ header {
 .user-text {
     width: 200px;
     text-align: right;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.1;
 }
 
@@ -123,6 +123,10 @@ svg {
     display: flex;
     align-items: center;
     padding: 14px;
+}
+
+.navbar-link:last-child {
+    margin-top: auto;
 }
 
 .navbar-link a {
@@ -214,10 +218,88 @@ button[type="submit"] {
 }
 
 .main-content {
-    padding: 24px 10px;
+    padding: 12px;
 }
 
+.breadcrumbs span {
+    font-weight: 300;
+    font-size: 14px;
+}
 
+.breadcrumbs span:last-child {
+    color: #069EA1;
+}
+
+.controls {
+    display: flex;
+    margin: 12px 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.controls button,
+input {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    margin: 6px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    min-height: 20px;
+}
+
+@keyframes pressDown {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.97);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+#delete_button,
+#create_button {
+    background-color: #069EA1;
+    color: #fff;
+}
+
+button:active {
+    animation: pressDown 0.3s ease;
+}
+
+button:hover,
+#delete_button:hover,
+#create_button:hover {
+    color: #1ad3d6;
+}
+
+#create_button {
+    margin-left: auto;
+}
+
+.searchbar {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    box-shadow: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.searchbar:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.6);
+}
 
 
 @media (max-width: 768px) {

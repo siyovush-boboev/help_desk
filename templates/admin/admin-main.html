@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Grid Layout Page</title>
+  <title>Admin Dashboard</title>
   <link rel="stylesheet" href="../../assets/css/style.css" />
 </head>
 <body>
@@ -14,16 +14,14 @@
         {{ template "admin-navbar.html" . }}
 
         <div class="main-content">
-            <h1>Welcome to the Admin Panel</h1>
-            <h1>Welcome to the Admin Panel</h1>
-            <h1>Welcome to the Admin Panel</h1>
-            <h1>Welcome to the Admin Panel</h1>
-            <h1>Welcome to the Admin Panel</h1>
-            <h1>Welcome to the Admin Panel</h1>
+            <div class="breadcrumbs"></div>
+            <div class="controls"></div>
         </div>
 
     </main>
 
+    <div id="usr_tp" style="display: none;">admin</div>
     <script src="../../assets/js/main.js" defer></script>
+    <script src="../../assets/js/components.js" defer></script>
 </body>
 </html>
