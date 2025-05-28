@@ -44,19 +44,19 @@ func main() {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
 
-	r.GET("/admin/main", func(c *gin.Context) {
+	r.GET("/admin", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "admin-main.html", nil)
 	})
 
-	r.GET("/user/main", func(c *gin.Context) {
+	r.GET("/user", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "user-main.html", nil)
 	})
 
-	r.GET("/executor/main", func(c *gin.Context) {
+	r.GET("/executor", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "executor-main.html", nil)
 	})
 
-	r.GET("/auditor/main", func(c *gin.Context) {
+	r.GET("/auditor", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "auditor-main.html", nil)
 	})
 

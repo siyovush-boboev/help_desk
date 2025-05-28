@@ -77,8 +77,13 @@ function navbar_click(e, user_type){
         const breadcrumbs = make_breadcrumb(config[page]["breadcrumbs"]);
         document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
 
-        const control_bar = make_control_bar(page);
-        document.querySelector('.controls').innerHTML = control_bar;
+        const control_bar = document.querySelector('.controls')
+        make_control_bar(control_bar, page);
+
+        const tableWrapper = document.querySelector('.table-wrapper');
+        tableWrapper.innerHTML = ''; // clear the table wrapper
+        createTable(config[page]['table'], tableWrapper)
+
     }
     mark_active_link(e);
 }
@@ -87,3 +92,16 @@ function navbar_click(e, user_type){
 window.navbar_click = navbar_click;
 window.toggleDropdown = toggleDropdown;
 window.toggleNav = toggleNav;
+
+// when the page loads, imitate clicking main link in the navbar
+// but if there is a hashtag in the URL, click the link with that hash
+document.addEventListener("DOMContentLoaded",() => {
+    const hash = window.location.hash.substring(1); // remove the '#'
+    let link = document.querySelector(`nav a[href="#${hash || 'main'}"]`);
+    console.log(link);
+    if (link) {
+        link.click();
+    } else {
+        console.warn(`No link found for hash: ${hash}`);
+    }
+});
