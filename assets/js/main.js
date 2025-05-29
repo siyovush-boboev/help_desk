@@ -87,7 +87,11 @@ function navbar_click(e, user_type){
 
         const tableWrapper = document.querySelector('.table-wrapper');
         tableWrapper.innerHTML = ''; // clear the table wrapper
-        createTable(config[page]['table'], tableWrapper, e.target.dataset.apiurl);
+        createTable(config[page]['table'], tableWrapper);
+
+        // add data from api into the table
+        const apiUrl = e.target.dataset.apiurl;
+        addDataToTable(config[page]['table'], tableWrapper, apiUrl);
 
         const pagination = document.querySelector('.pagination-container');
         if (config[page]['pagination']) {
@@ -110,7 +114,6 @@ window.toggleNav = toggleNav;
 document.addEventListener("DOMContentLoaded",() => {
     const hash = window.location.hash.substring(1); // remove the '#'
     let link = document.querySelector(`nav a[href="#${hash || 'main'}"]`);
-    console.log(link);
     if (link) {
         link.click();
     } else {

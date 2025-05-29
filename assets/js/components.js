@@ -44,19 +44,23 @@ function make_control_bar(container, page) {
     }
 }
 
-function createTable(tableConfig, tableWrapper, api_url) {
+function createTable(tableConfig, tableWrapper) {
   const table = document.createElement("table");
   table.classList.add("custom-table");
 
   // Create header row
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
+  let startIndex = 0;
+  if (tableConfig.rows[0] !== "DEFAULT") {
+    startIndex = 1; // Skip the first column when inserting row data
+    headerRow.appendChild(document.createElement("th"));
+  }
 
   tableConfig.columns.forEach(colName => {
     const th = document.createElement("th");
     if (colName === "CHECKMARK") {
         th.innerHTML = `<input type="checkbox" id="select-all" title="Выбрать все">`;
-        th.style.textAlign = "center"; // Center align the checkbox
         th.style.cursor = "pointer"; // Change cursor to pointer for checkbox column
         th.addEventListener("click", function() {
             const checkboxes = table.querySelectorAll("tbody input[type='checkbox']");
@@ -84,28 +88,115 @@ function createTable(tableConfig, tableWrapper, api_url) {
       // placeholder, you’ll add rows from API later
       return;
     }
-
     const tr = document.createElement("tr");
-    for (let i = 0; i < tableConfig.columns.length; i++) {
+    for (let i = startIndex; i < tableConfig.columns.length+startIndex; i++) {
       // create a checkmark if column is "CHECKMARK"
-        const td = document.createElement("td");
-        if (tableConfig.columns[i] === "CHECKMARK") {
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            td.appendChild(checkbox);
-            tr.appendChild(td);
-            continue;
-        }
-
-      // Just fill with rowData for demo; you can replace this with real data
-      td.textContent = i === 1 ? rowData : ""; 
+      const td = document.createElement("td");
+      if (tableConfig.columns[i] === "CHECKMARK") {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          td.appendChild(checkbox);
+          tr.appendChild(td);
+          continue;
+      }
+      else if (tableConfig.columns[i] === "№") {
+          td.textContent = rowData === "DEFAULT" ? i + 1 : rowData; // Fill with row number or data
+          continue;
+      } else {
+        // Just fill with rowData for demo; you can replace this with real data
+        td.textContent = i === startIndex ? rowData : "";
+      }
       tr.appendChild(td);
     }
+    if (startIndex === 1) {
+      const emptyCell = document.createElement("td");
+      tr.appendChild(emptyCell);
+    }
+
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   tableWrapper.appendChild(table);
+}
+
+
+function addDataToTable(tableConfig, tableWrapper, apiUrl) {
+    // Fetch data from the API and populate the table
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = tableWrapper.querySelector("tbody");
+            const prev_rows = [];
+            if (tbody) {
+              prev_rows.push(...tbody.children); // Store previous rows
+            }
+            tbody.innerHTML = ''; // Clear existing rows
+            // Ensure data is an array
+            const rows = Array.isArray(data) ? data : (Array.isArray(data.result) ? data.result : []);
+            rows.forEach(item => {
+                const tr = document.createElement("tr");
+                if (tableConfig.rows[0] !== "DEFAULT") {
+                    const emptyCell = document.createElement("td");
+                    tr.appendChild(emptyCell); // Add empty cell for row number
+                }
+                tableConfig.columns.forEach(colName => {
+                    const td = document.createElement("td");
+                    if (colName === "CHECKMARK") {
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        td.appendChild(checkbox);
+                    } else if (colName === "№") {
+                        td.textContent = tbody.children.length + 1; // Fill with row number
+                    } else if (colName === "Действия") {
+                        const actions = document.createElement("div");
+                        actions.classList.add("table-actions");
+                        actions.innerHTML = `<button id="table-action-button">
+                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 5H4.16667H17.5" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.8337 5.00002V16.6667C15.8337 17.1087 15.6581 17.5326 15.3455 17.8452C15.0329 18.1578 14.609 18.3334 14.167 18.3334H5.83366C5.39163 18.3334 4.96771 18.1578 4.65515 17.8452C4.34259 17.5326 4.16699 17.1087 4.16699 16.6667V5.00002M6.66699 5.00002V3.33335C6.66699 2.89133 6.84259 2.4674 7.15515 2.15484C7.46771 1.84228 7.89163 1.66669 8.33366 1.66669H11.667C12.109 1.66669 12.5329 1.84228 12.8455 2.15484C13.1581 2.4674 13.3337 2.89133 13.3337 3.33335V5.00002" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.33301 9.16669V14.1667" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.667 9.16669V14.1667" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                             </button>
+                                             <button id="table-action-button">
+                                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_2364_3487)"><path d="M9.16699 3.33331H3.33366C2.89163 3.33331 2.46771 3.50891 2.15515 3.82147C1.84259 4.13403 1.66699 4.55795 1.66699 4.99998V16.6666C1.66699 17.1087 1.84259 17.5326 2.15515 17.8452C2.46771 18.1577 2.89163 18.3333 3.33366 18.3333H15.0003C15.4424 18.3333 15.8663 18.1577 16.1788 17.8452C16.4914 17.5326 16.667 17.1087 16.667 16.6666V10.8333" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.417 2.08332C15.7485 1.7518 16.1982 1.56555 16.667 1.56555C17.1358 1.56555 17.5855 1.7518 17.917 2.08332C18.2485 2.41484 18.4348 2.86448 18.4348 3.33332C18.4348 3.80216 18.2485 4.2518 17.917 4.58332L10.0003 12.5L6.66699 13.3333L7.50033 9.99999L15.417 2.08332Z" stroke="#069EA1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_2364_3487"><rect width="20" height="20" fill="white"/></clipPath></defs></svg>
+                                             </button>`;
+                        td.appendChild(actions);
+                    } else if (colName === "Всего") {
+                      // calculate the sum of the row
+                      let sum = 0;
+                      for (let key in item) {
+                        if (key !== "CHECKMARK" && key !== "Действия" && !isNaN(parseFloat(item[key]))) {
+                          sum += parseFloat(item[key]);
+                        }
+                      }
+                      td.textContent = sum; // Fill with the sum of the row
+                    } else {
+                        td.textContent = item[colName] || ""; // Fill with item data
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            let headers = tableWrapper.querySelector(".custom-table thead tr").children;
+            for (let i = 0; i < prev_rows.length; i++) {
+                if (prev_rows[i].textContent === "Всего"){
+                  // go thru all the current row's children and sum up the values of that child's columns
+                  // i.e. tbody's children[i].children[j].textContent
+                  // then put the sum in that child's column textContent
+                  for (let j = 1; j < prev_rows[i].children.length; j++) {
+                    let sum = 0;
+                    for (let k = 0; k < tbody.children.length; k++) {
+                      if (headers[j].textContent === "№" || isNaN(parseFloat(tbody.children[k].children[j].textContent))){
+                        sum = "";
+                        break;
+                      }
+                      const value = parseFloat(tbody.children[k].children[j].textContent) || 0;
+                      sum += value;
+                    }
+                    prev_rows[i].children[j].textContent = sum; // Set the sum in the previous row
+                  }
+                }
+                tbody.appendChild(prev_rows[i]); // Re-add previous rows
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
 }
 
 
@@ -153,8 +244,8 @@ function make_pagination(container, page) {
     prevBtn.disabled = currentPage <= 1;
     prevBtn.addEventListener("click", () => {
       if (currentPage > 1) {
-      config[page].currentPage = --currentPage;
-      // Optionally trigger reload
+        config[page].currentPage = --currentPage;
+        // Optionally trigger reload
       }
     });
 

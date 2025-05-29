@@ -15,6 +15,7 @@ nav,
     box-sizing: border-box;
     font-family: Verdana, sans-serif;
     font-size: 14px;
+    color: #333;
 }
 
 .logo,
@@ -46,8 +47,7 @@ nav {
 main {
     display: flex;
     position: relative;
-    min-height: calc(100vh - 80px);
-    max-height: 100vh;
+    min-height: calc(100vh - 78px);
     overflow: auto;
 }
 
@@ -276,11 +276,11 @@ button[type="submit"] {
     color: #fff;
 }
 
-button:active {
+.controls button:active {
     animation: pressDown 0.3s ease;
 }
 
-button:hover,
+.controls button:hover,
 #delete_button:hover,
 #create_button:hover {
     color: #1ad3d6;
@@ -316,18 +316,17 @@ button:hover,
 
 .custom-table th,
 .custom-table td {
-    border: 1px solid #ccc;
+    border: 1px solid #d7d7d7;
     padding: 8px 14px;
     font-size: 12px;
     text-align: left;
-    border-top: none;
-    border-bottom: none;
 }
 
 .custom-table th {
     background-color: #f0f0f0;
     font-weight: 500;
     border-right: 1px solid #000;
+    border-top: none;
 }
 
 .custom-table th:first-child,
@@ -338,6 +337,9 @@ button:hover,
 .custom-table th:last-child,
 .custom-table td:last-child {
     border-right: none;
+    text-align: center;
+    padding: 3px;
+    max-width: 100px;
 }
 
 .pagination-container {
@@ -371,6 +373,18 @@ button:hover,
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
 }
 
+#table-action-button {
+    border: 1px solid #069EA1;
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 1px;
+    cursor: pointer;
+}
+
+#table-action-button:active {
+    animation: pressDown 0.3s ease;
+}
+
 @media (max-width: 768px) {
     nav {
         position: absolute;
@@ -401,7 +415,7 @@ button:hover,
     header {
         background-color: #069EA1;
         border-radius: 12px;
-        margin: 10px 10px 0 10px;
+        margin: 8px 8px 0 8px;
     }
 
     .user-avatar {
