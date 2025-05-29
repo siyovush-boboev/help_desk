@@ -4,6 +4,7 @@ const USER_TYPES = {
     Executor: "executor",
     Auditor: "auditor"
 }
+const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
 
 let user_type = document.getElementById('usr_tp').textContent.trim().toLowerCase();
 let config = loadConfigAndInit(user_type);
@@ -17,6 +18,10 @@ function toggleDropdown(second=null) {
     const links = document.querySelectorAll('.dropdown-link' + (second !== null ? "2" : ''));
     for (let i = 0; i < links.length; i++) {
         links[i].style.display = dropdown_mode_to_set;
+    }
+    const arrow = dropdown.querySelector('p');
+    if (arrow) {
+        arrow.textContent = arrow.textContent.slice(0, -1) + (dropdown_mode_to_set === 'block' ? '▲' : '▼');
     }
 }
 
@@ -82,8 +87,15 @@ function navbar_click(e, user_type){
 
         const tableWrapper = document.querySelector('.table-wrapper');
         tableWrapper.innerHTML = ''; // clear the table wrapper
-        createTable(config[page]['table'], tableWrapper)
+        createTable(config[page]['table'], tableWrapper, e.target.dataset.apiurl);
 
+        const pagination = document.querySelector('.pagination-container');
+        if (config[page]['pagination']) {
+            make_pagination(pagination, page);
+        }
+        else{
+            pagination.innerHTML = ''; // clear pagination if not needed
+        }
     }
     mark_active_link(e);
 }

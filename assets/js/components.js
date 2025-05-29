@@ -44,7 +44,7 @@ function make_control_bar(container, page) {
     }
 }
 
-function createTable(tableConfig, tableWrapper) {
+function createTable(tableConfig, tableWrapper, api_url) {
   const table = document.createElement("table");
   table.classList.add("custom-table");
 
@@ -106,4 +106,76 @@ function createTable(tableConfig, tableWrapper) {
 
   table.appendChild(tbody);
   tableWrapper.appendChild(table);
+}
+
+
+function make_pagination(container, page) {
+    // Clear previous content
+    container.innerHTML = '';
+
+    // Create two main containers
+    const infoDiv = document.createElement("div");
+    const navDiv = document.createElement("div");
+
+    // InfoDiv: total records and rows per page selector
+    const totalRecords = config[page]?.totalRecords || 0;
+    let rowsPerPage = config[page]?.rowsPerPage || 10;
+
+    const totalText = document.createElement("span");
+    totalText.textContent = `Всего записей: ${totalRecords}`;
+
+    const rowsSelect = document.createElement("select");
+    for (let i = 5; i <= MAXIMUM_TABLE_ROWS_PER_PAGE; i += 5) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      if (i === rowsPerPage) option.selected = true;
+      rowsSelect.appendChild(option);
+    }
+    rowsSelect.addEventListener("change", (e) => {
+      config[page].rowsPerPage = parseInt(e.target.value, 10);
+      // Optionally trigger reload
+    });
+
+    infoDiv.appendChild(totalText);
+    // Create a span to group "Показывать по:" and the select
+    const rowsSpan = document.createElement("span");
+    rowsSpan.appendChild(document.createTextNode("| Показывать по: "));
+    rowsSpan.appendChild(rowsSelect);
+    infoDiv.appendChild(rowsSpan);
+
+    // NavDiv: page navigation
+    const totalPages = Math.ceil(totalRecords / rowsPerPage) || 1;
+    let currentPage = config[page]?.currentPage || 1;
+
+    const prevBtn = document.createElement("button");
+    prevBtn.textContent = "←";
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+      config[page].currentPage = --currentPage;
+      // Optionally trigger reload
+      }
+    });
+
+    const pageInfo = document.createElement("span");
+    pageInfo.textContent = `Страница ${currentPage} из ${totalPages}`;
+
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = "→";
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        config[page].currentPage = ++currentPage;
+        // Optionally trigger reload
+      }
+    });
+
+    navDiv.appendChild(prevBtn);
+    navDiv.appendChild(pageInfo);
+    navDiv.appendChild(nextBtn);
+
+    // Append both divs to the container
+    container.appendChild(infoDiv);
+    container.appendChild(navDiv);
 }

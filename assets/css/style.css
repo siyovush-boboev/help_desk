@@ -13,7 +13,8 @@ nav,
 .sandwitch {
     background-color: #EDF0F9;
     box-sizing: border-box;
-    font-family: sans-serif;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
 }
 
 .logo,
@@ -21,7 +22,7 @@ nav,
 .main-content,
 nav,
 .sandwitch {
-    margin: 10px;
+    margin: 8px;
     border-radius: 12px;
     width: 100%;
 }
@@ -51,7 +52,7 @@ main {
 }
 
 header {
-    margin-top: 10px;
+    margin-top: 8px;
     height: 70px;
     display: flex;
     justify-content: space-between;
@@ -112,7 +113,6 @@ svg {
 .navbar-link {
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
-    font-size: 14px;
     font-weight: 200;
     min-height: 60px;
     border-radius: 8px;
@@ -221,7 +221,6 @@ button[type="submit"] {
 
 .breadcrumbs span {
     font-weight: 300;
-    font-size: 14px;
 }
 
 .breadcrumbs span:last-child {
@@ -293,6 +292,7 @@ button:hover,
 }
 
 #searchbar {
+    width: 200px;
     border: 1px solid #ccc;
     border-radius: 8px;
     outline: none;
@@ -318,7 +318,7 @@ button:hover,
 .custom-table td {
     border: 1px solid #ccc;
     padding: 8px 14px;
-    font-size: 14px;
+    font-size: 12px;
     text-align: left;
     border-top: none;
     border-bottom: none;
@@ -340,6 +340,36 @@ button:hover,
     border-right: none;
 }
 
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+}
+
+.pagination-container div:first-child {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.pagination-container div:first-child span {
+    margin-right: 4px;
+}
+
+/* styles for buttons and select button for pagination */
+
+.pagination-container button,
+.pagination-container select {
+    background-color: #fff;
+    border: none;
+    padding: 6px 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
 
 @media (max-width: 768px) {
     nav {
