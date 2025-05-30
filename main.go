@@ -117,9 +117,18 @@ func main() {
 			{"№": "11890", "Статус": "Закрыто", "Приоритет": "Средний", "Наименование заявки": "Обновление антивируса", "Заявитель": "Тихонов А.А.", "Дата заявителя": "2024-06-11 13:50", "Исполнитель": "Гаврилова О.О.", "Дата исполнителя": "2024-06-11 14:20"},
 			{"№": "12901", "Статус": "Закрыто", "Приоритет": "Высокий", "Наименование заявки": "Проблема с VPN", "Заявитель": "Захарова И.И.", "Дата заявителя": "2024-06-12 16:40", "Исполнитель": "Кузьмин В.В.", "Дата исполнителя": "2024-06-12 17:10"},
 		}
+		pagination := map[string]interface{}{
+			"currentPage": 1,
+			"pageSize":    10,
+			"totalPages":  2,
+			"totalItems":  12,
+			"hasNextPage": true,
+			"hasPrevPage": true,
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
 			"status_code": 200,
+			"pagination":  pagination,
 		})
 	})
 
@@ -133,9 +142,19 @@ func main() {
 			{"Имя": "Малика Исмоилова", "Логин": "malika.ismoilova", "Подразделение": "Отдел IT", "Системная Роль": "user", "Телефон": "+992 955678901", "E-mail": "malika.ismoilova@arvand.tj"},
 			{"Имя": "Далер Мирзоев", "Логин": "daler.mirzoev", "Подразделение": "Финансовый отдел", "Системная Роль": "executor", "Телефон": "+992 966789012", "E-mail": "daler.mirzoev@arvand.tj"},
 		}
+		pagination := map[string]interface{}{
+			"currentPage": 1,
+			"pageSize":    10,
+			"totalPages":  1,
+			"totalItems":  6,
+			"hasNextPage": false,
+			"hasPrevPage": false,
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
 			"status_code": 200,
+			"pagination":  pagination,
 		})
 	})
 

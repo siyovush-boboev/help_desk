@@ -6,7 +6,7 @@ const USER_TYPES = {
 }
 const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
 
-let user_type = document.getElementById('usr_tp').textContent.trim().toLowerCase();
+let user_type = document.getElementById('user_type').textContent.trim().toLowerCase();
 let config = loadConfigAndInit(user_type);
 if (!config) {
     console.error(`Failed to load configuration for ${user_type} user type.`);
@@ -34,6 +34,14 @@ function toggleNav() {
         nav.style.left = '0px';
     }
 }
+
+
+function toggleUserInfo() {
+    // const userInfo = document.querySelector('.user-info-modal');
+    // Toggle the display property for the user info modal
+    console.log("User info modal toggled");
+}
+
 
 function mark_active_link(e) {
     if (e.target.style.textDecoration === 'underline') {
@@ -71,6 +79,16 @@ function loadConfigAndInit(user_type) {
 }
 
 
+function get_data_from_api(apiUrl) {
+    return fetch(apiUrl)
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error fetching API data:', error);
+            return null;
+        });
+}
+
+
 function navbar_click(e, user_type){
     if (user_type === USER_TYPES.Admin){
         let page = e.target.textContent;
@@ -85,21 +103,24 @@ function navbar_click(e, user_type){
         const control_bar = document.querySelector('.controls')
         make_control_bar(control_bar, page);
 
-        const tableWrapper = document.querySelector('.table-wrapper');
-        tableWrapper.innerHTML = ''; // clear the table wrapper
-        createTable(config[page]['table'], tableWrapper);
-
-        // add data from api into the table
         const apiUrl = e.target.dataset.apiurl;
-        addDataToTable(config[page]['table'], tableWrapper, apiUrl);
+        get_data_from_api(apiUrl).then(api_result => {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            tableWrapper.innerHTML = ''; // clear the table wrapper
+            createTable(config[page]['table'], tableWrapper);
 
-        const pagination = document.querySelector('.pagination-container');
-        if (config[page]['pagination']) {
-            make_pagination(pagination, page);
-        }
-        else{
-            pagination.innerHTML = ''; // clear pagination if not needed
-        }
+            // add data from api into the table
+            addDataToTable(config[page]['table'], tableWrapper, api_result);
+
+            const pagination = document.querySelector('.pagination-container');
+            if (config[page]['pagination']) {
+                make_pagination(pagination, page, api_result.pagination);
+            }
+            else{
+                pagination.innerHTML = ''; // clear pagination if not needed
+            }
+        });
+
     }
     mark_active_link(e);
 }

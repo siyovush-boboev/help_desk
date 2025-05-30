@@ -77,6 +77,12 @@ header {
     justify-content: flex-end;
 }
 
+.user-info-clickable {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
 .user-text {
     width: 200px;
     text-align: right;
@@ -157,7 +163,7 @@ svg {
 .dropdown-container a,
 .dropdown-container div {
     margin: 0;
-    padding: 4px 0;
+    padding: 6px 0;
     line-height: normal;
     vertical-align: middle;
 }
