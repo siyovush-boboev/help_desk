@@ -6,7 +6,7 @@
         <img src="/assets/img/header-logo.png" alt="Company Logo" />
     </div>
     <div class="user-info">
-        <div class="user-info-clickable" onclick="toggleUserInfo()">
+        <div class="user-info-clickable" onclick="toggleModal('user_info_modal')">
             <div class="user-text">
                 <h4>Admin LastName</h4>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
@@ -15,5 +15,8 @@
                 <img width="30" height="30" src="/assets/img/person.svg" alt="User Avatar" class="rounded-circle user-logo" />
             </div>
         </div>
+    </div>
+    <div class="modal" style="display: none;" onclick="toggleModal()">
+        <div class="modal-content"></div>
     </div>
 </header>

@@ -36,10 +36,22 @@ function toggleNav() {
 }
 
 
-function toggleUserInfo() {
-    // const userInfo = document.querySelector('.user-info-modal');
-    // Toggle the display property for the user info modal
-    console.log("User info modal toggled");
+function toggleModal(window_name, ...params) {
+    const main_modal = document.querySelector('.modal');
+    if (main_modal.style.display === 'flex' && !window_name) {
+        main_modal.style.display = 'none';
+        main_modal.className = 'modal';
+    }
+    else if (window_name){
+        const modal_window_content = window[window_name](...params);
+        main_modal.innerHTML = '';
+        while (modal_window_content.firstChild) {
+            main_modal.appendChild(modal_window_content.firstChild);
+        }
+        main_modal.style.justifyContent = window_name === 'user_info_modal' ? 'flex-end' : "center";
+        main_modal.style.alignItems = window_name === 'user_info_modal' ? 'flex-start' : "center";
+        main_modal.style.display = 'flex';
+    }
 }
 
 
@@ -114,7 +126,7 @@ function navbar_click(e, user_type){
 
             const pagination = document.querySelector('.pagination-container');
             if (config[page]['pagination']) {
-                make_pagination(pagination, page, api_result.pagination);
+                make_pagination(pagination, api_result.pagination);
             }
             else{
                 pagination.innerHTML = ''; // clear pagination if not needed

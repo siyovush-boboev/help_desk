@@ -23,7 +23,7 @@ function make_control_bar(container, page) {
             searchContainer.querySelector("#clear-button").style.display = "inline-flex";
             if (e.key === "Enter") {
                 console.log(`Searching for: ${input.value}`);
-                // implement search functionality here
+                // #TODO: implement search functionality here
                 // For now, just log the search term
             }
         });
@@ -50,14 +50,12 @@ function make_control_bar(container, page) {
             if (checkboxes.length === 0) {
                 return;
             }
+            const rows_to_delete = [];
             checkboxes.forEach(checkbox => {
                 const row = checkbox.closest("tr");
-                if (row) {
-                    console.log(`Удаление строки: ${row.textContent}`);
-                    row.remove(); // Remove the row from the DOM
-                    // #TODO: remove the row from the table thru API later
-                }
+                rows_to_delete.push(row);
             });
+            delete_form(...rows_to_delete);
         });
     }
     if (config[page]["filter_button"]) {
@@ -99,7 +97,7 @@ function make_control_bar(container, page) {
         button.innerHTML = `<span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12H16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>&nbsp;Создать`;
         // output a message to console when user clicks the create button
         button.addEventListener("click", () => {
-            console.log("Создать нажато");
+          edit_or_create_form()
             // #TODO: Implement create functionality here
             // For now, just log the action
         });
@@ -126,7 +124,8 @@ function createTable(tableConfig, tableWrapper) {
         th.innerHTML = `<input type="checkbox" id="select-all" title="Выбрать все">`;
         th.style.cursor = "pointer"; // Change cursor to pointer for checkbox column
         th.addEventListener("click", function() {
-            const checkboxes = table.querySelectorAll("tbody input[type='checkbox']");
+            // select only visible checkboxes in the table (exclude hidden rows that have "Закрыто" status)
+            const checkboxes = Array.from(table.querySelectorAll("tbody input[type='checkbox']")).filter(cb => cb.offsetParent !== null);
             const selectAllCheckbox = document.getElementById("select-all");
             checkboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
@@ -196,6 +195,7 @@ function addDataToTable(tableConfig, tableWrapper, data) {
         }
         tableConfig.columns.forEach(colName => {
             const td = document.createElement("td");
+            td.setAttribute("data-column", colName);
             if (colName === "CHECKMARK") {
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
@@ -220,17 +220,14 @@ function addDataToTable(tableConfig, tableWrapper, data) {
                   </button>
                 `;
                 // Add onclick for delete button
-                actions.querySelector('#table-delete-button').onclick = function(e) {
+                actions.querySelector('#table-delete-button').onclick = function() {
                   const row = actions.closest('tr');
-                  if (row) {
-                    row.remove();
-                    // #TODO: remove thru API later
-                  }
+                  delete_form(row);
                 };
                 // Add onclick for edit button
-                actions.querySelector('#table-edit-button').onclick = function(e) {
-                  console.log('Edit button clicked for row:', actions.closest('tr').textContent);
-                  // #TODO: Implement edit functionality here (show a modal or form to edit the row data)
+                actions.querySelector('#table-edit-button').onclick = function() {
+                  const row = actions.closest('tr');
+                  edit_or_create_form(row);
                 };
                 td.appendChild(actions);
             } else if (colName === "Всего") {
@@ -273,7 +270,7 @@ function addDataToTable(tableConfig, tableWrapper, data) {
 }
 
 
-function make_pagination(container, page, pagination) {
+function make_pagination(container, pagination) {
     // Clear previous content
     container.innerHTML = '';
 
@@ -370,4 +367,101 @@ function make_pagination(container, page, pagination) {
     // Append both divs to the container
     container.appendChild(infoDiv);
     container.appendChild(navDiv);
+}
+
+
+function user_info_modal() {
+        // Create modal container
+        const modal = document.createElement('div');
+        modal.className = 'user_info_modal';
+
+        // Close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'user-info-close-button';
+
+        // SVG for close button
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '20');
+        svg.setAttribute('height', '20');
+        svg.setAttribute('viewBox', '0 0 20 20');
+
+        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line1.setAttribute('x1', '4');
+        line1.setAttribute('y1', '4');
+        line1.setAttribute('x2', '16');
+        line1.setAttribute('y2', '16');
+        line1.setAttribute('stroke', 'white');
+        line1.setAttribute('stroke-width', '2');
+
+        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line2.setAttribute('x1', '16');
+        line2.setAttribute('y1', '4');
+        line2.setAttribute('x2', '4');
+        line2.setAttribute('y2', '16');
+        line2.setAttribute('stroke', 'white');
+        line2.setAttribute('stroke-width', '2');
+
+        svg.appendChild(line1);
+        svg.appendChild(line2);
+        closeButton.appendChild(svg);
+
+        // Modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'user-info-modal-content';
+        // add onclick that calls toggleModal with 'prevent' argument
+        modalContent.onclick = (e) => e.stopPropagation();
+
+        // Title
+        const title = document.createElement('div');
+        title.textContent = 'Контактная информация';
+
+        // Main content
+        const mainContent = document.createElement('div');
+        mainContent.className = 'user-info-main-content';
+
+        // User picture
+        const picDiv = document.createElement('div');
+        picDiv.className = 'user-full-size-pic';
+        const img = document.createElement('img');
+        img.src = '';
+        picDiv.appendChild(img);
+
+        // User text info
+        const textInfo = document.createElement('div');
+        textInfo.className = 'user-text-info';
+
+        // Helper to create label and p
+        function createInfoBlock(forId, labelText, value) {
+            const div = document.createElement('div');
+            const label = document.createElement('label');
+            label.setAttribute('for', forId);
+            label.textContent = labelText;
+            const p = document.createElement('p');
+            p.id = forId;
+            p.textContent = value;
+            div.appendChild(label);
+            div.appendChild(p);
+            return div;
+        }
+
+        textInfo.appendChild(createInfoBlock('last_name', 'Фамилия', 'Мукумов'));
+        textInfo.appendChild(createInfoBlock('first_name', 'Имя', 'Джамшед'));
+        textInfo.appendChild(createInfoBlock('middle_name', 'Отчество', 'Мазбутович'));
+        textInfo.appendChild(createInfoBlock('email', 'Email', 'jamshed@arv.tj'));
+        textInfo.appendChild(createInfoBlock('phone', 'Телефон', '+992 92 123 45 67'));
+        textInfo.appendChild(createInfoBlock('birth_date', 'Дата рождения', '5 Dec 1984'));
+        textInfo.appendChild(createInfoBlock('position', 'Должность', 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, ipsum.'));
+        textInfo.appendChild(createInfoBlock('department', 'Подразделение', 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, ipsum.'));
+
+        mainContent.appendChild(picDiv);
+        mainContent.appendChild(textInfo);
+
+        modalContent.appendChild(title);
+        modalContent.appendChild(mainContent);
+
+        modal.appendChild(closeButton);
+        modal.appendChild(modalContent);
+
+        // Append modal to body or desired parent
+        return modal;
 }
