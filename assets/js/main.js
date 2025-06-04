@@ -6,11 +6,12 @@ const USER_TYPES = {
 }
 const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
 
-let user_type = document.getElementById('user_type').textContent.trim().toLowerCase();
-let config = loadConfigAndInit(user_type);
-if (!config) {
-    console.error(`Failed to load configuration for ${user_type} user type.`);
+const USER_TYPE = document.getElementById('user_type').textContent.trim().toLowerCase();
+const CONFIG = loadConfigAndInit(USER_TYPE);
+if (!CONFIG) {
+    console.error(`Failed to load CONFIGuration for ${USER_TYPE} user type.`);
 }
+let page_data = {}; // global variable to store data for the current page
 
 function toggleDropdown(second=null) {
     const dropdown = document.querySelector('.dropdown-container' + (second !== null ? "2" : ''));
@@ -83,10 +84,10 @@ function loadConfigAndInit(user_type) {
     if (xhr.status === 200) {
         return JSON.parse(xhr.responseText);
     } else {
-        throw new Error('Failed to load config');
+        throw new Error('Failed to load CONFIG');
     }
   } catch (err) {
-    console.error(`Error loading ${user_type} config:`, err);
+    console.error(`Error loading ${user_type} CONFIG:`, err);
   }
 }
 
@@ -104,28 +105,53 @@ function get_data_from_api(apiUrl) {
 function navbar_click(e, user_type){
     if (user_type === USER_TYPES.Admin){
         let page = e.target.textContent;
-        // if page not in config, return
-        if (!(page in config)) {
+        // if page not in CONFIG, return
+        if (!(page in CONFIG)) {
             console.error(`Page "${page}" not found in configuration.`);
             return;
         }
-        const breadcrumbs = make_breadcrumb(config[page]["breadcrumbs"]);
+
+        let preload_fields = CONFIG[page]["load_form_options"];
+        if (preload_fields && preload_fields.length > 0) {
+            CONFIG[page]["load_form_options"].forEach(field => {
+                if (!(field in CONFIG)) {
+                    console.error(`Field "${field}" not found in configuration for preload.`);
+                    return;
+                }
+                fetch(CONFIG[field]["API_route"]).then(response => response.json())
+                .then(data => {
+                    const extracted_values = data.result.map(obj => {
+                    // find the key that contains "наименование" (case-insensitive)
+                    const key = Object.keys(obj).find(k => k.toLowerCase().includes("наименование"));
+                    return key ? obj[key] : null;
+                    }).filter(val => val !== null);
+
+                    page_data[field] = extracted_values;
+                })
+            });
+        }
+        const breadcrumbs = make_breadcrumb(CONFIG[page]["breadcrumbs"]);
         document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
 
         const control_bar = document.querySelector('.controls')
         make_control_bar(control_bar, page);
 
-        const apiUrl = e.target.dataset.apiurl;
+        const apiUrl = CONFIG[page]['API_route'];
         get_data_from_api(apiUrl).then(api_result => {
+            page_data["t-rows"] = []; // initialize t-rows for the page
+            api_result.result.forEach((item) => {
+                page_data["t-rows"].push(item);
+            });
+
             const tableWrapper = document.querySelector('.table-wrapper');
             tableWrapper.innerHTML = ''; // clear the table wrapper
-            createTable(config[page]['table'], tableWrapper);
+            createTable(CONFIG[page]['table'], tableWrapper);
 
             // add data from api into the table
-            addDataToTable(config[page]['table'], tableWrapper, api_result);
+            addDataToTable(CONFIG[page]['table'], tableWrapper, api_result);
 
             const pagination = document.querySelector('.pagination-container');
-            if (config[page]['pagination']) {
+            if (CONFIG[page]['pagination']) {
                 make_pagination(pagination, api_result.pagination);
             }
             else{

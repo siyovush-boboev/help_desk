@@ -1,9 +1,10 @@
 {
 	"Главная": {
+		"API_route": "/api/main",
 		"breadcrumbs": "Главная",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": true,
+		"filters": true,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -16,16 +17,19 @@
 				"Всего"
 			],
 			"rows": [
-				"Всего",
-				"DEFAULT"
+				"Всего"
 			]
 		}
 	},
 	"Заявки": {
+		"API_route": "/api/applications",
 		"breadcrumbs": "Главная/Заявки",
 		"searchbar": true,
 		"delete_button": true,
-		"filter_button": true,
+		"filters": [
+			"Статус",
+			"Приоритет"
+		],
 		"show_hide_button": true,
 		"create_button": true,
 		"pagination": true,
@@ -40,17 +44,40 @@
 				"Дата заявителя",
 				"Исполнитель",
 				"Дата исполнителя"
-			],
-			"rows": [
-				"DEFAULT"
 			]
-		}
+		},
+		"form_fields": {
+			"Наименование заявки": "text",
+			"Департаменты": "select",
+			"Отделы": "select",
+			"Статусы": "select",
+			"Приоритеты": "select",
+			"Срок": "date",
+			"Филиалы": "select",
+			"Офисы ЦБО": "select",
+			"Банкоматы": "select",
+			"Адрес": "text",
+			"Комментарий": "textarea"
+		},
+		"load_form_options": [
+			"Статусы",
+			"Приоритеты",
+			"Департаменты",
+			"Отделы",
+			"Филиалы",
+			"Офисы ЦБО",
+			"Оборудование"
+		]
 	},
 	"Пользователи": {
+		"API_route": "/api/users",
 		"breadcrumbs": "Пользователи",
 		"searchbar": true,
 		"delete_button": true,
-		"filter_button": true,
+		"filters": [
+			"Департаменты",
+			"Роли"
+		],
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": true,
@@ -59,22 +86,38 @@
 				"CHECKMARK",
 				"Имя",
 				"Логин",
-				"Подразделение",
-				"Системная Роль",
+				"Департаменты",
+				"Роли",
 				"Телефон",
 				"E-mail",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
-		}
+		},
+		"form_fields": {
+			"Имя": "text",
+			"Фамилия": "text",
+			"Отчество": "text",
+			"Департаменты": "select",
+			"Отделы": "select",
+			"Логин": "text",
+			"Телефон": "text",
+			"E-mail": "email",
+			"Роли": "select",
+			"Фото": "file",
+			"Должность": "text"
+		},
+		"load_form_options": [
+			"Департаменты",
+			"Отделы",
+			"Роли"
+		]
 	},
 	"Статусы": {
+		"API_route": "/api/handbook/statuses",
 		"breadcrumbs": "Справочник/Статусы",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -85,17 +128,15 @@
 				"Наименование",
 				"Тип",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Приоритеты": {
+		"API_route": "/api/handbook/priorities",
 		"breadcrumbs": "Справочник/Приоритеты",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -106,17 +147,15 @@
 				"Наименование",
 				"Тип",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Департаменты": {
+		"API_route": "/api/handbook/departments",
 		"breadcrumbs": "Справочник/Департаменты",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -125,17 +164,15 @@
 				"№",
 				"Наименование",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Отделы": {
+		"API_route": "/api/handbook/divisions",
 		"breadcrumbs": "Справочник/Список Отделов",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -144,17 +181,15 @@
 				"№",
 				"Наименование",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Филиалы": {
+		"API_route": "/api/handbook/branches",
 		"breadcrumbs": "Справочник/Список Филиалов",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -168,17 +203,15 @@
 				"Короткое наименование",
 				"Статус",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Офисы ЦБО": {
+		"API_route": "/api/handbook/cbo-offices",
 		"breadcrumbs": "Справочник/Список ЦБО",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -191,17 +224,15 @@
 				"Филиал",
 				"Статус",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Роли": {
+		"API_route": "/api/handbook/roles",
 		"breadcrumbs": "Справочник/Роли",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -211,17 +242,15 @@
 				"Наименование",
 				"Описание",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Привелигии": {
+		"API_route": "/api/handbook/priveleges",
 		"breadcrumbs": "Справочник/Привелигии",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -231,17 +260,15 @@
 				"Наименование",
 				"Описание",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Банкоматы": {
+		"API_route": "/api/equipments/atms",
 		"breadcrumbs": "Справочник/Оборудования/Банкоматы",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -250,21 +277,19 @@
 				"№",
 				"Номер банкомата",
 				"Филиал",
-				"Подразделение",
+				"Департаменты",
 				"Адрес банкомата",
 				"Тип оборудования",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Терминалы": {
+		"API_route": "/api/equipments/terminals",
 		"breadcrumbs": "Справочник/Оборудования/Терминалы",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -273,21 +298,19 @@
 				"№",
 				"Номер банкомата",
 				"Филиал",
-				"Подразделение",
+				"Департаменты",
 				"Адрес банкомата",
 				"Тип оборудования",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"Пос-терминалы": {
+		"API_route": "/api/equipments/pos-terminals",
 		"breadcrumbs": "Справочник/Оборудования/Пос-терминалы",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -296,21 +319,19 @@
 				"№",
 				"Номер банкомата",
 				"Филиал",
-				"Подразделение",
+				"Департаменты",
 				"Адрес банкомата",
 				"Тип оборудования",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	},
 	"ЦО+ЭО": {
+		"API_route": "/api/equipments/co-eos",
 		"breadcrumbs": "Справочник/Оборудования/ЦО+ЭО",
 		"searchbar": true,
 		"delete_button": false,
-		"filter_button": false,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -319,13 +340,10 @@
 				"№",
 				"Номер банкомата",
 				"Филиал",
-				"Подразделение",
+				"Департаменты",
 				"Адрес банкомата",
 				"Тип оборудования",
 				"Действия"
-			],
-			"rows": [
-				"DEFAULT"
 			]
 		}
 	}
