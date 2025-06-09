@@ -38,6 +38,10 @@ function toggleNav() {
 
 
 function toggleModal(window_name, ...params) {
+    const form = document.querySelector("#editForm");
+    if (form)
+        form.remove();
+
     const main_modal = document.querySelector('.modal');
     if (main_modal.style.display === 'flex' && !window_name) {
         main_modal.style.display = 'none';
@@ -120,13 +124,11 @@ function navbar_click(e, user_type){
                 }
                 fetch(CONFIG[field]["API_route"]).then(response => response.json())
                 .then(data => {
-                    const extracted_values = data.result.map(obj => {
-                    // find the key that contains "наименование" (case-insensitive)
-                    const key = Object.keys(obj).find(k => k.toLowerCase().includes("наименование"));
-                    return key ? obj[key] : null;
-                    }).filter(val => val !== null);
-
-                    page_data[field] = extracted_values;
+                    const extracted_values = {};
+                    data.result.forEach(obj => {
+                        extracted_values[obj["id"]] = obj;
+                    });
+                    page_data[CONFIG[field]["singular"]] = extracted_values;
                 })
             });
         }
@@ -148,7 +150,7 @@ function navbar_click(e, user_type){
             createTable(CONFIG[page]['table'], tableWrapper);
 
             // add data from api into the table
-            addDataToTable(CONFIG[page]['table'], tableWrapper, api_result);
+            addDataToTable(CONFIG[page]['table'], tableWrapper, api_result, page);
 
             const pagination = document.querySelector('.pagination-container');
             if (CONFIG[page]['pagination']) {

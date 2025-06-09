@@ -1,6 +1,7 @@
 {
 	"Главная": {
-		"API_route": "/api/main",
+		"singular": "Главная",
+		"API_route": "/api/v1/main",
 		"breadcrumbs": "Главная",
 		"searchbar": true,
 		"delete_button": false,
@@ -9,20 +10,21 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Открыто",
-				"Закрыто",
-				"Всего"
-			],
+			"columns": {
+				"№": "",
+				"Наименование": "Наименование",
+				"Открыто": "Открыто",
+				"Закрыто": "Закрыто",
+				"Всего": ""
+			},
 			"rows": [
 				"Всего"
 			]
 		}
 	},
 	"Заявки": {
-		"API_route": "/api/applications",
+		"singular": "Заявка",
+		"API_route": "/api/v1/order",
 		"breadcrumbs": "Главная/Заявки",
 		"searchbar": true,
 		"delete_button": true,
@@ -34,43 +36,82 @@
 		"create_button": true,
 		"pagination": true,
 		"table": {
-			"columns": [
-				"CHECKMARK",
-				"№",
-				"Статус",
-				"Приоритет",
-				"Наименование заявки",
-				"Заявитель",
-				"Дата заявителя",
-				"Исполнитель",
-				"Дата исполнителя"
-			]
+			"columns": {
+				"CHECKMARK": null,
+				"№": "id",
+				"Статус": "status_id",
+				"Приоритет": "priority_id",
+				"Наименование заявки": "name",
+				"Заявитель": "user_id",
+				"Дата заявителя": "created_at",
+				"Исполнитель": "",
+				"Дата исполнителя": ""
+			}
 		},
 		"form_fields": {
-			"Наименование заявки": "text",
-			"Департаменты": "select",
-			"Отделы": "select",
-			"Статусы": "select",
-			"Приоритеты": "select",
-			"Срок": "date",
-			"Филиалы": "select",
-			"Офисы ЦБО": "select",
-			"Банкоматы": "select",
-			"Адрес": "text",
-			"Комментарий": "textarea"
+			"Наименование заявки": [
+				"name",
+				"text"
+			],
+			"Департамент": [
+				"department_id",
+				"select"
+			],
+			"Отдел": [
+				"otdel_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select"
+			],
+			"Приоритет": [
+				"priority_id",
+				"select"
+			],
+			"Срок": [
+				"duration",
+				"datetime-local"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Оборудование": [
+				"equipment_id",
+				"select"
+			],
+			"Исполнитель": [
+				"user_id",
+				"select"
+			],
+			"Адрес": [
+				"address",
+				"text"
+			],
+			"Комментарий": [
+				"comment",
+				"textarea"
+			]
 		},
 		"load_form_options": [
-			"Статусы",
-			"Приоритеты",
 			"Департаменты",
 			"Отделы",
+			"Статусы",
+			"Приоритеты",
 			"Филиалы",
 			"Офисы ЦБО",
-			"Оборудование"
+			"Оборудования",
+			"Пользователи"
 		]
 	},
 	"Пользователи": {
-		"API_route": "/api/users",
+		"singular": "Пользователь",
+		"API_route": "/api/v1/user",
 		"breadcrumbs": "Пользователи",
 		"searchbar": true,
 		"delete_button": true,
@@ -82,38 +123,74 @@
 		"create_button": true,
 		"pagination": true,
 		"table": {
-			"columns": [
-				"CHECKMARK",
-				"Имя",
-				"Логин",
-				"Департаменты",
-				"Роли",
-				"Телефон",
-				"E-mail",
-				"Действия"
-			]
+			"columns": {
+				"CHECKMARK": null,
+				"Имя": "fio",
+				"Департамент": "department_id",
+				"Отдел": "otdel_id",
+				"Роль": "role_id",
+				"Телефон": "phoneNumber",
+				"E-mail": "email",
+				"Действия": null
+			}
 		},
 		"form_fields": {
-			"Имя": "text",
-			"Фамилия": "text",
-			"Отчество": "text",
-			"Департаменты": "select",
-			"Отделы": "select",
-			"Логин": "text",
-			"Телефон": "text",
-			"E-mail": "email",
-			"Роли": "select",
-			"Фото": "file",
-			"Должность": "text"
+			"Имя": [
+				"fio",
+				"text"
+			],
+			"Департамент": [
+				"department_id",
+				"select"
+			],
+			"Отдел": [
+				"otdel_id",
+				"select"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Логин": [
+				null,
+				"text"
+			],
+			"Телефон": [
+				"phoneNumber",
+				"text"
+			],
+			"E-mail": [
+				"email",
+				"email"
+			],
+			"Роль": [
+				"role_id",
+				"select"
+			],
+			"Фото": [
+				"photo",
+				"file"
+			],
+			"Должность": [
+				"position",
+				"text"
+			]
 		},
 		"load_form_options": [
 			"Департаменты",
 			"Отделы",
+			"Филиалы",
+			"Офисы ЦБО",
 			"Роли"
 		]
 	},
 	"Статусы": {
-		"API_route": "/api/handbook/statuses",
+		"singular": "Статус",
+		"API_route": "/api/v1/status",
 		"breadcrumbs": "Справочник/Статусы",
 		"searchbar": true,
 		"delete_button": false,
@@ -122,17 +199,32 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Иконка",
-				"Наименование",
-				"Тип",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Иконка": "icon",
+				"Наименование": "name",
+				"Тип": "type",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Иконка": [
+				"icon",
+				"file"
+			],
+			"Тип": [
+				"type",
+				"number"
 			]
 		}
 	},
 	"Приоритеты": {
-		"API_route": "/api/handbook/priorities",
+		"singular": "Приоритет",
+		"API_route": "/api/v1/priority",
 		"breadcrumbs": "Справочник/Приоритеты",
 		"searchbar": true,
 		"delete_button": false,
@@ -141,17 +233,32 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Иконка",
-				"Наименование",
-				"Тип",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Иконка": "icon",
+				"Наименование": "name",
+				"Тип": "rate",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Иконка": [
+				"icon",
+				"file"
+			],
+			"Тип": [
+				"rate",
+				"number"
 			]
 		}
 	},
 	"Департаменты": {
-		"API_route": "/api/handbook/departments",
+		"singular": "Департамент",
+		"API_route": "/api/v1/department",
 		"breadcrumbs": "Справочник/Департаменты",
 		"searchbar": true,
 		"delete_button": false,
@@ -160,15 +267,33 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
 		}
 	},
 	"Отделы": {
-		"API_route": "/api/handbook/divisions",
+		"singular": "Отдел",
+		"API_route": "/api/v1/otdel",
 		"breadcrumbs": "Справочник/Список Отделов",
 		"searchbar": true,
 		"delete_button": false,
@@ -177,15 +302,45 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Департамент": "department_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Департамент": [
+				"department_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
+			],
+			"Описание": [
+				"description",
+				"textarea"
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Филиалы": {
-		"API_route": "/api/handbook/branches",
+		"singular": "Филиал",
+		"API_route": "/api/v1/branch",
 		"breadcrumbs": "Справочник/Список Филиалов",
 		"searchbar": true,
 		"delete_button": false,
@@ -194,20 +349,63 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Адрес",
-				"Дата открытия",
-				"Почтовый индекс",
-				"Короткое наименование",
-				"Статус",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Адрес": "address",
+				"Дата открытия": "openDate",
+				"Почтовый адресс": "email",
+				"Телефон": "phoneNumber",
+				"Почтовый индекс": "mailing_index",
+				"Короткое наименование": "shortName",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Адрес": [
+				"address",
+				"text"
+			],
+			"Дата открытия": [
+				"openDate",
+				"date"
+			],
+			"Почтовый адрес": [
+				"email",
+				"email"
+			],
+			"Телефон": [
+				"phoneNumber",
+				"text"
+			],
+			"Почтовый индекс": [
+				"mailing_index",
+				"number"
+			],
+			"Короткое наименование": [
+				"shortName",
+				"text"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
 		}
 	},
 	"Офисы ЦБО": {
-		"API_route": "/api/handbook/cbo-offices",
+		"singular": "Офис ЦБО",
+		"API_route": "/api/v1/office",
 		"breadcrumbs": "Справочник/Список ЦБО",
 		"searchbar": true,
 		"delete_button": false,
@@ -216,19 +414,51 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Адрес",
-				"Дата открытия",
-				"Филиал",
-				"Статус",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Адрес": "address",
+				"Дата открытия": "openDate",
+				"Филиал": "branch_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Адрес": [
+				"address",
+				"text"
+			],
+			"Дата открытия": [
+				"openDate",
+				"date"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Филиалы"
+		]
 	},
 	"Роли": {
-		"API_route": "/api/handbook/roles",
+		"singular": "Роль",
+		"API_route": "/api/v1/role",
 		"breadcrumbs": "Справочник/Роли",
 		"searchbar": true,
 		"delete_button": false,
@@ -237,16 +467,34 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Описание",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Описание": "description",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Описание": [
+				"description",
+				"textarea"
+			],
+			"Привелигии": [
+				"privileges",
+				"select"
 			]
-		}
+		},
+		"load_form_options": [
+			"Привелигии"
+		]
 	},
 	"Привелигии": {
-		"API_route": "/api/handbook/priveleges",
+		"singular": "Привелигия",
+		"API_route": "/api/v1/permission",
 		"breadcrumbs": "Справочник/Привелигии",
 		"searchbar": true,
 		"delete_button": false,
@@ -255,16 +503,55 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Наименование",
-				"Описание",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Описание": "description",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Описание": [
+				"description",
+				"textarea"
+			]
+		}
+	},
+	"Оборудования": {
+		"singular": "Оборудование",
+		"API_route": "/api/v1/equipment_type",
+		"breadcrumbs": "Справочник/Оборудования",
+		"searchbar": true,
+		"delete_button": false,
+		"filters": false,
+		"show_hide_button": false,
+		"create_button": true,
+		"pagination": false,
+		"table": {
+			"columns": {
+				"№": "id",
+				"Наименование": "name",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Наименование": [
+				"name",
+				"text"
+			],
+			"Описание": [
+				"description",
+				"textarea"
 			]
 		}
 	},
 	"Банкоматы": {
-		"API_route": "/api/equipments/atms",
+		"singular": "Банкомат",
+		"API_route": "/api/v1/equipment?equipment_type=1",
 		"breadcrumbs": "Справочник/Оборудования/Банкоматы",
 		"searchbar": true,
 		"delete_button": false,
@@ -273,19 +560,59 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Номер банкомата",
-				"Филиал",
-				"Департаменты",
-				"Адрес банкомата",
-				"Тип оборудования",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Номер банкомата": "name",
+				"Филиал": "branch_id",
+				"Офис ЦБО": "office_id",
+				"Адрес банкомата": "address",
+				"Оборудование": "type_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Номер банкомата": [
+				"name",
+				"text"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Адрес банкомата": [
+				"address",
+				"text"
+			],
+			"Оборудование": [
+				"type_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Филиалы",
+			"Департаменты",
+			"Офисы ЦБО",
+			"Оборудования"
+		]
 	},
 	"Терминалы": {
-		"API_route": "/api/equipments/terminals",
+		"singular": "Терминал",
+		"API_route": "/api/v1/equipments?equipment_type=2",
 		"breadcrumbs": "Справочник/Оборудования/Терминалы",
 		"searchbar": true,
 		"delete_button": false,
@@ -294,20 +621,60 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Номер банкомата",
-				"Филиал",
-				"Департаменты",
-				"Адрес банкомата",
-				"Тип оборудования",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Номер терминала": "name",
+				"Филиал": "branch_id",
+				"Офис ЦБО": "office_id",
+				"Адрес терминала": "address",
+				"Оборудование": "type_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Номер терминала": [
+				"name",
+				"text"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Адрес терминала": [
+				"address",
+				"text"
+			],
+			"Оборудование": [
+				"type_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Филиалы",
+			"Департаменты",
+			"Офисы ЦБО",
+			"Оборудования"
+		]
 	},
-	"Пос-терминалы": {
-		"API_route": "/api/equipments/pos-terminals",
-		"breadcrumbs": "Справочник/Оборудования/Пос-терминалы",
+	"POS-терминалы": {
+		"singular": "POS-терминал",
+		"API_route": "/api/v1/equipments?equipment_type=3",
+		"breadcrumbs": "Справочник/Оборудования/POS-терминалы",
 		"searchbar": true,
 		"delete_button": false,
 		"filters": false,
@@ -315,19 +682,59 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Номер банкомата",
-				"Филиал",
-				"Департаменты",
-				"Адрес банкомата",
-				"Тип оборудования",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Номер POS-терминала": "name",
+				"Филиал": "branch_id",
+				"Офис ЦБО": "office_id",
+				"Адрес POS-терминала": "address",
+				"Оборудование": "type_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Номер терминала": [
+				"name",
+				"text"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Адрес терминала": [
+				"address",
+				"text"
+			],
+			"Оборудование": [
+				"type_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Филиалы",
+			"Департаменты",
+			"Офисы ЦБО",
+			"Оборудования"
+		]
 	},
 	"ЦО+ЭО": {
-		"API_route": "/api/equipments/co-eos",
+		"singular": "ЦО+ЭО",
+		"API_route": "/api/v1/equipments?equipment_type=4",
 		"breadcrumbs": "Справочник/Оборудования/ЦО+ЭО",
 		"searchbar": true,
 		"delete_button": false,
@@ -336,15 +743,53 @@
 		"create_button": true,
 		"pagination": false,
 		"table": {
-			"columns": [
-				"№",
-				"Номер банкомата",
-				"Филиал",
-				"Департаменты",
-				"Адрес банкомата",
-				"Тип оборудования",
-				"Действия"
+			"columns": {
+				"№": "id",
+				"Номер банкомата": "name",
+				"Филиал": "branch_id",
+				"Офис ЦБО": "office_id",
+				"Адрес банкомата": "address",
+				"Оборудование": "type_id",
+				"Статус": "status_id",
+				"Действия": null
+			}
+		},
+		"form_fields": {
+			"Номер терминала": [
+				"name",
+				"text"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Адрес терминала": [
+				"address",
+				"text"
+			],
+			"Оборудование": [
+				"type_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select",
+				{
+					"options": [
+						"Неактивен",
+						"Активен"
+					]
+				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Филиалы",
+			"Офисы ЦБО",
+			"Оборудования"
+		]
 	}
 }

@@ -325,6 +325,7 @@ button[type="submit"] {
     padding: 0;
     display: inline-flex;
     min-width: auto;
+    min-height: 20px;
     /* shift it to the left to fit inside the searchbar */
     margin-left: -30px;
     box-shadow: none;
@@ -554,7 +555,7 @@ button[type="submit"] {
 #editForm textarea {
     padding: 8px;
     margin: 6px 0;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     border-radius: 4px;
     min-width: 200px;
     color: #000;
@@ -637,9 +638,5 @@ button[type="submit"] {
 
     .user-info-modal-content>div:first-child {
         padding-bottom: 8px;
-    }
-
-    .modal-content {
-        margin: 0 8px;
     }
 }
