@@ -64,8 +64,7 @@ function make_control_bar(container, page) {
         container.appendChild(button);
         // output a message to console when user clicks the filter button
         button.addEventListener("click", () => {
-            console.log("Фильтры нажаты");
-            // #TODO: Implement filter functionality here
+            filter_form();
         });
     }
     if (CONFIG[page]["show_hide_button"]) {
@@ -388,6 +387,11 @@ function make_pagination(container, pagination) {
 
 
 function user_info_modal(user_id) {
+    const apiUrl = `${CONFIG["Пользователи"]["API_route"]}/${1}`;
+  
+    // fetch user data by user_id
+    return get_data_from_api(apiUrl).then(user_data => {
+
         // Create modal container
         const modal = document.createElement('div');
         modal.className = 'user_info_modal';
@@ -396,31 +400,13 @@ function user_info_modal(user_id) {
         const closeButton = document.createElement('button');
         closeButton.className = 'user-info-close-button';
 
-        // SVG for close button
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '20');
-        svg.setAttribute('height', '20');
-        svg.setAttribute('viewBox', '0 0 20 20');
-
-        const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line1.setAttribute('x1', '4');
-        line1.setAttribute('y1', '4');
-        line1.setAttribute('x2', '16');
-        line1.setAttribute('y2', '16');
-        line1.setAttribute('stroke', 'white');
-        line1.setAttribute('stroke-width', '2');
-
-        const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line2.setAttribute('x1', '16');
-        line2.setAttribute('y1', '4');
-        line2.setAttribute('x2', '4');
-        line2.setAttribute('y2', '16');
-        line2.setAttribute('stroke', 'white');
-        line2.setAttribute('stroke-width', '2');
-
-        svg.appendChild(line1);
-        svg.appendChild(line2);
-        closeButton.appendChild(svg);
+        // SVG for close button using innerHTML
+        closeButton.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 20 20">
+          <line x1="4" y1="4" x2="16" y2="16" stroke="white" stroke-width="2"/>
+          <line x1="16" y1="4" x2="4" y2="16" stroke="white" stroke-width="2"/>
+            </svg>
+        `;
 
         // Modal content
         const modalContent = document.createElement('div');
@@ -461,14 +447,22 @@ function user_info_modal(user_id) {
             return div;
         }
 
-        textInfo.appendChild(createInfoBlock('last_name', 'Фамилия', 'Мукумов'));
-        textInfo.appendChild(createInfoBlock('first_name', 'Имя', 'Джамшед'));
-        textInfo.appendChild(createInfoBlock('middle_name', 'Отчество', 'Мазбутович'));
-        textInfo.appendChild(createInfoBlock('email', 'Email', 'jamshed@arv.tj'));
-        textInfo.appendChild(createInfoBlock('phone', 'Телефон', '+992 92 123 45 67'));
-        textInfo.appendChild(createInfoBlock('birth_date', 'Дата рождения', '5 Dec 1984'));
-        textInfo.appendChild(createInfoBlock('position', 'Должность', 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, ipsum.'));
-        textInfo.appendChild(createInfoBlock('department', 'Подразделение', 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima, ipsum.'));
+        // Divide all parameters into 3 arrays by their order in the argument list
+        const arr1 = ['last_name', 'first_name', 'middle_name', 'email', 'phone', 'position', 'department'];
+        const arr2 = ['Фамилия', 'Имя', 'Отчество', 'E-mail', 'Телефон', 'Должность', 'Департамент'];
+        const arr3 = arr2.map(field_name => {
+            if (field_name in CONFIG["Пользователи"]["form_fields"]) {
+                const user_data_field = CONFIG["Пользователи"]["form_fields"][field_name][0];
+                return user_data.result[user_data_field] || '';
+            }
+        });
+        [arr3[0], arr3[1], arr3[2]] = arr3[1].split(" ");
+        arr3[6] = page_data["Департамент"][arr3[6]]["name"] || '';
+
+        // Loop through by index and append to textInfo
+        for (let i = 0; i < arr1.length; i++) {
+          textInfo.appendChild(createInfoBlock(arr1[i], arr2[i], arr3[i]));
+        }
 
         mainContent.appendChild(picDiv);
         mainContent.appendChild(textInfo);
@@ -481,4 +475,5 @@ function user_info_modal(user_id) {
 
         // Append modal to body or desired parent
         return modal;
+    });
 }

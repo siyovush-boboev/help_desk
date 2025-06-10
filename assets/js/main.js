@@ -5,13 +5,13 @@ const USER_TYPES = {
     Auditor: "auditor"
 }
 const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
-
 const USER_TYPE = document.getElementById('user_type').textContent.trim().toLowerCase();
 const CONFIG = loadConfigAndInit(USER_TYPE);
 if (!CONFIG) {
     console.error(`Failed to load CONFIGuration for ${USER_TYPE} user type.`);
 }
 let page_data = {}; // global variable to store data for the current page
+
 
 function toggleDropdown(second=null) {
     const dropdown = document.querySelector('.dropdown-container' + (second !== null ? "2" : ''));
@@ -37,6 +37,18 @@ function toggleNav() {
 }
 
 
+function show_modal(modal, window_name, modal_window_content) {
+    modal.innerHTML = '';
+    while (modal_window_content.firstChild) {
+        modal.appendChild(modal_window_content.firstChild);
+    }
+    modal.style.justifyContent = window_name === 'user_info_modal' ? 'flex-end' : "center";
+    modal.style.alignItems = window_name === 'user_info_modal' ? 'flex-start' : "center";
+    modal.style.display = 'flex';
+
+}
+
+
 function toggleModal(window_name, ...params) {
     const form = document.querySelector("#editForm");
     if (form)
@@ -48,14 +60,15 @@ function toggleModal(window_name, ...params) {
         main_modal.className = 'modal';
     }
     else if (window_name){
-        const modal_window_content = window[window_name](...params);
-        main_modal.innerHTML = '';
-        while (modal_window_content.firstChild) {
-            main_modal.appendChild(modal_window_content.firstChild);
+        if (window_name !== 'user_info_modal') {
+            const modal_window_content = window[window_name](...params);
+            show_modal(main_modal, window_name, modal_window_content);
         }
-        main_modal.style.justifyContent = window_name === 'user_info_modal' ? 'flex-end' : "center";
-        main_modal.style.alignItems = window_name === 'user_info_modal' ? 'flex-start' : "center";
-        main_modal.style.display = 'flex';
+        else {
+            user_info_modal(...params).then(content => {
+                show_modal(main_modal, window_name, content);
+            });
+        }
     }
 }
 
@@ -117,7 +130,7 @@ function navbar_click(e, user_type){
 
         let preload_fields = CONFIG[page]["load_form_options"];
         if (preload_fields && preload_fields.length > 0) {
-            CONFIG[page]["load_form_options"].forEach(field => {
+            preload_fields.forEach(field => {
                 if (!(field in CONFIG)) {
                     console.error(`Field "${field}" not found in configuration for preload.`);
                     return;

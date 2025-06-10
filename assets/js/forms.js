@@ -23,6 +23,51 @@ function transliterate(str) {
 }
 
 
+function isValidEmail(email) {
+  const regex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(email);
+}
+
+
+function validate_form(form){
+    const fields = form.querySelectorAll(".edit-form-field");
+    let no_errors = true;
+
+    for (let field of fields){
+        const [label, control] = field.children;
+        let field_is_valid = true;
+
+        if (control.tagName === "INPUT" || control.tagName == "TEXTAREA"){
+            let content = control.value;
+
+            if (control.type === "text" && content === ""){
+                field_is_valid = no_errors = false;
+            } else if (control.type === "email" && !isValidEmail(content)){
+                field_is_valid = no_errors = false;
+            } else if (control.type === "file"){
+                field_is_valid = true;
+            }
+        }
+
+        else if (control.tagName === "SELECT"){
+            const options = control.querySelectorAll("option");
+            for (let option of options){
+                if (option.selected){
+                    let content = option.textContent;
+                    if (content === ""){
+                        field_is_valid = no_errors = false;
+                    }
+                }
+            }
+        }
+
+        // Mark field's validity with setting a green or red border
+        control.style.border = "2px solid " + (field_is_valid ? "#0f0" : "#f00");
+    }
+    return no_errors;
+}
+
+
 function make_form_field(fields, column, page, row=null){
     let field;
     switch (fields[column][1]) {
@@ -96,6 +141,15 @@ function make_form_field(fields, column, page, row=null){
                 }
                 field.disabled = true;  // disable login field for editing
             }
+            if (field.type === "email") {
+                // on each button press update the value of login field to match email prefix
+                field.oninput = () => {
+                    const loginField = document.querySelector('#input_Login');
+                    if (loginField) {
+                        loginField.value = field.value.split('@')[0];
+                    }
+                };
+            }
     }
     field.name = column;
     field.id = `input_${transliterate(column)}`;
@@ -135,9 +189,9 @@ function make_edit_or_create_form(row) {
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = row ? "Редактирование" : "Создание";
-    modalContent.appendChild(h3);
+    const h2 = document.createElement('h2');
+    h2.textContent = row ? "Редактирование" : "Создание";
+    modalContent.appendChild(h2);
 
     const form = document.createElement('form');
     form.id = 'editForm';
@@ -171,6 +225,13 @@ function make_edit_or_create_form(row) {
     buttons.appendChild(go_back_btn);
     buttons.appendChild(saveBtn);
 
+    const formData = new FormData(form);
+    const initial_form_data = {};
+    formData.forEach((value, key) => {
+        initial_form_data[key] = value;
+    });
+
+
     saveBtn.onclick = (e) => {
         const form = document.querySelector("#editForm");
         e.preventDefault();
@@ -184,15 +245,34 @@ function make_edit_or_create_form(row) {
         }
 
         if (row) {
-            console.log(data);
-            // #TODO: call API here to update
+            // iterate thru data and initial_form_data to check if any value has changed
+            let changed_fields = [];
+            for (const key in data) {
+                if (key === "Файл" || key === "Фото") {
+                    continue;  // skip file field if no file is selected
+                }
+                if (data[key] !== initial_form_data[key]) {
+                    has_changes = true;
+                    changed_fields.push(key);
+                }
+            }
+            if (changed_fields.length === 0) {
+                console.warn("No changes detected, not saving.");
+            }
+            else {
+                // #TODO: call API here to update
+                for (const key in changed_fields) {
+                    const field = changed_fields[key];
+                    console.log(`Updating ${field} to ${data[field]} for user_id ${page_data["t-rows"][row.getAttribute("row-id")]["id"]}`);
+                }
+            }
         } else {
-            addDataToTable(CONFIG[page]["table"], document.querySelector('.table-wrapper'), [data])
             // #TODO: call API here to create new row
+            console.log(data);
         }
         // update page to show up-to-date data
         toggleModal();
-        // location.reload();
+        location.reload();
     }
 
     go_back_btn.onclick = () => {
@@ -207,51 +287,6 @@ function make_edit_or_create_form(row) {
 }
 
 
-function isValidEmail(email) {
-  const regex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return regex.test(email);
-}
-
-
-function validate_form(form){
-    const fields = form.querySelectorAll(".edit-form-field");
-    let no_errors = true;
-
-    for (let field of fields){
-        const [label, control] = field.children;
-        let field_is_valid = true;
-
-        if (control.tagName === "INPUT" || control.tagName == "TEXTAREA"){
-            let content = control.value;
-
-            if (control.type === "text" && content === ""){
-                field_is_valid = no_errors = false;
-            } else if (control.type === "email" && !isValidEmail(content)){
-                field_is_valid = no_errors = false;
-            } else if (control.type === "file"){
-                field_is_valid = true;
-            }
-        }
-
-        else if (control.tagName === "SELECT"){
-            const options = control.querySelectorAll("option");
-            for (let option of options){
-                if (option.selected){
-                    let content = option.textContent;
-                    if (content === ""){
-                        field_is_valid = no_errors = false;
-                    }
-                }
-            }
-        }
-
-        // Mark field's validity with setting a green or red border
-        control.style.border = "2px solid " + (field_is_valid ? "#0f0" : "#f00");
-    }
-    return no_errors;
-}
-
-
 function make_delete_form(...rows){
     // Create modal elements
     const modal = document.createElement('div');
@@ -260,8 +295,8 @@ function make_delete_form(...rows){
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = 'Вы уверены?';
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Вы уверены?';
 
     const p = document.createElement('p');
     let delete_text = '';
@@ -292,7 +327,7 @@ function make_delete_form(...rows){
     modalButtons.appendChild(cancelBtn);
 
     // Assemble modal
-    modalContent.appendChild(h3);
+    modalContent.appendChild(h2);
     modalContent.appendChild(p);
     modalContent.appendChild(modalButtons);
     modal.appendChild(modalContent);
@@ -314,6 +349,121 @@ function make_delete_form(...rows){
 }
 
 
+function applyFilters(filters) {
+    console.log("Applying filters:", filters);
+    page_data["filters"] = filters;  // save filters to apply when showing filters window again
+    // #TODO: call API to apply filters and update the table
+}
+
+
+function make_filters_form(){
+    // this form consists of columns of checkboxes for each column of filters (their values from page_data) in CONFIG[page]['filters']
+    const page = document.querySelector('a.active').textContent.trim();
+    if (!CONFIG[page] || !CONFIG[page]['filters']) {
+        console.error(`No filters found for page "${page}".`);
+        return;
+    }
+    const modal = document.createElement('div');
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Фильтры';
+    modalContent.appendChild(h2);
+
+    const form = document.createElement('form');
+    form.id = 'filtersForm';
+    form.className = 'filters-form';
+
+    const filters = CONFIG[page]['filters'];
+    if (!filters || filters.length === 0) {
+        console.warn(`No filters defined for page "${page}".`);
+        return;
+    }
+
+    for (const column of filters) {
+        if (!page_data[column]) {
+            console.warn(`No data found for column "${column}" in page "${page}". Skipping filter creation.`);
+            continue;
+        }
+        const fieldContainer = document.createElement('div');
+        fieldContainer.className = 'filter-field';
+
+        const label = document.createElement('label');
+        label.textContent = column;
+        label.htmlFor = `filter_${transliterate(column)}`;
+        fieldContainer.appendChild(label);
+
+        const options = page_data[column];
+        for (const key in options) {
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'checkbox-container';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `filter_${transliterate(column)}_${options[key]["id"]}`;
+            checkbox.name = column;
+            checkbox.value = options[key]["id"];
+
+            // If the filter is already applied, check the checkbox
+            if (page_data["filters"] && page_data["filters"][column] && page_data["filters"][column].includes(options[key]["id"])) {
+                checkbox.checked = true;
+            }
+
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.htmlFor = checkbox.id;
+            checkboxLabel.textContent = options[key]["name"];
+
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(checkboxLabel);
+            fieldContainer.appendChild(checkboxContainer);
+        }
+        form.appendChild(fieldContainer);
+    }
+
+    const applyBtn = document.createElement('button');
+    applyBtn.type = 'submit';
+    applyBtn.textContent = 'Применить';
+    applyBtn.onclick = (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const filters = {};
+        for (const [key, value] of formData.entries()) {
+            if (!filters[key]) {
+            filters[key] = [];
+            }
+            filters[key].push(Number(value));
+        }
+        applyFilters(filters);
+        toggleModal();
+    };
+
+    const resetBtn = document.createElement('button');
+    resetBtn.type = 'button';
+    resetBtn.textContent = 'Сбросить';
+    resetBtn.onclick = () => {
+        // Reset filters and reload the table data
+        document.querySelectorAll('.filter-field select').forEach(select => {
+            select.selectedIndex = -1;  // deselect all options
+        });
+        applyFilters({});  // reset filters
+        toggleModal();
+    };
+
+    const buttons = document.createElement('div');
+    buttons.className = 'form-buttons';
+    buttons.appendChild(resetBtn);
+    buttons.appendChild(applyBtn);
+
+    modalContent.appendChild(form);
+    modalContent.appendChild(buttons);
+    modal.appendChild(modalContent);
+    modalContent.onclick = (e) => e.stopPropagation();  // prevent click from closing the modal
+
+    return modal;
+}
+
+
 function edit_or_create_form(row){
     toggleModal('make_edit_or_create_form', row);
 }
@@ -321,4 +471,9 @@ function edit_or_create_form(row){
 
 function delete_form(...rows) {
     toggleModal('make_delete_form', ...rows);
+}
+
+
+function filter_form() {
+    toggleModal("make_filters_form");
 }

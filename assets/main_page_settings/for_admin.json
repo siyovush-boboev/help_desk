@@ -5,7 +5,7 @@
 		"breadcrumbs": "Главная",
 		"searchbar": true,
 		"delete_button": false,
-		"filters": true,
+		"filters": false,
 		"show_hide_button": false,
 		"create_button": true,
 		"pagination": false,
@@ -20,7 +20,67 @@
 			"rows": [
 				"Всего"
 			]
-		}
+		},
+		"form_fields": {
+			"Наименование заявки": [
+				"name",
+				"text"
+			],
+			"Департамент": [
+				"department_id",
+				"select"
+			],
+			"Отдел": [
+				"otdel_id",
+				"select"
+			],
+			"Статус": [
+				"status_id",
+				"select"
+			],
+			"Приоритет": [
+				"priority_id",
+				"select"
+			],
+			"Срок": [
+				"duration",
+				"datetime-local"
+			],
+			"Филиал": [
+				"branch_id",
+				"select"
+			],
+			"Офис ЦБО": [
+				"office_id",
+				"select"
+			],
+			"Оборудование": [
+				"equipment_id",
+				"select"
+			],
+			"Исполнитель": [
+				"user_id",
+				"select"
+			],
+			"Адрес": [
+				"address",
+				"text"
+			],
+			"Комментарий": [
+				"comment",
+				"textarea"
+			]
+		},
+		"load_form_options": [
+			"Департаменты",
+			"Отделы",
+			"Статусы",
+			"Приоритеты",
+			"Филиалы",
+			"Офисы ЦБО",
+			"Оборудования",
+			"Пользователи"
+		]
 	},
 	"Заявки": {
 		"singular": "Заявка",
@@ -116,8 +176,8 @@
 		"searchbar": true,
 		"delete_button": true,
 		"filters": [
-			"Департаменты",
-			"Роли"
+			"Департамент",
+			"Роль"
 		],
 		"show_hide_button": false,
 		"create_button": true,
@@ -220,7 +280,10 @@
 				"type",
 				"number"
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Приоритеты": {
 		"singular": "Приоритет",
@@ -254,7 +317,10 @@
 				"rate",
 				"number"
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Департаменты": {
 		"singular": "Департамент",
@@ -289,7 +355,10 @@
 					]
 				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Отделы": {
 		"singular": "Отдел",
@@ -401,7 +470,10 @@
 					]
 				}
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Офисы ЦБО": {
 		"singular": "Офис ЦБО",
@@ -453,7 +525,8 @@
 			]
 		},
 		"load_form_options": [
-			"Филиалы"
+			"Филиалы",
+			"Департаменты"
 		]
 	},
 	"Роли": {
@@ -489,7 +562,8 @@
 			]
 		},
 		"load_form_options": [
-			"Привелигии"
+			"Привелигии",
+			"Департаменты"
 		]
 	},
 	"Привелигии": {
@@ -519,7 +593,10 @@
 				"description",
 				"textarea"
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Оборудования": {
 		"singular": "Оборудование",
@@ -547,7 +624,10 @@
 				"description",
 				"textarea"
 			]
-		}
+		},
+		"load_form_options": [
+			"Департаменты"
+		]
 	},
 	"Банкоматы": {
 		"singular": "Банкомат",
@@ -789,7 +869,8 @@
 		"load_form_options": [
 			"Филиалы",
 			"Офисы ЦБО",
-			"Оборудования"
+			"Оборудования",
+			"Департаменты"
 		]
 	}
 }

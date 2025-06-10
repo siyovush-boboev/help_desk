@@ -418,7 +418,6 @@ button[type="submit"] {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -439,6 +438,7 @@ button[type="submit"] {
     flex-direction: column;
     padding: 80px 50px 10px 50px;
     z-index: 10000;
+    overflow: auto;
 }
 
 .user-info-modal-content>div:first-child {
@@ -462,7 +462,6 @@ button[type="submit"] {
     flex-wrap: wrap;
     gap: 18px;
     padding: 12px 0;
-    overflow: auto;
 }
 
 .user-text-info {
@@ -506,17 +505,18 @@ button[type="submit"] {
 }
 
 .modal-content {
-    /* background-color: #fff; */
     color: #fff;
     border-radius: 20px;
     max-width: 750px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
     word-break: break-word;
     padding: 20px;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+    overflow: auto;
 }
 
 .modal-content p {
@@ -567,6 +567,33 @@ button[type="submit"] {
     gap: 4px;
     flex-grow: 1;
     max-width: 100%;
+}
+
+.filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+}
+
+.filter-field label {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.filter-field .checkbox-container {
+    margin: 4px;
+}
+
+.filter-field .checkbox-container * {
+    margin: 4px;
 }
 
 @media (max-width: 768px) {
@@ -638,5 +665,9 @@ button[type="submit"] {
 
     .user-info-modal-content>div:first-child {
         padding-bottom: 8px;
+    }
+
+    .modal-content {
+        justify-content: flex-start;
     }
 }

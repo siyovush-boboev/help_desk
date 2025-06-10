@@ -339,6 +339,7 @@ func main() {
 
 			"office_id": 1,
 			"otdel_id":  1,
+			"position":  "Супер админ",
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
