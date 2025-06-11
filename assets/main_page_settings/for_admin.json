@@ -103,9 +103,9 @@
 				"Приоритет": "priority_id",
 				"Наименование заявки": "name",
 				"Заявитель": "user_id",
-				"Дата заявителя": "created_at",
+				"Дата создания": "created_at",
 				"Исполнитель": "",
-				"Дата исполнителя": ""
+				"Срок": "duration"
 			}
 		},
 		"form_fields": {
@@ -231,7 +231,7 @@
 				"role_id",
 				"select"
 			],
-			"Фото": [
+			"Фото (webp, jpg, jpeg, png)": [
 				"photo",
 				"file"
 			],
@@ -397,10 +397,6 @@
 						"Активен"
 					]
 				}
-			],
-			"Описание": [
-				"description",
-				"textarea"
 			]
 		},
 		"load_form_options": [
@@ -556,8 +552,8 @@
 				"description",
 				"textarea"
 			],
-			"Привелигии": [
-				"privileges",
+			"Привелигия": [
+				"permission",
 				"select"
 			]
 		},
@@ -619,10 +615,6 @@
 			"Наименование": [
 				"name",
 				"text"
-			],
-			"Описание": [
-				"description",
-				"textarea"
 			]
 		},
 		"load_form_options": [

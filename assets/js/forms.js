@@ -1,27 +1,27 @@
 function transliterate(str) {
-  const map = {
-    'а': 'a',  'б': 'b',  'в': 'v',  'г': 'g',  'д': 'd',
-    'е': 'e',  'ё': 'yo', 'ж': 'zh', 'з': 'z',  'и': 'i',
-    'й': 'y',  'к': 'k',  'л': 'l',  'м': 'm',  'н': 'n',
-    'о': 'o',  'п': 'p',  'р': 'r',  'с': 's',  'т': 't',
-    'у': 'u',  'ф': 'f',  'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-    'ш': 'sh', 'щ': 'shch','ъ': '',  'ы': 'y',  'ь': '',
-    'э': 'e',  'ю': 'yu', 'я': 'ya',
+    const map = {
+        'а': 'a',  'б': 'b',  'в': 'v',  'г': 'g',  'д': 'd',
+        'е': 'e',  'ё': 'yo', 'ж': 'zh', 'з': 'z',  'и': 'i',
+        'й': 'y',  'к': 'k',  'л': 'l',  'м': 'm',  'н': 'n',
+        'о': 'o',  'п': 'p',  'р': 'r',  'с': 's',  'т': 't',
+        'у': 'u',  'ф': 'f',  'х': 'kh', 'ц': 'ts', 'ч': 'ch',
+        'ш': 'sh', 'щ': 'shch','ъ': '',  'ы': 'y',  'ь': '',
+        'э': 'e',  'ю': 'yu', 'я': 'ya',
 
-    'А': 'A',  'Б': 'B',  'В': 'V',  'Г': 'G',  'Д': 'D',
-    'Е': 'E',  'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z',  'И': 'I',
-    'Й': 'Y',  'К': 'K',  'Л': 'L',  'М': 'M',  'Н': 'N',
-    'О': 'O',  'П': 'P',  'Р': 'R',  'С': 'S',  'Т': 'T',
-    'У': 'U',  'Ф': 'F',  'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
-    'Ш': 'Sh', 'Щ': 'Shch','Ъ': '',  'Ы': 'Y',  'Ь': '',
-    'Э': 'E',  'Ю': 'Yu', 'Я': 'Ya',
+        'А': 'A',  'Б': 'B',  'В': 'V',  'Г': 'G',  'Д': 'D',
+        'Е': 'E',  'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z',  'И': 'I',
+        'Й': 'Y',  'К': 'K',  'Л': 'L',  'М': 'M',  'Н': 'N',
+        'О': 'O',  'П': 'P',  'Р': 'R',  'С': 'S',  'Т': 'T',
+        'У': 'U',  'Ф': 'F',  'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
+        'Ш': 'Sh', 'Щ': 'Shch','Ъ': '',  'Ы': 'Y',  'Ь': '',
+        'Э': 'E',  'Ю': 'Yu', 'Я': 'Ya',
 
-    " ": "_",  "-": "_",  ".": "_",  ",": "_",  "/": "_",
-  };
-
-  return str.split('').map(char => map[char] ?? char).join('');
+        " ": "_",  "-": "_",  ".": "_",  ",": "_",  "/": "_",
+    };
+    return str.split('').map(char => map[char] ?? char).join('');
 }
 
+phone_regex = /^\+?(992)?\d{9}$/;
 
 function isValidEmail(email) {
   const regex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -34,27 +34,63 @@ function validate_form(form){
     let no_errors = true;
 
     for (let field of fields){
-        const [label, control] = field.children;
+        let [label, control] = field.children;
+        label = label.textContent.trim();
         let field_is_valid = true;
 
         if (control.tagName === "INPUT" || control.tagName == "TEXTAREA"){
             let content = control.value;
 
-            if (control.type === "text" && content === ""){
+            if (label === "Телефон"){
+                let phone_input = document.querySelector(`#${control.id}`);
+                phone_input.value = content.replace(/\s/g, "");  // remove spaces from phone number
+                if (!phone_regex.test(phone_input.value)){
+                    field_is_valid = no_errors = false;
+                    console.error("Введите корректный номер телефона в формате +992XXXXXXXXX");
+                }
+            } else if (control.type.toLowerCase().includes("date") && content === ""){
                 field_is_valid = no_errors = false;
+                console.error("Поле обязательно для заполнения");
+            } else if (control.type === "text" && content === ""){
+                field_is_valid = no_errors = false;
+                console.error("Поле обязательно для заполнения");
+            } else if (control.type === "text" && content.length > 255){
+                field_is_valid = no_errors = false;
+                console.error("Максимальная длина — 255 символов");
+            } else if (control.type === "number" && (content === "" || isNaN(content) || content > 2 ** 31 - 1 || content < 0)){
+                field_is_valid = no_errors = false;
+                console.error("Введите корректное число от 0 до 2 ^ 31 - 1");
             } else if (control.type === "email" && !isValidEmail(content)){
                 field_is_valid = no_errors = false;
+                console.error("Введите корректный email");
             } else if (control.type === "file"){
                 field_is_valid = true;
+                const allowedExtensions = ['webp', 'jpg', 'jpeg', 'png'];
+                const file = control.files[0];
+                if (file) {
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        field_is_valid = no_errors = false;
+                        console.error("Разрешены только изображения: webp, jpg, jpeg, png");
+                    }
+                }
             }
         }
-
         else if (control.tagName === "SELECT"){
             const options = control.querySelectorAll("option");
+            const allowedOptions = page_data[label] || {0: true, 1: true};  // avaliable IDs or 0, 1 for true/false options
             for (let option of options){
                 if (option.selected){
-                    let content = option.textContent;
-                    if (content === ""){
+                    // check if option.value is not empty and it exists in page_data[column]
+                    if (label === "Исполнитель"){
+                        label = "Пользователь";  // for consistency with page_data
+                    }
+                    if (option.value === "" || !allowedOptions || !allowedOptions[option.value]){
+                        field_is_valid = no_errors = false;
+                        console.error(`Field "${label}" must have a valid selected option.`);
+                    }
+                    // check if no option is selected
+                    if (option.textContent === ""){
                         field_is_valid = no_errors = false;
                     }
                 }
@@ -75,6 +111,7 @@ function make_form_field(fields, column, page, row=null){
             field = document.createElement('select');
             field.append(document.createElement('option'));  // empty option
 
+            // if options are provided in config file
             if (column === "Статус" && fields["Статус"].length > 2) {
                 const statuses = fields["Статус"][2]["options"];
                 statuses.forEach(status => {
@@ -130,24 +167,56 @@ function make_form_field(fields, column, page, row=null){
                 field.value = dateValue ? new Date(dateValue).toISOString().split('T')[0] : '';
             }
             break;
+        // case "multiple choice":
+        //     console.log(page_data);
+        //     console.log();
+        //     // Create a container for multiple checkboxes
+        //     field = document.createElement('div');
+        //     field.className = 'checkbox-group';
+        //     if (page_data[column]) {
+        //         Object.keys(page_data[column]).forEach(option => {
+        //             const checkboxContainer = document.createElement('div');
+        //             checkboxContainer.className = 'checkbox-container';
+
+        //             const checkbox = document.createElement('input');
+        //             checkbox.type = 'checkbox';
+        //             checkbox.id = `input_${transliterate(column)}_${option}`;
+        //             checkbox.name = column;
+        //             checkbox.value = page_data[column][option]["id"];
+
+        //             // Check if the option is selected in the row data
+        //             if (row && page_data["t-rows"][row.getAttribute("row-id")][fields[column][0]].includes(page_data[column][option]["id"])) {
+        //                 checkbox.checked = true;
+        //             }
+
+        //             const label = document.createElement('label');
+        //             label.htmlFor = checkbox.id;
+        //             label.textContent = page_data[column][option]["name"];
+
+        //             checkboxContainer.appendChild(checkbox);
+        //             checkboxContainer.appendChild(label);
+        //             field.appendChild(checkboxContainer);
+        //         });
+        //     } else {
+        //         console.error(`No options found for multiple choice field "${column}" in page "${page}".`);
+        //     }
+        //     break;
         default:
             field = document.createElement('input');
-            field.type = fields[column][1] || 'text';  // default to text if type is not specified
+            field.type = fields[column][1] || 'text';
             if (fields[column][1] !== 'file')
                 field.value = row ? page_data["t-rows"][row.getAttribute("row-id")][fields[column][0]] : '';
             if (column === "Логин") {
-                if (row) {
+                if (row)
                     field.value = page_data["t-rows"][row.getAttribute("row-id")]["email"].split("@")[0];
-                }
-                field.disabled = true;  // disable login field for editing
+                field.disabled = true;
             }
             if (field.type === "email") {
                 // on each button press update the value of login field to match email prefix
                 field.oninput = () => {
                     const loginField = document.querySelector('#input_Login');
-                    if (loginField) {
+                    if (loginField)
                         loginField.value = field.value.split('@')[0];
-                    }
                 };
             }
     }
@@ -164,7 +233,7 @@ function make_edit_or_create_form(row) {
     if (page === "Главная")
         page = "Заявки";
 
-    const columns = CONFIG[page]['form_fields'] ? Object.keys(CONFIG[page]['form_fields']) : CONFIG[page]['table']['columns'];
+    const columns = Object.keys(CONFIG[page]['form_fields'] || CONFIG[page]['table']['columns']);
     let fields = {};
     if (CONFIG[page]['form_fields']){
         fields = CONFIG[page]['form_fields'];
@@ -198,6 +267,7 @@ function make_edit_or_create_form(row) {
     form.className = 'edit-form';
 
     columns.forEach(column => {
+        // don't create fields for these columns
         if (column === '№' || column === 'Действия' || column === 'CHECKMARK' || column === 'Всего' || column === '')
             return;
         const fieldContainer = document.createElement('div');
@@ -237,28 +307,21 @@ function make_edit_or_create_form(row) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = {};
-        formData.forEach((value, key) => {
-            data[key] = value;
-        });
-        if (!validate_form(form)){
+        formData.forEach((value, key) => data[key] = value);
+        if (!validate_form(form))
             return;
-        }
 
         if (row) {
             // iterate thru data and initial_form_data to check if any value has changed
             let changed_fields = [];
             for (const key in data) {
-                if (key === "Файл" || key === "Фото") {
+                if (data[key] instanceof File && !data[key]["name"])
                     continue;  // skip file field if no file is selected
-                }
-                if (data[key] !== initial_form_data[key]) {
-                    has_changes = true;
+                if (data[key] !== initial_form_data[key])
                     changed_fields.push(key);
-                }
             }
-            if (changed_fields.length === 0) {
+            if (changed_fields.length === 0)
                 console.warn("No changes detected, not saving.");
-            }
             else {
                 // #TODO: call API here to update
                 for (const key in changed_fields) {
@@ -270,14 +333,16 @@ function make_edit_or_create_form(row) {
             // #TODO: call API here to create new row
             console.log(data);
         }
+
         // update page to show up-to-date data
         toggleModal();
-        location.reload();
+        // location.reload();
     }
 
-    go_back_btn.onclick = () => {
+    go_back_btn.onclick = (e) => {
+        e.preventDefault();
         toggleModal();
-    };
+    }
 
     modalContent.appendChild(form);
     modalContent.appendChild(buttons);
@@ -288,17 +353,13 @@ function make_edit_or_create_form(row) {
 
 
 function make_delete_form(...rows){
-    // Create modal elements
     const modal = document.createElement('div');
-    modal.className = 'modal';
-
     const modalContent = document.createElement('div');
     modalContent.className = 'modal-content';
 
     const h2 = document.createElement('h2');
     h2.textContent = 'Вы уверены?';
 
-    const p = document.createElement('p');
     let delete_text = '';
     const cells = rows[0].querySelectorAll('td[data-column]');
     for (let i = 0; i < cells.length; i++) {
@@ -309,6 +370,7 @@ function make_delete_form(...rows){
             break;
         }
     }
+    const p = document.createElement('p');
     p.textContent = `Удалить ${delete_text}${rows.length > 1 ? ` и еще ${rows.length-1}` : ""}?`;
 
     const modalButtons = document.createElement('div');
@@ -339,10 +401,11 @@ function make_delete_form(...rows){
     }
     confirmBtn.onclick = () => {
         rows.forEach(row => {
-            console.log(`Удаление ${row.textContent}`);
-            // #TODO: Call API to delete rows
+            console.log("Удаление строки с id ", row.getAttribute("row-id"));
+            // #TODO: Call API to delete rows with selected IDs
         });
-        location.reload();
+        toggleModal();
+        // location.reload();
     };
     modalContent.onclick = (e) => e.stopPropagation();
     return modal;
@@ -376,10 +439,6 @@ function make_filters_form(){
     form.className = 'filters-form';
 
     const filters = CONFIG[page]['filters'];
-    if (!filters || filters.length === 0) {
-        console.warn(`No filters defined for page "${page}".`);
-        return;
-    }
 
     for (const column of filters) {
         if (!page_data[column]) {
@@ -445,6 +504,7 @@ function make_filters_form(){
         // Reset filters and reload the table data
         document.querySelectorAll('.filter-field select').forEach(select => {
             select.selectedIndex = -1;  // deselect all options
+            // #TODO: reload the table data without filters
         });
         applyFilters({});  // reset filters
         toggleModal();
@@ -464,7 +524,8 @@ function make_filters_form(){
 }
 
 
-function edit_or_create_form(row){
+function edit_or_create_form(row_id){
+    let row = document.querySelector(`tr[row-id="${row_id}"]`);
     toggleModal('make_edit_or_create_form', row);
 }
 

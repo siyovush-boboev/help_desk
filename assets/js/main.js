@@ -1,29 +1,10 @@
-const USER_TYPES = {
-    User: "user",
-    Admin: "admin",
-    Executor: "executor",
-    Auditor: "auditor"
-}
-const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
-const USER_TYPE = document.getElementById('user_type').textContent.trim().toLowerCase();
-const CONFIG = loadConfigAndInit(USER_TYPE);
-if (!CONFIG) {
-    console.error(`Failed to load CONFIGuration for ${USER_TYPE} user type.`);
-}
-let page_data = {}; // global variable to store data for the current page
-
-
-function toggleDropdown(second=null) {
-    const dropdown = document.querySelector('.dropdown-container' + (second !== null ? "2" : ''));
-    let dropdown_mode_to_set = dropdown.children[2].style.display === 'block' ? 'none' : 'block';
-    const links = document.querySelectorAll('.dropdown-link' + (second !== null ? "2" : ''));
-    for (let i = 0; i < links.length; i++) {
-        links[i].style.display = dropdown_mode_to_set;
-    }
-    const arrow = dropdown.querySelector('p');
-    if (arrow) {
-        arrow.textContent = arrow.textContent.slice(0, -1) + (dropdown_mode_to_set === 'block' ? '▲' : '▼');
-    }
+function get_data_from_api(apiUrl) {
+    return fetch(apiUrl)
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error fetching API data:', error);
+            return null;
+        });
 }
 
 
@@ -37,6 +18,28 @@ function toggleNav() {
 }
 
 
+function toggleDropdown(second=null) {
+    // Select the correct dropdown container based on the argument (for supporting multiple dropdowns)
+    const dropdown = document.querySelector('.dropdown-container' + (second !== null ? "2" : ''));
+
+    // Toggle the display mode for dropdown links by checking the current state of the third child
+    let dropdown_mode_to_set = dropdown.children[2].style.display === 'block' ? 'none' : 'block';
+
+    // Find all dropdown links for this dropdown (handles multiple dropdowns if needed)
+    const links = document.querySelectorAll('.dropdown-link' + (second !== null ? "2" : ''));
+
+    // Apply the new display mode to each dropdown link
+    for (let i = 0; i < links.length; i++) {
+        links[i].style.display = dropdown_mode_to_set;
+    }
+
+    // Update the arrow indicator to reflect the dropdown's open/closed state
+    const arrow = dropdown.querySelector('p');
+    if (arrow)
+        arrow.textContent = arrow.textContent.slice(0, -1) + (dropdown_mode_to_set === 'block' ? '▲' : '▼');
+}
+
+
 function show_modal(modal, window_name, modal_window_content) {
     modal.innerHTML = '';
     while (modal_window_content.firstChild) {
@@ -45,7 +48,6 @@ function show_modal(modal, window_name, modal_window_content) {
     modal.style.justifyContent = window_name === 'user_info_modal' ? 'flex-end' : "center";
     modal.style.alignItems = window_name === 'user_info_modal' ? 'flex-start' : "center";
     modal.style.display = 'flex';
-
 }
 
 
@@ -58,16 +60,14 @@ function toggleModal(window_name, ...params) {
     if (main_modal.style.display === 'flex' && !window_name) {
         main_modal.style.display = 'none';
         main_modal.className = 'modal';
-    }
-    else if (window_name){
-        if (window_name !== 'user_info_modal') {
-            const modal_window_content = window[window_name](...params);
-            show_modal(main_modal, window_name, modal_window_content);
-        }
-        else {
+    } else if (window_name){
+        if (window_name === 'user_info_modal') {
             user_info_modal(...params).then(content => {
                 show_modal(main_modal, window_name, content);
             });
+        } else {
+            const modal_window_content = window[window_name](...params);
+            show_modal(main_modal, window_name, modal_window_content);
         }
     }
 }
@@ -78,7 +78,7 @@ function mark_active_link(e) {
         // if the link is already active, do nothing
         return;
     }
-    // underline the link that called this function
+    // remove active class from all links
     const links = document.querySelectorAll('nav a');
     for (let i = 0; i < links.length; i++) {
         links[i].classList.remove('active');
@@ -92,42 +92,17 @@ function mark_active_link(e) {
 }
 
 
-function loadConfigAndInit(user_type) {
-  try {
-    // Alternative to fetch()
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', `/assets/main_page_settings/for_${user_type}.json`, false);
-    xhr.send(null);
-    if (xhr.status === 200) {
-        return JSON.parse(xhr.responseText);
-    } else {
-        throw new Error('Failed to load CONFIG');
+function navbar_click(e){
+    mark_active_link(e);
+
+    let page = e.target.textContent;
+    // if page not in CONFIG, return
+    if (!(page in CONFIG)) {
+        console.error(`Page "${page}" not found in configuration.`);
+        return;
     }
-  } catch (err) {
-    console.error(`Error loading ${user_type} CONFIG:`, err);
-  }
-}
-
-
-function get_data_from_api(apiUrl) {
-    return fetch(apiUrl)
-        .then(response => response.json())
-        .catch(error => {
-            console.error('Error fetching API data:', error);
-            return null;
-        });
-}
-
-
-function navbar_click(e, user_type){
-    if (user_type === USER_TYPES.Admin){
-        let page = e.target.textContent;
-        // if page not in CONFIG, return
-        if (!(page in CONFIG)) {
-            console.error(`Page "${page}" not found in configuration.`);
-            return;
-        }
-
+    const apiUrl = CONFIG[page]['API_route'];
+    get_data_from_api(apiUrl).then(api_result => {
         let preload_fields = CONFIG[page]["load_form_options"];
         if (preload_fields && preload_fields.length > 0) {
             preload_fields.forEach(field => {
@@ -135,62 +110,95 @@ function navbar_click(e, user_type){
                     console.error(`Field "${field}" not found in configuration for preload.`);
                     return;
                 }
-                fetch(CONFIG[field]["API_route"]).then(response => response.json())
+                get_data_from_api(CONFIG[field]["API_route"])
                 .then(data => {
                     const extracted_values = {};
                     data.result.forEach(obj => {
                         extracted_values[obj["id"]] = obj;
                     });
                     page_data[CONFIG[field]["singular"]] = extracted_values;
+                            const breadcrumbs = make_breadcrumb(CONFIG[page]["breadcrumbs"]);
+                    document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
+
+                    const control_bar = document.querySelector('.controls')
+                    make_control_bar(control_bar, page);
+
+                    page_data["t-rows"] = {}; // initialize t-rows for the page
+                    api_result.result.forEach((item) => {
+                        page_data["t-rows"][item["id"]] = item;
+                    });
+
+                    const tableWrapper = document.querySelector('.table-wrapper');
+                    tableWrapper.innerHTML = ''; // clear the table wrapper
+                    createTable(CONFIG[page]['table'], tableWrapper);
+
+                    // add data from api into the table
+                    addDataToTable(CONFIG[page]['table'], tableWrapper, api_result.result, page);
+
+                    const pagination = document.querySelector('.pagination-container');
+                    if (CONFIG[page]['pagination']) {
+                        make_pagination(pagination, api_result.pagination);
+                    }
+                    else{
+                        pagination.innerHTML = ''; // clear pagination if not needed
+                    }
                 })
             });
         }
-        const breadcrumbs = make_breadcrumb(CONFIG[page]["breadcrumbs"]);
-        document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
-
-        const control_bar = document.querySelector('.controls')
-        make_control_bar(control_bar, page);
-
-        const apiUrl = CONFIG[page]['API_route'];
-        get_data_from_api(apiUrl).then(api_result => {
-            page_data["t-rows"] = []; // initialize t-rows for the page
-            api_result.result.forEach((item) => {
-                page_data["t-rows"].push(item);
-            });
-
-            const tableWrapper = document.querySelector('.table-wrapper');
-            tableWrapper.innerHTML = ''; // clear the table wrapper
-            createTable(CONFIG[page]['table'], tableWrapper);
-
-            // add data from api into the table
-            addDataToTable(CONFIG[page]['table'], tableWrapper, api_result, page);
-
-            const pagination = document.querySelector('.pagination-container');
-            if (CONFIG[page]['pagination']) {
-                make_pagination(pagination, api_result.pagination);
-            }
-            else{
-                pagination.innerHTML = ''; // clear pagination if not needed
-            }
-        });
-
-    }
-    mark_active_link(e);
+    });
 }
 
-// make functions available globally
-window.navbar_click = navbar_click;
-window.toggleDropdown = toggleDropdown;
-window.toggleNav = toggleNav;
+
+function loadConfigAndInit(user_type) {
+    try {
+        const path = `/assets/main_page_settings/for_${user_type}.json`;
+        return get_data_from_api(path);
+    } catch (err) {
+        console.error(`Error loading ${user_type} CONFIG:`, err);
+        return null;
+    }
+}
+
 
 // when the page loads, imitate clicking main link in the navbar
 // but if there is a hashtag in the URL, click the link with that hash
 document.addEventListener("DOMContentLoaded",() => {
-    const hash = window.location.hash.substring(1); // remove the '#'
-    let link = document.querySelector(`nav a[href="#${hash || 'main'}"]`);
-    if (link) {
-        link.click();
-    } else {
-        console.warn(`No link found for hash: ${hash}`);
-    }
+    const USER_TYPE = document.getElementById('user_type').textContent.trim().toLowerCase();
+    loadConfigAndInit(USER_TYPE).then(config => {
+        window.CONFIG = config;
+        if (!CONFIG) {
+            console.error("Configuration could not be loaded.");
+            return;
+        }
+        window.MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
+        window.page_data = {};
+
+        const hash = window.location.hash.substring(1); // remove the '#'
+        let link = document.querySelector(`nav a[href="#${hash || 'main'}"]`);
+        if (link) {
+            link.click();
+        } else {
+            console.warn(`No link found for hash: ${hash}`);
+        }
+    });
 });
+
+// Add event listeners for navbar links
+document.querySelectorAll('nav a').forEach(link => link.addEventListener('click', navbar_click));
+
+// Add event listener for the toggle button (if it has .dropdown-container2 then add parameter second)
+document.querySelectorAll('.dropdown-container, .dropdown-container2').forEach(dropdown => {
+    dropdown.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent the click from bubbling up to the document
+        toggleDropdown(dropdown.classList.contains('dropdown-container2') ? 2 : null);
+    });
+});
+
+// Add event listener for the modal container
+document.querySelector('.modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) // Check if the click is on the modal background
+        toggleModal();
+});
+
+// Add event listener for the nav toggle button
+document.querySelector('.sandwitch span').addEventListener('click', toggleNav);

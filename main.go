@@ -61,22 +61,22 @@ func main() {
 	})
 
 	r.POST("/login", func(c *gin.Context) {
-		email := c.PostForm("email")
+		email := c.PostForm("login")
 		password := c.PostForm("password")
 
 		if email != "" && password != "" {
 			// pretend we logged in successfully
 			if email[:5] == "admin" {
-				c.Redirect(http.StatusFound, "/admin/")
+				c.Redirect(http.StatusFound, "/admin")
 			}
 			if email[:4] == "user" {
-				c.Redirect(http.StatusFound, "/user/")
+				c.Redirect(http.StatusFound, "/user")
 			}
 			if email[:8] == "executor" {
-				c.Redirect(http.StatusFound, "/executor/")
+				c.Redirect(http.StatusFound, "/executor")
 			}
 			if email[:7] == "auditor" {
-				c.Redirect(http.StatusFound, "/auditor/")
+				c.Redirect(http.StatusFound, "/auditor")
 			}
 			return
 		}
@@ -107,14 +107,14 @@ func main() {
 			{"id": 2045, "name": "Не работает принтер", "department_id": 2, "otdel_id": 2, "priority_id": 1, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-02T10:30:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-02T09:00:00Z"},
 			{"id": 3098, "name": "Запрос на доступ", "department_id": 3, "otdel_id": 3, "priority_id": 4, "status_id": 2, "branch_id": 3, "office_id": 3, "equipment_id": 3, "user_id": 3, "duration": "2024-06-03T14:45:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-03T13:00:00Z"},
 			{"id": 4120, "name": "Сброс пароля", "department_id": 4, "otdel_id": 4, "priority_id": 2, "status_id": 4, "branch_id": 4, "office_id": 4, "equipment_id": 4, "user_id": 4, "duration": "2024-06-04T08:20:00Z", "address": "ш. Душанбе, кӯч. Сино 89", "created_at": "2024-06-04T07:00:00Z"},
-			{"id": 5234, "name": "Проблема с интернетом", "department_id": 1, "otdel_id": 1, "priority_id": 1, "status_id": 1, "branch_id": 1, "office_id": 1, "equipment_id": 5, "user_id": 5, "duration": "2024-06-05T13:10:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-05T12:00:00Z"},
-			{"id": 6345, "name": "Ошибка программного обеспечения", "department_id": 3, "otdel_id": 3, "priority_id": 3, "status_id": 2, "branch_id": 3, "office_id": 3, "equipment_id": 6, "user_id": 6, "duration": "2024-06-06T15:25:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-06T14:00:00Z"},
-			{"id": 7456, "name": "Установка драйвера", "department_id": 2, "otdel_id": 2, "priority_id": 2, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 7, "user_id": 2, "duration": "2024-06-07T11:40:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-07T10:00:00Z"},
+			{"id": 5234, "name": "Проблема с интернетом", "department_id": 1, "otdel_id": 1, "priority_id": 1, "status_id": 1, "branch_id": 1, "office_id": 1, "equipment_id": 4, "user_id": 5, "duration": "2024-06-05T13:10:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-05T12:00:00Z"},
+			{"id": 6345, "name": "Ошибка программного обеспечения", "department_id": 3, "otdel_id": 3, "priority_id": 3, "status_id": 2, "branch_id": 3, "office_id": 3, "equipment_id": 3, "user_id": 6, "duration": "2024-06-06T15:25:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-06T14:00:00Z"},
+			{"id": 7456, "name": "Установка драйвера", "department_id": 2, "otdel_id": 2, "priority_id": 2, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-07T11:40:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-07T10:00:00Z"},
 			{"id": 8567, "name": "Восстановление доступа к почте", "department_id": 1, "otdel_id": 1, "priority_id": 3, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 8, "user_id": 1, "duration": "2024-06-08T09:55:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-08T08:30:00Z"},
-			{"id": 9678, "name": "Сбой сервера", "department_id": 3, "otdel_id": 3, "priority_id": 4, "status_id": 3, "branch_id": 3, "office_id": 3, "equipment_id": 9, "user_id": 3, "duration": "2024-06-09T17:05:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-09T16:00:00Z"},
-			{"id": 10789, "name": "Замена мыши", "department_id": 2, "otdel_id": 2, "priority_id": 1, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 10, "user_id": 2, "duration": "2024-06-10T08:10:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-10T07:00:00Z"},
-			{"id": 11890, "name": "Обновление антивируса", "department_id": 1, "otdel_id": 1, "priority_id": 2, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 11, "user_id": 1, "duration": "2024-06-11T13:50:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-11T12:30:00Z"},
-			{"id": 12901, "name": "Проблема с VPN", "department_id": 3, "otdel_id": 3, "priority_id": 3, "status_id": 3, "branch_id": 3, "office_id": 3, "equipment_id": 12, "user_id": 3, "duration": "2024-06-12T16:40:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-12T15:00:00Z"},
+			{"id": 9678, "name": "Сбой сервера", "department_id": 3, "otdel_id": 3, "priority_id": 4, "status_id": 3, "branch_id": 3, "office_id": 3, "equipment_id": 1, "user_id": 3, "duration": "2024-06-09T17:05:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-09T16:00:00Z"},
+			{"id": 10789, "name": "Замена мыши", "department_id": 2, "otdel_id": 2, "priority_id": 1, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-10T08:10:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-10T07:00:00Z"},
+			{"id": 11890, "name": "Обновление антивируса", "department_id": 1, "otdel_id": 1, "priority_id": 2, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 3, "user_id": 1, "duration": "2024-06-11T13:50:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-11T12:30:00Z"},
+			{"id": 12901, "name": "Проблема с VPN", "department_id": 3, "otdel_id": 3, "priority_id": 3, "status_id": 3, "branch_id": 3, "office_id": 3, "equipment_id": 4, "user_id": 3, "duration": "2024-06-12T16:40:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-12T15:00:00Z"},
 		}
 		pagination := map[string]interface{}{
 			"currentPage": 1,
@@ -133,12 +133,12 @@ func main() {
 
 	r.GET("/api/v1/user", func(c *gin.Context) {
 		data := []gin.H{
-			{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992 901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"},
-			{"id": 2, "fio": "Саидов Фаррух Махмадович", "email": "farrukh.saidov@arvand.tj", "phoneNumber": "+992 902345678", "role_id": 3, "branch_id": 2, "department_id": 2, "office_id": 2, "otdel_id": 2, "position": "Специалист по кадрам"},
-			{"id": 3, "fio": "Каримова Мехрубон Шариповна", "email": "mehrubon.karimova@arvand.tj", "phoneNumber": "+992 933456789", "role_id": 5, "branch_id": 3, "department_id": 3, "office_id": 3, "otdel_id": 3, "position": "Исполнитель заявок"},
-			{"id": 4, "fio": "Назарова Шахноза Рустамовна", "email": "shahnoza.nazarova@arvand.tj", "phoneNumber": "+992 944567890", "role_id": 4, "branch_id": 4, "department_id": 4, "office_id": 4, "otdel_id": 4, "position": "Аудитор"},
-			{"id": 5, "fio": "Исмоилова Малика Давлатовна", "email": "malika.ismoilova@arvand.tj", "phoneNumber": "+992 955678901", "role_id": 1, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Супер админ"},
-			{"id": 6, "fio": "Мирзоев Далер Фирузович", "email": "daler.mirzoev@arvand.tj", "phoneNumber": "+992 966789012", "role_id": 5, "branch_id": 3, "department_id": 3, "office_id": 3, "otdel_id": 3, "position": "Исполнитель заявок"},
+			{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"},
+			{"id": 2, "fio": "Саидов Фаррух Махмадович", "email": "farrukh.saidov@arvand.tj", "phoneNumber": "+992902345678", "role_id": 3, "branch_id": 2, "department_id": 2, "office_id": 2, "otdel_id": 2, "position": "Специалист по кадрам"},
+			{"id": 3, "fio": "Каримова Мехрубон Шариповна", "email": "mehrubon.karimova@arvand.tj", "phoneNumber": "+992933456789", "role_id": 5, "branch_id": 3, "department_id": 3, "office_id": 3, "otdel_id": 3, "position": "Исполнитель заявок"},
+			{"id": 4, "fio": "Назарова Шахноза Рустамовна", "email": "shahnoza.nazarova@arvand.tj", "phoneNumber": "+992944567890", "role_id": 4, "branch_id": 4, "department_id": 4, "office_id": 4, "otdel_id": 4, "position": "Аудитор"},
+			{"id": 5, "fio": "Исмоилова Малика Давлатовна", "email": "malika.ismoilova@arvand.tj", "phoneNumber": "+992955678901", "role_id": 1, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Супер админ"},
+			{"id": 6, "fio": "Мирзоев Далер Фирузович", "email": "daler.mirzoev@arvand.tj", "phoneNumber": "+992966789012", "role_id": 5, "branch_id": 3, "department_id": 3, "office_id": 3, "otdel_id": 3, "position": "Исполнитель заявок"},
 		}
 		pagination := map[string]interface{}{
 			"currentPage": 1,
