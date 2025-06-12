@@ -201,7 +201,6 @@ svg {
     display: flex;
     margin: 12px 0;
     flex-wrap: wrap;
-    justify-content: space-between;
 }
 
 .controls button,
@@ -681,6 +680,10 @@ input[type="checkbox"] {
         background-color: #069EA1;
         border-radius: 12px;
         margin: 8px 8px 0 8px;
+    }
+
+    .controls {
+        justify-content: space-between;
     }
 
     .user-avatar {

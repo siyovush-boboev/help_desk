@@ -92,6 +92,14 @@ function mark_active_link(e) {
 }
 
 
+function clear_main_content() {
+    document.querySelector('.table-wrapper').innerHTML = '';
+    document.querySelector('.pagination-container').innerHTML = '';
+    document.querySelector('.breadcrumbs').innerHTML = '';
+    document.querySelector('.controls').innerHTML = '';
+}
+
+
 function navbar_click(e) {
     mark_active_link(e);
 
@@ -100,6 +108,7 @@ function navbar_click(e) {
         console.error(`Page "${page}" not found in configuration.`);
         return;
     }
+    clear_main_content();
 
     const apiUrl = CONFIG[page]['API_route'];
     let preload_fields = CONFIG[page]["load_form_options"];
@@ -170,7 +179,7 @@ function loadConfigAndInit(user_type) {
 
 // when the page loads, imitate clicking main link in the navbar
 // but if there is a hashtag in the URL, click the link with that hash
-document.addEventListener("DOMContentLoaded",() => {
+window.addEventListener("load",() => {
     const USER_TYPE = document.getElementById('user_type').textContent.trim().toLowerCase();
     loadConfigAndInit(USER_TYPE).then(config => {
         window.CONFIG = config;
