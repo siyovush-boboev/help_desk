@@ -4,7 +4,6 @@ This repo contains the frontend part of the Help Desk project.
 
 ## Tech Stack
 - HTML, CSS, JavaScript (Vanilla)
-- Bootstrap (intended UI framework)
 - GitHub for version control
 - Dummy backend server written in Go
 - Assets served via templates
