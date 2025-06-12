@@ -110,7 +110,7 @@ func main() {
 			{"id": 5234, "name": "Проблема с интернетом", "department_id": 1, "otdel_id": 1, "priority_id": 1, "status_id": 1, "branch_id": 1, "office_id": 1, "equipment_id": 4, "user_id": 5, "duration": "2024-06-05T13:10:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-05T12:00:00Z"},
 			{"id": 6345, "name": "Ошибка программного обеспечения", "department_id": 3, "otdel_id": 3, "priority_id": 3, "status_id": 2, "branch_id": 3, "office_id": 3, "equipment_id": 3, "user_id": 6, "duration": "2024-06-06T15:25:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-06T14:00:00Z"},
 			{"id": 7456, "name": "Установка драйвера", "department_id": 2, "otdel_id": 2, "priority_id": 2, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-07T11:40:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-07T10:00:00Z"},
-			{"id": 8567, "name": "Восстановление доступа к почте", "department_id": 1, "otdel_id": 1, "priority_id": 3, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 8, "user_id": 1, "duration": "2024-06-08T09:55:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-08T08:30:00Z"},
+			{"id": 8567, "name": "Восстановление доступа к почте", "department_id": 1, "otdel_id": 1, "priority_id": 3, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 2, "user_id": 1, "duration": "2024-06-08T09:55:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-08T08:30:00Z"},
 			{"id": 9678, "name": "Сбой сервера", "department_id": 3, "otdel_id": 3, "priority_id": 4, "status_id": 3, "branch_id": 3, "office_id": 3, "equipment_id": 1, "user_id": 3, "duration": "2024-06-09T17:05:00Z", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "created_at": "2024-06-09T16:00:00Z"},
 			{"id": 10789, "name": "Замена мыши", "department_id": 2, "otdel_id": 2, "priority_id": 1, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-10T08:10:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-10T07:00:00Z"},
 			{"id": 11890, "name": "Обновление антивируса", "department_id": 1, "otdel_id": 1, "priority_id": 2, "status_id": 3, "branch_id": 1, "office_id": 1, "equipment_id": 3, "user_id": 1, "duration": "2024-06-11T13:50:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-11T12:30:00Z"},
@@ -264,11 +264,11 @@ func main() {
 
 	r.GET("/api/v1/role", func(c *gin.Context) {
 		data := []gin.H{
-			{"id": 1, "name": "super admin", "description": "Полный доступ ко всем функциям и настройкам системы"},
-			{"id": 2, "name": "admin", "description": "Администрирование пользователей и основных настроек"},
-			{"id": 3, "name": "user", "description": "Обычный пользователь системы"},
-			{"id": 4, "name": "view_auditor", "description": "Аудитор с правом только просмотра"},
-			{"id": 5, "name": "executor", "description": "Исполнитель заявок"},
+			{"id": 1, "name": "super admin", "description": "Полный доступ ко всем функциям и настройкам системы", "permission": []int{1, 2, 3, 4, 5, 6, 7, 8, 9}},
+			{"id": 2, "name": "admin", "description": "Администрирование пользователей и основных настроек", "permission": []int{1, 2, 3, 4, 5, 6, 7, 8}},
+			{"id": 3, "name": "user", "description": "Обычный пользователь системы", "permission": []int{1, 2}},
+			{"id": 4, "name": "view_auditor", "description": "Аудитор с правом только просмотра", "permission": []int{1, 6}},
+			{"id": 5, "name": "executor", "description": "Исполнитель заявок", "permission": []int{1, 3}},
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,

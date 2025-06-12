@@ -92,59 +92,67 @@ function mark_active_link(e) {
 }
 
 
-function navbar_click(e){
+function navbar_click(e) {
     mark_active_link(e);
 
     let page = e.target.textContent;
-    // if page not in CONFIG, return
     if (!(page in CONFIG)) {
         console.error(`Page "${page}" not found in configuration.`);
         return;
     }
+
     const apiUrl = CONFIG[page]['API_route'];
-    get_data_from_api(apiUrl).then(api_result => {
-        let preload_fields = CONFIG[page]["load_form_options"];
-        if (preload_fields && preload_fields.length > 0) {
-            preload_fields.forEach(field => {
-                if (!(field in CONFIG)) {
-                    console.error(`Field "${field}" not found in configuration for preload.`);
-                    return;
-                }
-                get_data_from_api(CONFIG[field]["API_route"])
+    let preload_fields = CONFIG[page]["load_form_options"];
+    let preloadPromises = [];
+
+    if (preload_fields && preload_fields.length > 0) {
+        preload_fields.forEach(field => {
+            if (!(field in CONFIG)) {
+                console.error(`Field "${field}" not found in configuration for preload.`);
+                return;
+            }
+
+            let preloadPromise = get_data_from_api(CONFIG[field]["API_route"])
                 .then(data => {
                     const extracted_values = {};
                     data.result.forEach(obj => {
                         extracted_values[obj["id"]] = obj;
                     });
                     page_data[CONFIG[field]["singular"]] = extracted_values;
-                            const breadcrumbs = make_breadcrumb(CONFIG[page]["breadcrumbs"]);
-                    document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
+                });
 
-                    const control_bar = document.querySelector('.controls')
-                    make_control_bar(control_bar, page);
+            preloadPromises.push(preloadPromise);
+        });
+    }
 
-                    page_data["t-rows"] = {}; // initialize t-rows for the page
-                    api_result.result.forEach((item) => {
-                        page_data["t-rows"][item["id"]] = item;
-                    });
+    // 👇 Wait for all preload fields to finish loading BEFORE rendering
+    Promise.all(preloadPromises).then(() => {
+        get_data_from_api(apiUrl).then(api_result => {
+            const tableWrapper = document.querySelector('.table-wrapper');
+            tableWrapper.innerHTML = ''; // clear the table wrapper
 
-                    const tableWrapper = document.querySelector('.table-wrapper');
-                    tableWrapper.innerHTML = ''; // clear the table wrapper
-                    createTable(CONFIG[page]['table'], tableWrapper);
+            const breadcrumbs = make_breadcrumb(CONFIG[page]["breadcrumbs"]);
+            document.querySelector('.breadcrumbs').innerHTML = breadcrumbs;
 
-                    // add data from api into the table
-                    addDataToTable(CONFIG[page]['table'], tableWrapper, api_result.result, page);
+            const control_bar = document.querySelector('.controls')
+            make_control_bar(control_bar, page);
 
-                    const pagination = document.querySelector('.pagination-container');
-                    if (CONFIG[page]['pagination']) {
-                        make_pagination(pagination, api_result.pagination);
-                    }
-                    else{
-                        pagination.innerHTML = ''; // clear pagination if not needed
-                    }
-                })
+            page_data["t-rows"] = {};  // table data from api for further use
+            api_result.result.forEach((item) => {
+                page_data["t-rows"][item["id"]] = item;
             });
-        }
+
+            createTable(CONFIG[page]['table'], tableWrapper);
+
+            addDataToTable(CONFIG[page]['table'], tableWrapper, api_result.result, page);
+
+            const pagination = document.querySelector('.pagination-container');
+            if (CONFIG[page]['pagination']) {
+                make_pagination(pagination, api_result.pagination);
+            } else {
+                pagination.innerHTML = ''; // clear pagination if not needed
+            }
+        });
     });
 }
 

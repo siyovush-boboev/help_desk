@@ -19,7 +19,7 @@ nav,
 }
 
 body {
-    max-width: 1600px;
+    max-width: 1920px;
     margin: 0 auto;
 }
 
@@ -331,6 +331,7 @@ input[type="checkbox"] {
 .custom-table th:last-child,
 .custom-table td:last-child {
     border-right: none;
+    padding: 2px;
 }
 
 .custom-table td a {
@@ -510,7 +511,7 @@ input[type="checkbox"] {
     gap: 20px;
 }
 
-#editForm input,
+#editForm input:not([type="checkbox"]),
 #editForm select,
 #editForm textarea {
     padding: 8px;
@@ -530,8 +531,9 @@ input[type="checkbox"] {
 .filters-form {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
     justify-content: center;
+    gap: 20px;
+    padding: 20px 0;
 }
 
 .filter-field {
@@ -546,11 +548,11 @@ input[type="checkbox"] {
     margin-bottom: 12px;
 }
 
-.filter-field .checkbox-container {
+.checkbox-container {
     margin: 4px;
 }
 
-.filter-field .checkbox-container * {
+.checkbox-container * {
     margin: 4px;
 }
 

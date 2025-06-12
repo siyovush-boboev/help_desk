@@ -77,14 +77,14 @@ function validate_form(form){
             }
         }
         else if (control.tagName === "SELECT"){
+            if (label === "Исполнитель"){
+                label = "Пользователь";  // for consistency with page_data
+            }
             const options = control.querySelectorAll("option");
             const allowedOptions = page_data[label] || {0: true, 1: true};  // avaliable IDs or 0, 1 for true/false options
             for (let option of options){
                 if (option.selected){
                     // check if option.value is not empty and it exists in page_data[column]
-                    if (label === "Исполнитель"){
-                        label = "Пользователь";  // for consistency with page_data
-                    }
                     if (option.value === "" || !allowedOptions || !allowedOptions[option.value]){
                         field_is_valid = no_errors = false;
                         console.error(`Field "${label}" must have a valid selected option.`);
@@ -95,6 +95,20 @@ function validate_form(form){
                     }
                 }
             }
+        }
+        else if (control.classList.contains("checkbox-form-field")){
+            const checkboxes = control.querySelectorAll("input[type='checkbox']");
+            let isChecked = false;
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    isChecked = true;
+                    // check if checkbox.value is not empty and it exists in page_data[column]
+                    if (!page_data[label] || !page_data[label][checkbox.value]) {
+                        field_is_valid = no_errors = false;
+                        console.error(`Field "${label}" must have a valid selected option.`);
+                    }
+                }
+            });
         }
 
         // Mark field's validity with setting a green or red border
@@ -167,40 +181,38 @@ function make_form_field(fields, column, page, row=null){
                 field.value = dateValue ? new Date(dateValue).toISOString().split('T')[0] : '';
             }
             break;
-        // case "multiple choice":
-        //     console.log(page_data);
-        //     console.log();
-        //     // Create a container for multiple checkboxes
-        //     field = document.createElement('div');
-        //     field.className = 'checkbox-group';
-        //     if (page_data[column]) {
-        //         Object.keys(page_data[column]).forEach(option => {
-        //             const checkboxContainer = document.createElement('div');
-        //             checkboxContainer.className = 'checkbox-container';
+        case "multiselect":
+            // Create a container for multiple checkboxes
+            field = document.createElement('div');
+            field.className = 'checkbox-form-field';
+            if (page_data[column]) {
+                Object.keys(page_data[column]).forEach(option => {
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.className = 'checkbox-container';
 
-        //             const checkbox = document.createElement('input');
-        //             checkbox.type = 'checkbox';
-        //             checkbox.id = `input_${transliterate(column)}_${option}`;
-        //             checkbox.name = column;
-        //             checkbox.value = page_data[column][option]["id"];
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = `input_${transliterate(column)}_${option}`;
+                    checkbox.name = column;
+                    checkbox.value = page_data[column][option]["id"];
 
-        //             // Check if the option is selected in the row data
-        //             if (row && page_data["t-rows"][row.getAttribute("row-id")][fields[column][0]].includes(page_data[column][option]["id"])) {
-        //                 checkbox.checked = true;
-        //             }
+                    // Check if the option is selected in the row data
+                    if (row && page_data["t-rows"][row.getAttribute("row-id")][fields[column][0]].includes(page_data[column][option]["id"])) {
+                        checkbox.checked = true;
+                    }
 
-        //             const label = document.createElement('label');
-        //             label.htmlFor = checkbox.id;
-        //             label.textContent = page_data[column][option]["name"];
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.textContent = page_data[column][option]["name"];
 
-        //             checkboxContainer.appendChild(checkbox);
-        //             checkboxContainer.appendChild(label);
-        //             field.appendChild(checkboxContainer);
-        //         });
-        //     } else {
-        //         console.error(`No options found for multiple choice field "${column}" in page "${page}".`);
-        //     }
-        //     break;
+                    checkboxContainer.appendChild(checkbox);
+                    checkboxContainer.appendChild(label);
+                    field.appendChild(checkboxContainer);
+                });
+            } else {
+                console.error(`No options found for multiple choice field "${column}" in page "${page}".`);
+            }
+            break;
         default:
             field = document.createElement('input');
             field.type = fields[column][1] || 'text';
@@ -297,9 +309,15 @@ function make_edit_or_create_form(row) {
 
     const formData = new FormData(form);
     const initial_form_data = {};
-    formData.forEach((value, key) => {
-        initial_form_data[key] = value;
-    });
+        formData.forEach((value, key) => {
+            if (key === "Привелигия") {
+                if (!initial_form_data[key])
+                    initial_form_data[key] = [];
+                initial_form_data[key].push(value);
+            }
+            else
+                initial_form_data[key] = value
+        });
 
 
     saveBtn.onclick = (e) => {
@@ -307,7 +325,15 @@ function make_edit_or_create_form(row) {
         e.preventDefault();
         const formData = new FormData(form);
         const data = {};
-        formData.forEach((value, key) => data[key] = value);
+        formData.forEach((value, key) => {
+            if (key === "Привелигия") {
+                if (!data[key])
+                    data[key] = [];
+                data[key].push(value);
+            }
+            else
+                data[key] = value
+        });
         if (!validate_form(form))
             return;
 
@@ -317,8 +343,12 @@ function make_edit_or_create_form(row) {
             for (const key in data) {
                 if (data[key] instanceof File && !data[key]["name"])
                     continue;  // skip file field if no file is selected
-                if (data[key] !== initial_form_data[key])
+                if (Array.isArray(data[key])) {
+                    if (JSON.stringify(data[key]) !== JSON.stringify(initial_form_data[key]))
+                        changed_fields.push(key);
+                } else if (data[key] !== initial_form_data[key]) {
                     changed_fields.push(key);
+                }
             }
             if (changed_fields.length === 0)
                 console.warn("No changes detected, not saving.");
@@ -326,7 +356,7 @@ function make_edit_or_create_form(row) {
                 // #TODO: call API here to update
                 for (const key in changed_fields) {
                     const field = changed_fields[key];
-                    console.log(`Updating ${field} to ${data[field]} for user_id ${page_data["t-rows"][row.getAttribute("row-id")]["id"]}`);
+                    console.log(`Updating ${field} to ${data[field]} for id ${page_data["t-rows"][row.getAttribute("row-id")]["id"]}`);
                 }
             }
         } else {

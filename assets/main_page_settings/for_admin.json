@@ -554,7 +554,7 @@
 			],
 			"Привелигия": [
 				"permission",
-				"select"
+				"multiselect"
 			]
 		},
 		"load_form_options": [
@@ -684,7 +684,7 @@
 	},
 	"Терминалы": {
 		"singular": "Терминал",
-		"API_route": "/api/v1/equipments?equipment_type=2",
+		"API_route": "/api/v1/equipment?equipment_type=2",
 		"breadcrumbs": "Справочник/Оборудования/Терминалы",
 		"searchbar": true,
 		"delete_button": false,
@@ -745,7 +745,7 @@
 	},
 	"POS-терминалы": {
 		"singular": "POS-терминал",
-		"API_route": "/api/v1/equipments?equipment_type=3",
+		"API_route": "/api/v1/equipment?equipment_type=3",
 		"breadcrumbs": "Справочник/Оборудования/POS-терминалы",
 		"searchbar": true,
 		"delete_button": false,
@@ -806,7 +806,7 @@
 	},
 	"ЦО+ЭО": {
 		"singular": "ЦО+ЭО",
-		"API_route": "/api/v1/equipments?equipment_type=4",
+		"API_route": "/api/v1/equipment?equipment_type=4",
 		"breadcrumbs": "Справочник/Оборудования/ЦО+ЭО",
 		"searchbar": true,
 		"delete_button": false,

@@ -206,8 +206,9 @@ function addDataToTable(tableConfig, tableWrapper, data, page) {
                 // Fill with status from CONFIG[page]["form_fields"] if it has "Статус" and options
                 if (CONFIG[page]["form_fields"] && "Статус" in CONFIG[page]["form_fields"] && CONFIG[page]["form_fields"]["Статус"].length > 2)
                     td.textContent = CONFIG[page]["form_fields"]["Статус"][2]["options"][item[actual_colName]] || ""; // Fill with status
-                else  // If no options, use "Статус" from page_data
+                else {  // If no options, use "Статус" from page_data
                     td.textContent = page_data["Статус"][item[actual_colName]]["name"] || ""; // Fill with status
+                }
                 // skip if status is "Закрыто"
                 if (td.textContent === "Закрыто")
                     tr.style.display = "none"; // Hide the row
@@ -415,19 +416,16 @@ function user_info_modal(user_id) {
         const modal = document.createElement('div');
         modal.className = 'user_info_modal';
 
-        // Close button
         const closeButton = document.createElement('button');
         closeButton.className = 'user-info-close-button';
-
-        // SVG for close button using innerHTML
         closeButton.innerHTML = `
             <svg width="20" height="20" viewBox="0 0 20 20">
           <line x1="4" y1="4" x2="16" y2="16" stroke="white" stroke-width="2"/>
           <line x1="16" y1="4" x2="4" y2="16" stroke="white" stroke-width="2"/>
             </svg>
         `;
+        closeButton.onclick = () => { toggleModal(); };
 
-        // Modal content
         const modalContent = document.createElement('div');
         modalContent.className = 'user-info-modal-content';
 
