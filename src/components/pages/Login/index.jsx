@@ -1,30 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { login } from "../../../lib/services/api/authApi";
+import { useAuth } from "../../../lib/hooks/useAuth";
 
 export default function Login() {
-    const [login, setLogin] = useState("");
+    const { setAccessToken, setUserRole, setPermissions } = useAuth();
+    const [loginField, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(true);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // stop form from reloading the page
-
+        e.preventDefault();
         try {
-            const res = await fetch("http://localhost:8080/api/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ login, password }),
-            });
-
-            if (!res.ok) throw new Error("Login failed");
-
-            const data = await res.json();
-            localStorage.setItem("token", data.token);
+            const res = await login(loginField, password);
+            setAccessToken(res.access_token);
+            setUserRole(res.role);
+            setPermissions(res.permissions);
             navigate("/");
         } catch (err) {
-            alert("Ошибка входа 😓", err);
+            console.err("Login failed", err);
         }
     };
 
@@ -34,7 +29,7 @@ export default function Login() {
             <div className="login-card">
                 {/* Left Side (Logo & App name) */}
                 <div className="login-left">
-                    <img src="src/assets/img/logo.png" alt="Company Logo" />
+                    <img src="src/assets/images/login-logo.png" alt="Company Logo" />
                 </div>
 
                 {/* Right Side (Login Form) */}
@@ -49,7 +44,7 @@ export default function Login() {
                                 className="form-control"
                                 id="login"
                                 placeholder="Введите ваш логин"
-                                value={login}
+                                value={loginField}
                                 onChange={(e) => setLogin(e.target.value)}
                                 required
                             />
