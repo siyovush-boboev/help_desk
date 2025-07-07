@@ -5,7 +5,7 @@ export default function Header() {
                 <span>☰</span>
             </div>
             <div className="logo">
-                <img src="src/assets/img/header-logo.png" alt="Company Logo" />
+                <img src="src/assets/images/header-logo.png" alt="Company Logo" />
             </div>
             <div className="user-info">
                 <div className="user-info-clickable">
@@ -17,7 +17,7 @@ export default function Header() {
                         <img
                             width="30"
                             height="30"
-                            src="src/assets/img/person.svg"
+                            src="src/assets/svg/person.svg"
                             alt="User Avatar"
                             className="rounded-circle user-logo"
                         />
