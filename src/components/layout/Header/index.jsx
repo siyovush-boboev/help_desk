@@ -10,8 +10,8 @@ export default function Header() {
             <div className="user-info">
                 <div className="user-info-clickable">
                     <div className="user-text">
-                        <h4>Admin LastName</h4>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                        <h4>initials</h4>
+                        <p>position</p>
                     </div>
                     <div className="user-avatar">
                         <img

@@ -13,7 +13,7 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await login(loginField, password);
+            const res = await login(loginField, password, rememberMe);
             setAccessToken(res.access_token);
             setUserRole(res.role);
             setPermissions(res.permissions);

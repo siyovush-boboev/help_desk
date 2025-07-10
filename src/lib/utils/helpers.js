@@ -254,9 +254,40 @@
 
 
 import { useContext } from 'react';
-import { AuthContext } from '../hooks/useAuth.jsx';
+import { AuthContext } from '../contexts/authBS.js';
 
 // Hook to use auth context anywhere
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+export function navbarClickHandler(e) {
+  e.stopPropagation();
+  const nav = document.querySelector('nav');
+  const target = e.target.closest('a');
+  const dropdownToggler = e.target.closest('.dropdown-container');
+
+  // Mark the clicked link as active
+  document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+  if (target)
+    target.classList.add('active');
+
+  if (dropdownToggler && !target) {
+    // select all the dropdown links that are not inside a dropdown container
+    const links = dropdownToggler.querySelectorAll(':scope > .dropdown-link');
+    // Toggle the display mode for dropdown links
+    let dropdownModeToSet = links[0].style.display === 'block' ? 'none' : 'block';
+    // Apply the new display mode to each dropdown link
+    links.forEach(link => {
+      link.style.display = dropdownModeToSet;
+    });
+    // Update the arrow indicator to reflect the dropdown's open/closed state
+    const arrow = dropdownToggler.querySelector('p');
+    if (arrow) {
+      arrow.textContent = arrow.textContent.slice(0, -1) + (dropdownModeToSet === 'block' ? '▲' : '▼');
+    }
+  }
+
+  // Close the nav if it is open
+  nav.style.left = '-1000px';
 }

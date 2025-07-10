@@ -187,7 +187,7 @@ svg {
   padding: 8px 0;
 }
 
-.dropdown-container2 a {
+.dropdown-container:last-child a {
   padding-left: 24px;
 }
 
@@ -215,7 +215,7 @@ svg {
   overflow: auto;
 }
 
-.breadcrumbs span:last-child {
+.breadcrumb-item:last-child {
   color: var(--primary-color);
 }
 
