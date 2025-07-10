@@ -153,21 +153,24 @@ svg {
   padding: 12px;
 }
 
+.navbar-link,
+.dropdown-link {
+  text-decoration: none;
+  color: var(--white);
+}
+
 .navbar-link:last-child {
   margin-top: auto;
 }
 
-.navbar-link a {
-  color: var(--white);
-  text-decoration: none;
-}
-
-.navbar-link a:hover {
+.navbar-link:hover,
+.dropdown-link:hover {
   color: var(--secondary-color);
   transition: 0.5s;
 }
 
-.navbar-link a.active {
+.navbar-link.active,
+.dropdown-link.active {
   text-decoration: underline;
   pointer-events: none;
 }
