@@ -29,3 +29,23 @@ export const createHttpClient = (auth) => {
 
   return { request };
 };
+
+
+export const fetcher = async ({ url, method = "GET", body = null }) => {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const res = await fetch(`${API_BASE_URL}${url}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+    // credentials: "include", // remove this if you don’t use cookies
+  });
+
+  if (!res.ok) {
+    throw new Error(`Fetch failed ${res.status}: ${res.statusText}`);
+  }
+
+  return res.json();
+};

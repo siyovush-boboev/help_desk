@@ -1,16 +1,18 @@
-export default function NavbarLink({ label, href, icon: Icon = null, ...args }) {
+import { Link } from "react-router-dom";
 
+export default function NavbarLink({ label, href, icon: Icon = null, className = "", ...args }) {
     if (Icon) {
         return (
-            <div className="navbar-link">
-                {<Icon></Icon>}
-                &nbsp;&nbsp;<a href={href} {...args}>{label}</a>
-            </div>
+            <Link to={href} className={`navbar-link ${className}`} {...args}>
+                {Icon && <Icon />}
+                <span style={{ marginLeft: "0.5rem" }}>{label}</span>
+            </Link>
         );
-    }
-    else {
+    } else {
         return (
-            <a className="dropdown-link" href={href}>{label}</a>
+            <Link to={href} className={`dropdown-link ${className}`} {...args}>
+                {label}
+            </Link>
         );
     }
 }
