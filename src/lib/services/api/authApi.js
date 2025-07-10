@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "../../constants";
 
-export const login = async (login, password) => {
+export const login = async (login, password, rememberMe) => {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ login, password }),
+    body: JSON.stringify({ login, password, rememberMe }),
   });
 
   if (!res.ok) throw new Error("Login failed");

@@ -1,30 +1,29 @@
+import Breadcrumbs from "../../layout/Breadcrumbs/index.jsx";
+import Controls from "../../layout/ControlBar/index.jsx";
+import DataTable from "../../layout/DataTable/index.jsx";
+import Pagination from "../../layout/Pagination/index.jsx";
 import Header from "../../layout/Header/index.jsx";
 import Navbar from "../../layout/Navbar/index.jsx";
-import { useAuth } from "../../../lib/hooks/useAuth";
-import { Navigate } from "react-router-dom";
-
 
 
 export default function Dashboard() {
-    const { accessToken, userRole, permissions } = useAuth();
-    console.log("Dashboard userRole:", userRole);
-    console.log("Dashboard permissions:", permissions);
-
-
-    if (!accessToken) return <Navigate to="/login" replace />;
 
     return (
         <>
             <Header />
 
             <main>
-                <Navbar />
+                <Navbar></Navbar>
 
                 <div className="main-content">
-                    <div className="breadcrumbs"></div>
-                    <div className="controls"></div>
-                    <div className="table-wrapper"></div>
-                    <div className="pagination-container"></div>
+                    <Breadcrumbs text="bull/shit"></Breadcrumbs>
+                    <Controls>
+                        <p>controls</p>
+                    </Controls>
+                    <DataTable>
+                        <p>fn table</p>
+                    </DataTable>
+                    <Pagination totalItems={12} currentPage={1} onPageChange={() => (console.log("page +-"))}></Pagination>
                 </div>
             </main>
         </>

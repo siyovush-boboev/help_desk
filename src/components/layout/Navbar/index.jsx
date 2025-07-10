@@ -1,57 +1,40 @@
 import { HomeIcon, ApplicationsIcon, UsersIcon, ReportsIcon, SettingsIcon, CollectionIcon } from '../../ui/icons.jsx';
-
+import NavbarLink from '../../ui/NavbarLink.jsx';
+import { navbarClickHandler } from '../../../lib/utils/helpers.js';
 
 export default function Navbar() {
     return (
-        <nav>
-            <div className="navbar-link">
-                <HomeIcon></HomeIcon>
-                &nbsp;&nbsp;<a href="#main">Главная</a>
-            </div>
-
-            <div className="navbar-link">
-                <ApplicationsIcon></ApplicationsIcon>
-                &nbsp;&nbsp;<a href="#applications">Заявки</a>
-            </div>
-
-            <div className="navbar-link">
-                <UsersIcon></UsersIcon>
-                &nbsp;&nbsp;<a href="#users">Пользователи</a>
-            </div>
+        <nav onClick={navbarClickHandler}>
+            <NavbarLink icon={HomeIcon} label="Главная" href="#home" className="active" />
+            <NavbarLink icon={ApplicationsIcon} label="Заявки" href="#applications" />
+            <NavbarLink icon={UsersIcon} label="Пользователи" href="#users" />
 
             <div className="navbar-link dropdown-container">
                 <div className="dropdown-toggler">
-                    <CollectionIcon></CollectionIcon>
+                    <CollectionIcon />
                     &nbsp;&nbsp;<p>Справочник ▼</p>
                 </div>
-                <a href="#statuses" className="dropdown-link">Статусы</a>
-                <a href="#priorities" className="dropdown-link">Приоритеты</a>
-                <a href="#departments" className="dropdown-link">Департаменты</a>
-                <a href="#divisions" className="dropdown-link">Отделы</a>
-                <a href="#branches" className="dropdown-link">Филиалы</a>
-                <a href="#cbo-offices" className="dropdown-link">Офисы ЦБО</a>
-                <a href="#roles" className="dropdown-link">Роли</a>
-                <a href="#privileges" className="dropdown-link">Привелигии</a>
-                <a href="#equipment" className="dropdown-link">Оборудования</a>
+                <NavbarLink label="Статусы" href="#statuses" />
+                <NavbarLink label="Приоритеты" href="#priorities" />
+                <NavbarLink label="Департаменты" href="#departments" />
+                <NavbarLink label="Отделы" href="#divisions" />
+                <NavbarLink label="Филиалы" href="#branches" />
+                <NavbarLink label="Офисы ЦБО" href="#cbo-offices" />
+                <NavbarLink label="Роли" href="#roles" />
+                <NavbarLink label="Привелигии" href="#privileges" />
+                <NavbarLink label="Оборудования" href="#equipment" />
 
-                <div className="dropdown-container2 dropdown-link dropdown-toggler">
+                <div className="dropdown-container dropdown-link dropdown-toggler">
                     <div><p>Оборудования ▼</p></div>
-                    <a href="#atms" className="dropdown-link2">Банкоматы</a>
-                    <a href="#terminals" className="dropdown-link2">Терминалы</a>
-                    <a href="#pos-terminals" className="dropdown-link2">POS-терминалы</a>
-                    <a href="#co-eo" className="dropdown-link2">ЦО+ЭО</a>
+                    <NavbarLink label="Банкоматы" href="#atms" />
+                    <NavbarLink label="Терминалы" href="#terminals" />
+                    <NavbarLink label="POS-терминалы" href="#pos-terminals" />
+                    <NavbarLink label="ЦО+ЭО" href="#co-eo" />
                 </div>
             </div>
 
-            <div className="navbar-link">
-                <ReportsIcon></ReportsIcon>
-                &nbsp;&nbsp;<a href="#reports">Отчеты</a>
-            </div>
-
-            <div className="navbar-link">
-                <SettingsIcon></SettingsIcon>
-                &nbsp;&nbsp;<a href="#settings">Настройки</a>
-            </div>
+            <NavbarLink icon={ReportsIcon} label="Отчеты" href="#reports" />
+            <NavbarLink icon={SettingsIcon} label="Настройки" href="#settings" />
         </nav>
     );
 }
