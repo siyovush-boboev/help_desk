@@ -39,6 +39,7 @@ export default function ControlBar({
                     />
                     {showClear && (
                         <button
+                            id="clear-button"
                             onClick={() => {
                                 setSearchValue("");
                                 setShowClear(false);

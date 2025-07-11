@@ -1,8 +1,10 @@
+import Breadcrumbs from "../../layout/Breadcrumbs";
+
 export default function Reports() {
     return (
         <div className="main-reports-container">
+            <Breadcrumbs text="Отчёты"></Breadcrumbs>
             <div className="reports-card">
-                <h2>Отчеты</h2>
                 <p>Здесь будет список отчетов.</p>
                 {/* Add your reports content here */}
             </div>

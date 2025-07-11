@@ -341,6 +341,7 @@ input[type="checkbox"] {
   padding: 6px;
   font-size: 12px;
   text-align: left;
+  vertical-align: center;
 }
 
 .custom-table th {

@@ -7,7 +7,6 @@ export default function Navbar() {
 
     return (
         <nav onClick={navbarClickHandler}>
-            {/* 🔥 Main nav links with icons */}
             <NavbarLink icon={HomeIcon} label="Главная" href="/" />
             <NavbarLink icon={ApplicationsIcon} label="Заявки" href="/orders" />
             <NavbarLink icon={UsersIcon} label="Пользователи" href="/users" />
@@ -19,7 +18,7 @@ export default function Navbar() {
                     &nbsp;&nbsp;<p>Справочник ▼</p>
                 </div>
 
-                {/* 🌐 Top-level collection links */}
+                {/* Top-level collection links */}
                 {COLLECTION_LINKS.map((link) => (
                     <NavbarLink
                         key={link.href}
@@ -29,7 +28,7 @@ export default function Navbar() {
                     />
                 ))}
 
-                {/* 💾 Equipment sub-dropdown */}
+                {/* Equipment sub-dropdown */}
                 <div className="dropdown-container dropdown-link dropdown-toggler">
                     <div><p>Оборудования ▼</p></div>
                     {EQUIPMENT_SUBLINKS.map((link) => (
@@ -43,10 +42,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* 📄 Reports */}
             <NavbarLink icon={ReportsIcon} label="Отчеты" href="/reports" />
-
-            {/* ⚙️ Settings always last */}
             <NavbarLink icon={SettingsIcon} label="Настройки" href="/settings" />
         </nav>
     );
