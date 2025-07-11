@@ -1,39 +1,30 @@
 import { useEffect, useState } from "react";
-import Breadcrumbs from "../../layout/Breadcrumbs/index.jsx";
-import ControlBar from "../../layout/ControlBar/index.jsx";
-import DataTable from "../../layout/DataTable/index.jsx";
-import Pagination from "../../layout/Pagination/index.jsx";
-import { fetcher } from "../../../lib/services/api/httpClient.js";
+import Breadcrumbs from "../../layout/Breadcrumbs";
+import ControlBar from "../../layout/ControlBar";
+import DataTable from "../../layout/DataTable";
+import Pagination from "../../layout/Pagination";
+import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages";
+import { loadData } from "../../../lib/utils/helpers";
+
+const config = TABLE_PAGES_CONFIG["orders"];
 
 export default function Orders() {
     const [data, setData] = useState([]);
+    const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const res = await fetcher({
-                    url: "/order",
-                });
-                setData(res);
-            } catch (err) {
-                console.error(err);
-                setError("Failed to load orders");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadData();
+        loadData(setData, setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config);
     }, []);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
 
     return (
         <>
-            <Breadcrumbs text="Заявки" />
+            <Breadcrumbs text={config.plural} />
+
             <ControlBar
                 showSearch
                 showDelete
@@ -44,14 +35,20 @@ export default function Orders() {
                 onFilter={() => console.log("filter logic")}
                 onCreate={() => console.log("create logic")}
             />
-            <DataTable>
-                <pre>{JSON.stringify(data, null, 2)}</pre>
-            </DataTable>
+
+            <DataTable
+                columns={config.columns}
+                data={data?.result || []}
+                pageData={preload}
+                onEdit={(id) => console.log("edit", id)}
+                onDelete={(id) => console.log("delete", id)}
+            />
+
             <Pagination
-                totalItems={420}
-                currentPage={1}
-                totalPages={10}
-                initialPageSize={10}
+                totalItems={data?.pagination?.totalItems || 0}
+                currentPage={data?.pagination?.currentPage || 1}
+                totalPages={data?.pagination?.totalPages || 1}
+                initialPageSize={data?.pagination?.pageSize || 10}
                 onPageChange={(page) => console.log("Page:", page)}
                 onPageSizeChange={(size) => console.log("Size:", size)}
             />

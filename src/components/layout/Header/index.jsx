@@ -1,7 +1,10 @@
 export default function Header() {
     return (
         <header>
-            <div className="sandwitch">
+            <div className="sandwitch" onClick={() => {
+                const nav = document.querySelector('nav');
+                nav.style.left = nav.style.left === '0px' ? '-1000px' : '0px';
+            }}>
                 <span>☰</span>
             </div>
             <div className="logo">

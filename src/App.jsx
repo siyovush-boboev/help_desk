@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from './components/pages/Dashboard/index.jsx';
 import Login from './components/pages/Login/index.jsx';
-import HomePage from './components/pages/HomePage/index.jsx';
+import MainPage from './components/pages/MainPage/index.jsx';
 import Orders from './components/pages/Orders/index.jsx';
 import Users from './components/pages/Users/index.jsx';
 import Collections from "./components/pages/Collections/index.jsx";
@@ -17,7 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/" element={<Dashboard />} >
-          <Route index element={<HomePage />} />
+          <Route index element={<MainPage />} />
           <Route path="orders" element={<Orders />} />
           <Route path="users" element={<Users />} />
           <Route path="collections" element={<Collections />} />

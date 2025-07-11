@@ -19,3 +19,28 @@ export const EQUIPMENT_SUBLINKS = [
   { label: "POS-терминалы", href: "/collections/equipment/pos-terminals" },
   { label: "ЦО+ЭО", href: "/collections/equipment/co-eo" },
 ];
+
+export const TABLE_COLUMNS = {
+  orders: {
+				"CHECKMARK": null,
+				"№": "id",
+				"Статус": "status_id",
+				"Приоритет": "priority_id",
+				"Наименование заявки": "name",
+				"Заявитель": "user_id",
+				"Дата создания": "created_at",
+				"Исполнитель": "",
+				"Срок": "duration"
+  },
+  users: {
+				"CHECKMARK": null,
+				"Имя": "fio",
+				"Департамент": "department_id",
+				"Отдел": "otdel_id",
+				"Роль": "role_id",
+				"Телефон": "phoneNumber",
+				"E-mail": "email",
+				"Действия": null
+  },
+  // etc
+};

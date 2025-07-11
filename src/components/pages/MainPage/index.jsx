@@ -6,9 +6,9 @@ import Pagination from "../../layout/Pagination/index.jsx";
 import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages.js";
 import { loadData } from "../../../lib/utils/helpers.js";
 
-const config = TABLE_PAGES_CONFIG["users"];
+const config = TABLE_PAGES_CONFIG["main"];
 
-export default function Users() {
+export default function MainPage() {
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -25,9 +25,6 @@ export default function Users() {
         <>
             <Breadcrumbs text={config.plural} />
             <ControlBar
-                showSearch
-                showDelete
-                showFilters
                 showCreate
                 onDelete={() => console.log("delete logic")}
                 onFilter={() => console.log("filter logic")}
@@ -41,7 +38,7 @@ export default function Users() {
                 onDelete={(id) => console.log("delete", id)}
             />
             <Pagination
-                totalItems={data?.pagination?.totalItems || 0}
+                totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
                 currentPage={data?.pagination?.currentPage || 1}
                 totalPages={data?.pagination?.totalPages || 1}
                 initialPageSize={data?.pagination?.pageSize || 10}
