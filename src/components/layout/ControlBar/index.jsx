@@ -23,6 +23,15 @@ export default function ControlBar({
 
     const toggleShowClosed = () => {
         setShowClosed((prev) => !prev);
+        const status_column_index = [...document.querySelectorAll(".custom-table thead th")].find(el => el.textContent == "Статус")?.cellIndex;
+        if (status_column_index) {
+            const rows = document.querySelectorAll(".custom-table tbody tr");
+            rows.forEach(row => {
+                const statusCell = row.cells[status_column_index];
+                if (statusCell)
+                    row.style.display = !showClosed || statusCell.textContent !== "Закрыто" ? "" : "none";
+            });
+        }
         console.log(`Toggle closed rows: ${!showClosed}`);
     };
 
