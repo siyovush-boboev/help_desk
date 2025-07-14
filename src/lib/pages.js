@@ -1,20 +1,20 @@
 export const API_RESOURCES = {
   main: "/main",
-  orders: "/order",
-  users: "/user",
-  statuses: "/status",
-  priorities: "/priority",
-  departments: "/department",
-  otdels: "/otdel",
-  branches: "/branch",
-  offices: "/office",
-  roles: "/role",
-  permissions: "/permission",
-  equipmentTypes: "/equipment_type",
-  atm: "/equipment?equipment_type=1",
-  terminals: "/equipment?equipment_type=2",
-  pos: "/equipment?equipment_type=3",
-  coeo: "/equipment?equipment_type=4",
+  order: "/order",
+  user: "/user",
+  status: "/status",
+  priority: "/priority",
+  department: "/department",
+  otdel: "/otdel",
+  branch: "/branch",
+  office: "/office",
+  role: "/role",
+  permission: "/permission",
+  equipment_type: "/equipment_type",
+  atm: "/atm",
+  terminal: "/terminal",
+  pos: "/pos-terminal",
+  coeo: "/coeo",
 };
 
 
@@ -23,7 +23,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Главная",
     plural: "Главная",
     resource: "main",
-    preload: ["departments", "otdels", "statuses", "priorities", "branches", "offices", "equipmentTypes", "users"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment_type", "user"],
     columns: {
       "№": null,
       "Наименование": "Наименование",
@@ -32,11 +32,11 @@ export const TABLE_PAGES_CONFIG = {
       "Всего": ""
     }
   },
-  orders: {
+  order: {
     singular: "Заявка",
     plural: "Заявки",
-    resource: "orders",
-    preload: ["departments", "otdels", "statuses", "priorities", "branches", "offices", "equipmentTypes", "users"],
+    resource: "order",
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment_type", "user"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -49,11 +49,11 @@ export const TABLE_PAGES_CONFIG = {
       "Срок": "duration"
     }
   },
-  users: {
+  user: {
     singular: "Пользователь",
     plural: "Пользователи",
-    resource: "users",
-    preload: ["departments", "otdels", "branches", "offices", "roles"],
+    resource: "user",
+    preload: ["department", "otdel", "branch", "office", "role"],
     columns: {
       "CHECKMARK": null,
       "Имя": "fio",
@@ -65,10 +65,10 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  statuses: {
+  status: {
     singular: "Статус",
     plural: "Статусы",
-    resource: "statuses",
+    resource: "status",
     preload: [],
     columns: {
       "№": null,
@@ -78,10 +78,10 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  priorities: {
+  priority: {
     singular: "Приоритет",
     plural: "Приоритеты",
-    resource: "priorities",
+    resource: "priority",
     preload: [],
     columns: {
       "№": null,
@@ -91,35 +91,35 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  departments: {
+  department: {
     singular: "Департамент",
     plural: "Департаменты",
-    resource: "departments",
+    resource: "department",
     preload: [],
     columns: {
       "№": null,
       "Наименование": "name",
-      "Статус": null,
+      "Статус": "status_id",
       "Действия": null
     }
   },
-  otdels: {
+  otdel: {
     singular: "Отдел",
     plural: "Отделы",
-    resource: "otdels",
-    preload: ["departments"],
+    resource: "otdel",
+    preload: ["department"],
     columns: {
       "№": null,
       "Наименование": "name",
       "Департамент": "department_id",
-      "Статус": null,
+      "Статус": "status_id",
       "Действия": null
     }
   },
-  branches: {
+  branch: {
     singular: "Филиал",
     plural: "Филиалы",
-    resource: "branches",
+    resource: "branch",
     preload: [],
     columns: {
       "№": null,
@@ -130,15 +130,15 @@ export const TABLE_PAGES_CONFIG = {
       "Телефон": "phoneNumber",
       "Почтовый индекс": "mailing_index",
       "Короткое наименование": "shortName",
-      "Статус": null,
+      "Статус": "status_id",
       "Действия": null
     }
   },
-  offices: {
+  office: {
     singular: "Офис ЦБО",
     plural: "Офисы ЦБО",
-    resource: "offices",
-    preload: ["branches", "departments"],
+    resource: "office",
+    preload: ["branch", "department"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -149,11 +149,11 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  roles: {
+  role: {
     singular: "Роль",
     plural: "Роли",
-    resource: "roles",
-    preload: ["permissions"],
+    resource: "role",
+    preload: ["permission"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -161,10 +161,10 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  permissions: {
+  permission: {
     singular: "Привелигия",
     plural: "Привелигии",
-    resource: "permissions",
+    resource: "permission",
     preload: [],
     columns: {
       "№": null,
@@ -173,10 +173,10 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
-  equipmentTypes: {
+  equipment_type: {
     singular: "Оборудование",
     plural: "Оборудования",
-    resource: "equipmentTypes",
+    resource: "equipment_type",
     preload: [],
     columns: {
       "№": null,
@@ -187,8 +187,8 @@ export const TABLE_PAGES_CONFIG = {
   atm: {
     singular: "Банкомат",
     plural: "Банкоматы",
-    resource: "equipment",
-    preload: ["branches", "offices", "equipmentTypes"],
+    resource: "atm",
+    preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,
       "Номер банкомата": "name",
@@ -196,15 +196,15 @@ export const TABLE_PAGES_CONFIG = {
       "Офис ЦБО": "office_id",
       "Адрес банкомата": "address",
       "Оборудование": "type_id",
-      "Статус": null,
+      "Статус": "status_id",
       "Действия": null
     }
   },
-  terminals: {
+  terminal: {
     singular: "Терминал",
     plural: "Терминалы",
-    resource: "equipment",
-    preload: ["branches", "offices", "equipmentTypes"],
+    resource: "terminal",
+    preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,
       "Номер терминала": "name",
@@ -219,8 +219,8 @@ export const TABLE_PAGES_CONFIG = {
   pos: {
     singular: "POS-терминал",
     plural: "POS-терминалы",
-    resource: "equipment",
-    preload: ["branches", "offices", "equipmentTypes"],
+    resource: "pos",
+    preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,
       "Номер POS-терминала": "name",
@@ -235,8 +235,8 @@ export const TABLE_PAGES_CONFIG = {
   coeo: {
     singular: "ЦО+ЭО",
     plural: "ЦО+ЭО",
-    resource: "equipment",
-    preload: ["branches", "offices", "equipmentTypes"],
+    resource: "coeo",
+    preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,
       "Номер банкомата": "name",

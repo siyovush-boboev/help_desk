@@ -2,45 +2,20 @@ export const MAXIMUM_TABLE_ROWS_PER_PAGE = 20;
 export const API_BASE_URL = "http://localhost:8080/api/v1";
 
 export const COLLECTION_LINKS = [
-  { label: "Статусы", href: "/collections/statuses" },
-  { label: "Приоритеты", href: "/collections/priorities" },
-  { label: "Департаменты", href: "/collections/departments" },
-  { label: "Отделы", href: "/collections/divisions" },
-  { label: "Филиалы", href: "/collections/branches" },
-  { label: "Офисы ЦБО", href: "/collections/cbo-offices" },
-  { label: "Роли", href: "/collections/roles" },
-  { label: "Привелигии", href: "/collections/privileges" },
-  { label: "Оборудования", href: "/collections/equipment" },
+  { label: "Статусы", href: "status" },
+  { label: "Приоритеты", href: "priority" },
+  { label: "Департаменты", href: "department" },
+  { label: "Отделы", href: "otdel" },
+  { label: "Филиалы", href: "branch" },
+  { label: "Офисы ЦБО", href: "office" },
+  { label: "Роли", href: "role" },
+  { label: "Привелигии", href: "permission" },
+  { label: "Оборудования", href: "equipment_type" },
 ];
 
 export const EQUIPMENT_SUBLINKS = [
-  { label: "Банкоматы", href: "/collections/equipment/atms" },
-  { label: "Терминалы", href: "/collections/equipment/terminals" },
-  { label: "POS-терминалы", href: "/collections/equipment/pos-terminals" },
-  { label: "ЦО+ЭО", href: "/collections/equipment/co-eo" },
+  { label: "Банкоматы", href: "atm" },
+  { label: "Терминалы", href: "terminal" },
+  { label: "POS-терминалы", href: "pos-terminal" },
+  { label: "ЦО+ЭО", href: "coeo" },
 ];
-
-export const TABLE_COLUMNS = {
-  orders: {
-				"CHECKMARK": null,
-				"№": "id",
-				"Статус": "status_id",
-				"Приоритет": "priority_id",
-				"Наименование заявки": "name",
-				"Заявитель": "user_id",
-				"Дата создания": "created_at",
-				"Исполнитель": "",
-				"Срок": "duration"
-  },
-  users: {
-				"CHECKMARK": null,
-				"Имя": "fio",
-				"Департамент": "department_id",
-				"Отдел": "otdel_id",
-				"Роль": "role_id",
-				"Телефон": "phoneNumber",
-				"E-mail": "email",
-				"Действия": null
-  },
-  // etc
-};

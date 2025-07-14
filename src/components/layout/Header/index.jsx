@@ -27,9 +27,6 @@ export default function Header() {
                     </div>
                 </div>
             </div>
-            <div className="modal" style={{ display: "none" }}>
-                <div className="modal-content"></div>
-            </div>
         </header>
     );
 }

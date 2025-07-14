@@ -3,8 +3,8 @@ import Breadcrumbs from "../../layout/Breadcrumbs/index.jsx";
 import ControlBar from "../../layout/ControlBar/index.jsx";
 import DataTable from "../../layout/DataTable/index.jsx";
 import Pagination from "../../layout/Pagination/index.jsx";
+import { loadData } from "../../../lib/utils/helpers.jsx";
 import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages.js";
-import { loadData } from "../../../lib/utils/helpers.js";
 
 const config = TABLE_PAGES_CONFIG["main"];
 
@@ -36,6 +36,7 @@ export default function MainPage() {
                 pageData={preload}
                 onEdit={(id) => console.log("edit", id)}
                 onDelete={(id) => console.log("delete", id)}
+                main_page={true}
             />
             <Pagination
                 totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
