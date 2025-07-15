@@ -81,6 +81,56 @@ export const loadData = async (setData, setPreload, setLoading, setError, API_RE
     }
 };
 
+export const loadDataPreload = async (setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config) => {
+    try {
+        const preloadResults = await Promise.all(
+            config.preload.map((key) =>
+                fetcher({ url: API_RESOURCES[key] })
+            )
+        );
+
+        const preloadData = {};
+        config.preload.forEach((key, i) => {
+            key = TABLE_PAGES_CONFIG[key].singular || key;
+            const raw = preloadResults[i];
+            const prepped = raw.result.reduce((acc, item) => {
+                const id = item.id || item._id || item.ID;
+                const name = item.name || item.title || item.fio || id;
+                acc[id] = name;
+                return acc;
+            }, {});
+            preloadData[key] = prepped;
+        });
+
+        setPreload(preloadData);
+    } catch (err) {
+        console.error(err);
+        setError("Ошибка загрузки данных");
+    } finally {
+        setLoading(false);
+    }
+};
+
+export const loadDataTable = async (setData, setLoading, setError, API_RESOURCES, config, filters) => {
+    try {
+        setLoading(true);
+        const allEmpty = Object.values(filters).every(arr => arr.length === 1 && arr[0] === "");
+        let queryString = "";
+        if (!allEmpty) {
+            queryString = new URLSearchParams(filters).toString();
+        }
+        const url = `${API_RESOURCES[config.resource]}?${queryString}`;
+        const mainRes = await fetcher({ url });
+        setData(mainRes);
+    } catch (err) {
+        console.error(err);
+        setError("Ошибка загрузки таблицы");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 export function onDelete(setModalContent, closeModal, id = null) {
     const data_to_delete = [...document.querySelectorAll(
         ".custom-table tbody tr"

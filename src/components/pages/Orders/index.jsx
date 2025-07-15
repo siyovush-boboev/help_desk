@@ -1,4 +1,5 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import Breadcrumbs from "../../layout/Breadcrumbs";
 import ControlBar from "../../layout/ControlBar";
 import DataTable from "../../layout/DataTable";
@@ -6,8 +7,8 @@ import Pagination from "../../layout/Pagination";
 import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages";
 import { ModalContext } from "../../../lib/contexts/ModalContext.js";
 import UserInfoModal from "../../layout/UserInfoModal/index.jsx";
-import { onDelete, loadData } from "../../../lib/utils/helpers.jsx";
-
+import { onDelete, loadDataPreload, loadDataTable } from "../../../lib/utils/helpers.jsx";
+import FiltersModal from "../../layout/FiltersForm/index.jsx";
 
 const config = TABLE_PAGES_CONFIG["order"];
 
@@ -17,16 +18,52 @@ export default function Orders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const filtersFromUrl = useMemo(() => {
+        const obj = {};
+        searchParams.forEach((v, k) => {
+            obj[k] = v.split(",");
+        });
+        return obj;
+    }, [searchParams]);
 
     const onShowUser = (userId) => {
         setModalContent(
-            <UserInfoModal userId={userId} onClose={closeModal} departments={preload[TABLE_PAGES_CONFIG["department"]["singular"]]} />
+            <UserInfoModal
+                userId={userId}
+                onClose={closeModal}
+                departments={preload[TABLE_PAGES_CONFIG["department"]["singular"]]}
+            />
+        );
+    };
+
+    const onFilter = () => {
+        if (!config.filters || config.filters.length === 0) return;
+        setModalContent(
+            <FiltersModal
+                filters={config.filters}
+                preload={preload}
+                defaultFilters={filtersFromUrl}
+                onApply={(newFilters) => {
+                    const flat = {};
+                    Object.entries(newFilters).forEach(([k, v]) => {
+                        flat[k] = v.join(",");
+                    });
+                    setSearchParams(flat);
+                }}
+                onClose={closeModal}
+            />
         );
     };
 
     useEffect(() => {
-        loadData(setData, setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config);
+        loadDataPreload(setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config);
     }, []);
+
+    useEffect(() => {
+        loadDataTable(setData, setLoading, setError, API_RESOURCES, config, filtersFromUrl);
+    }, [searchParams, filtersFromUrl]);
 
     if (loading) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
@@ -38,11 +75,11 @@ export default function Orders() {
             <ControlBar
                 showSearch
                 showDelete
-                showFilters
+                showFilters={config.filters && config.filters.length > 0}
                 showShowHide
                 showCreate
-                onDelete={() => (onDelete(setModalContent, closeModal))}
-                onFilter={() => console.log("filter logic")}
+                onDelete={() => onDelete(setModalContent, closeModal)}
+                onFilter={onFilter}
                 onCreate={() => console.log("create logic")}
             />
 

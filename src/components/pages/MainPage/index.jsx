@@ -26,25 +26,13 @@ export default function MainPage() {
             <Breadcrumbs text={config.plural} />
             <ControlBar
                 showCreate
-                onDelete={() => console.log("delete logic")}
-                onFilter={() => console.log("filter logic")}
                 onCreate={() => console.log("create logic")}
             />
             <DataTable
                 columns={config.columns}
                 data={data["result"]}
                 pageData={preload}
-                onEdit={(id) => console.log("edit", id)}
-                onDelete={(id) => console.log("delete", id)}
                 main_page={true}
-            />
-            <Pagination
-                totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
-                currentPage={data?.pagination?.currentPage || 1}
-                totalPages={data?.pagination?.totalPages || 1}
-                initialPageSize={data?.pagination?.pageSize || 10}
-                onPageChange={(page) => console.log("Page:", page)}
-                onPageSizeChange={(size) => console.log("Size:", size)}
             />
         </>
     );

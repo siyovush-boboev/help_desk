@@ -16,6 +16,6 @@ export const COLLECTION_LINKS = [
 export const EQUIPMENT_SUBLINKS = [
   { label: "Банкоматы", href: "atm" },
   { label: "Терминалы", href: "terminal" },
-  { label: "POS-терминалы", href: "pos-terminal" },
+  { label: "POS-терминалы", href: "pos" },
   { label: "ЦО+ЭО", href: "coeo" },
 ];
