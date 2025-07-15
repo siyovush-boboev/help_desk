@@ -29,7 +29,7 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "Наименование",
       "Открыто": "Открыто",
       "Закрыто": "Закрыто",
-      "Всего": ""
+      "Всего": null
     }
   },
   order: {
@@ -45,9 +45,18 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование заявки": "name",
       "Заявитель": "user_id",
       "Дата создания": "created_at",
-      "Исполнитель": "",
+      "Исполнитель": null,
       "Срок": "duration"
-    }
+    },
+    filters: [
+      {id: "status_id", label: "Статус"},
+      {id: "priority_id", label: "Приоритет"},
+      {id: "user_id", label: "Заявитель"},
+      {id: "department_id", label: "Департамент"},
+      {id: "otdel_id", label: "Отдел"},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"}      
+    ]
   },
   user: {
     singular: "Пользователь",
@@ -63,7 +72,14 @@ export const TABLE_PAGES_CONFIG = {
       "Телефон": "phoneNumber",
       "E-mail": "email",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "department_id", label: "Департамент"},
+      {id: "otdel_id", label: "Отдел"},
+      {id: "role_id", label: "Роль"},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"}
+    ]
   },
   status: {
     singular: "Статус",
@@ -101,7 +117,10 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+    ]
   },
   otdel: {
     singular: "Отдел",
@@ -114,7 +133,11 @@ export const TABLE_PAGES_CONFIG = {
       "Департамент": "department_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "department_id", label: "Департамент"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+    ]
   },
   branch: {
     singular: "Филиал",
@@ -132,7 +155,10 @@ export const TABLE_PAGES_CONFIG = {
       "Короткое наименование": "shortName",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+    ]
   },
   office: {
     singular: "Офис ЦБО",
@@ -147,7 +173,11 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "branch_id", label: "Филиал"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+    ]
   },
   role: {
     singular: "Роль",
@@ -159,7 +189,10 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Описание": "description",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "permission_id", label: "Привелигия"}
+    ]
   },
   permission: {
     singular: "Привелигия",
@@ -198,7 +231,13 @@ export const TABLE_PAGES_CONFIG = {
       "Оборудование": "type_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "type_id", label: "Оборудование"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"},
+    ]
   },
   terminal: {
     singular: "Терминал",
@@ -214,7 +253,13 @@ export const TABLE_PAGES_CONFIG = {
       "Оборудование": "type_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "type_id", label: "Оборудование"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"},
+    ]
   },
   pos: {
     singular: "POS-терминал",
@@ -230,7 +275,13 @@ export const TABLE_PAGES_CONFIG = {
       "Оборудование": "type_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "type_id", label: "Оборудование"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"},
+    ]
   },
   coeo: {
     singular: "ЦО+ЭО",
@@ -246,6 +297,12 @@ export const TABLE_PAGES_CONFIG = {
       "Оборудование": "type_id",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "type_id", label: "Оборудование"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"},
+    ]
   }
 };
