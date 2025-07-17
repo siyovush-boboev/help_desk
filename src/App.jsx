@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from './components/pages/Dashboard/index.jsx';
-import Login from './components/pages/Login/index.jsx';
-import MainPage from './components/pages/MainPage/index.jsx';
-import Orders from './components/pages/Orders/index.jsx';
-import Users from './components/pages/Users/index.jsx';
-import Collections from "./components/pages/Collections/index.jsx";
-import Reports from "./components/pages/Reports/index.jsx";
-import Settings from "./components/pages/Settings/index.jsx";
-import ModalProvider from "./components/layout/ModalProvider/index.jsx";
+import Dashboard from './components/pages/Dashboard';
+import Login from './components/pages/Login';
+import MainPage from './components/pages/MainPage';
+import Orders from './components/pages/Orders';
+import Users from './components/pages/Users';
+import Collections from "./components/pages/Collections";
+import Reports from "./components/pages/Reports";
+import Settings from "./components/pages/Settings";
+import ModalProvider from "./components/layout/ModalProvider";
 
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/" element={<Dashboard />} >
-            <Route index element={<MainPage />} />
+            <Route path="main" index element={<MainPage />} />
             <Route path="order" element={<Orders />} />
             <Route path="user" element={<Users />} />
             <Route path="report" element={<Reports />} />

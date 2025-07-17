@@ -1,7 +1,8 @@
 import { useContext } from 'react';
 import { AuthContext } from '../contexts/authBS.js';
 import { fetcher } from "../services/api/httpClient.js";
-import DeleteForm from "../../components/layout/DeleteForm/index.jsx";
+import DeleteForm from "../../components/layout/DeleteForm";
+import DynamicForm from "../../components/layout/DynamicForm";
 
 
 // Hook to use auth context anywhere
@@ -40,52 +41,11 @@ export function navbarClickHandler(e) {
         nav.style.left = '-1000px';
 }
 
-export const loadData = async (setData, setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config) => {
-    try {
-        // Main table data
-        const mainRes = await fetcher({
-            url: API_RESOURCES[config.resource],
-        });
-
-        // Preload data for selects etc.
-        const preloadResults = await Promise.all(
-            config.preload.map((key) =>
-                fetcher({ url: API_RESOURCES[key] })
-            )
-        );
-
-        // ⚠️ Here we unwrap .result if your API returns { result: [...] }
-        const preloadData = {};
-        config.preload.forEach((key, i) => {
-            key = TABLE_PAGES_CONFIG[key].singular || key; // Use singular form for keys
-            const raw = preloadResults[i];
-            // get raw["result"] and create an object with the key as raw[result][i][id] and value as the item's "name" or "title" or "fio" or just id itself
-            const prepped = raw.result.reduce((acc, item) => {
-                // Assuming each item has an "id" and a "name" or similar field
-                const id = item.id || item._id || item.id || item.ID; // Adjust based on your API
-                const name = item.name || item.title || item.fio || id; // Fallback to id if no name/title/fio
-                acc[id] = name;
-                return acc;
-            }, {});
-            // key should be the singular form ()
-            preloadData[key] = prepped;
-        });
-
-        setData(mainRes);
-        setPreload(preloadData);
-    } catch (err) {
-        console.error(err);
-        setError("Ошибка загрузки данных");
-    } finally {
-        setLoading(false);
-    }
-};
-
-export const loadDataPreload = async (setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config) => {
+export const loadDataPreload = async (setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config) => {
     try {
         const preloadResults = await Promise.all(
             config.preload.map((key) =>
-                fetcher({ url: API_RESOURCES[key] })
+                fetcher({ url: "/" + TABLE_PAGES_CONFIG[key]["resource"] })
             )
         );
 
@@ -111,7 +71,7 @@ export const loadDataPreload = async (setPreload, setLoading, setError, API_RESO
     }
 };
 
-export const loadDataTable = async (setData, setLoading, setError, API_RESOURCES, config, filters) => {
+export const loadDataTable = async (setData, setLoading, setError, config, filters = {}) => {
     try {
         setLoading(true);
         const allEmpty = Object.values(filters).every(arr => arr.length === 1 && arr[0] === "");
@@ -119,7 +79,7 @@ export const loadDataTable = async (setData, setLoading, setError, API_RESOURCES
         if (!allEmpty) {
             queryString = new URLSearchParams(filters).toString();
         }
-        const url = `${API_RESOURCES[config.resource]}?${queryString}`;
+        const url = `/${config.resource}?${queryString}`;
         const mainRes = await fetcher({ url });
         setData(mainRes);
     } catch (err) {
@@ -143,4 +103,90 @@ export function onDelete(setModalContent, closeModal, id = null) {
         setModalContent(
             <DeleteForm data={data_to_delete} onClose={closeModal} id={id} />
         );
+}
+
+
+export function onCreateSubmit(new_data, itemData, closeModal) {
+    Object.entries(new_data).map(([key, val]) => {
+        if (typeof itemData?.[key] === "number" && !isNaN(itemData?.[key]) || key.slice(-3) === "_id")
+            new_data[key] = Number(val);
+        else if (Array.isArray(val))
+            new_data[key] = val.map(Number);
+    })
+    // console.log("Create data:", new_data);
+    // console.log("passed data:", itemData);
+    if (!itemData) {
+        console.log("Creating new item");
+        console.log("call API here to create data", new_data);
+    }
+    else {
+        new_data.id = itemData.id; // Ensure ID is set for editing
+        let new_edits = false;
+        for (const key in new_data) {
+            const newVal = new_data[key];
+            const oldVal = itemData[key];
+
+            // Compare primitives (string, number, boolean)
+            if (
+                (typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") &&
+                newVal !== oldVal
+            ) {
+                console.log(`changes in field: ${key}:`, newVal);
+                new_edits = true;
+            }
+
+            // Compare FileList
+            if (
+                newVal instanceof FileList &&
+                newVal.length > 0
+            ) {
+                console.log(`changes in field: ${key}:`, newVal);
+                new_edits = true;
+            }
+
+            // Compare arrays
+            if (
+                Array.isArray(newVal) &&
+                (
+                    !Array.isArray(oldVal) ||
+                    newVal.length !== oldVal.length ||
+                    !newVal.every((v, i) => v === oldVal[i])
+                )
+            ) {
+                console.log(`changes in field: ${key}:`, newVal);
+                new_edits = true;
+            }
+
+            // Compare objects (shallow)
+            if (
+                typeof newVal === "object" &&
+                newVal !== null &&
+                !Array.isArray(newVal) &&
+                !(newVal instanceof FileList)
+            ) {
+                if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+                    console.log(`changes in field: ${key}:`, newVal);
+                    new_edits = true;
+                }
+            }
+        }
+        if (new_edits)
+            console.log("call API here to edit data");
+        else
+            console.log("No changes detected, not submitting");
+    }
+    closeModal();
+}
+
+
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, itemData = null) {
+    setModalContent(
+        <DynamicForm
+            config={FORM_CONFIG}
+            preloadData={preload}
+            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal)}
+            onClose={closeModal}
+            itemData={itemData}
+        />
+    );
 }

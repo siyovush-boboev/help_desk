@@ -1,21 +1,31 @@
-import { useEffect, useState } from "react";
-import Breadcrumbs from "../../layout/Breadcrumbs/index.jsx";
-import ControlBar from "../../layout/ControlBar/index.jsx";
-import DataTable from "../../layout/DataTable/index.jsx";
-import Pagination from "../../layout/Pagination/index.jsx";
-import { loadData } from "../../../lib/utils/helpers.jsx";
-import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages.js";
+import { useEffect, useState, useContext } from "react";
+import Breadcrumbs from "../../layout/Breadcrumbs";
+import ControlBar from "../../layout/ControlBar";
+import DataTable from "../../layout/DataTable";
+import { loadDataPreload, loadDataTable, onCreate } from "../../../lib/utils/helpers";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
+import { ModalContext } from "../../../lib/contexts/ModalContext";
 
-const config = TABLE_PAGES_CONFIG["main"];
+
+const PAGE_NAME = "main";
+const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
 export default function MainPage() {
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const { setModalContent, closeModal } = useContext(ModalContext);
 
+
+    // load preload data once on mount
     useEffect(() => {
-        loadData(setData, setPreload, setLoading, setError, API_RESOURCES, TABLE_PAGES_CONFIG, config);
+        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
+    }, []);
+
+    // load table data on URL filters change
+    useEffect(() => {
+        loadDataTable(setData, setLoading, setError, config);
     }, []);
 
     if (loading) return <p>Загрузка...</p>;
@@ -26,11 +36,11 @@ export default function MainPage() {
             <Breadcrumbs text={config.plural} />
             <ControlBar
                 showCreate
-                onCreate={() => console.log("create logic")}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
             />
             <DataTable
                 columns={config.columns}
-                data={data["result"]}
+                data={data?.result || []}
                 pageData={preload}
                 main_page={true}
             />

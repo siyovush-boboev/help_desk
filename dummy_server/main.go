@@ -369,17 +369,17 @@ func main() {
 
 	api.GET("/branch", func(c *gin.Context) {
 		data := []gin.H{
-			{"id": 1, "name": "Филиали марказӣ", "shortName": "Марказӣ", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "phoneNumber": "+992 44 600 0001", "email": "central@arvand.tj", "mailing_index": "734003", "openDate": "2010-01-15", "status_id": 1},
-			{"id": 2, "name": "Филиали Исмоили Сомонӣ", "shortName": "И. Сомонӣ", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "phoneNumber": "+992 44 600 0002", "email": "somoni@arvand.tj", "mailing_index": "734012", "openDate": "2012-03-10", "status_id": 1},
-			{"id": 3, "name": "Филиали Фирдавсӣ", "shortName": "Фирдавсӣ", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "phoneNumber": "+992 44 600 0003", "email": "firdavsi@arvand.tj", "mailing_index": "734025", "openDate": "2013-06-25", "status_id": 1},
-			{"id": 4, "name": "Филиали Сино", "shortName": "Сино", "address": "ш. Душанбе, кӯч. Сино 89", "phoneNumber": "+992 44 600 0004", "email": "sino@arvand.tj", "mailing_index": "734019", "openDate": "2014-09-05", "status_id": 1},
-			{"id": 5, "name": "Филиали Шоҳмансур", "shortName": "Шоҳмансур", "address": "ш. Душанбе, кӯч. Шоҳмансур 12", "phoneNumber": "+992 44 600 0005", "email": "shohmansur@arvand.tj", "mailing_index": "734024", "openDate": "2015-11-20", "status_id": 1},
-			{"id": 6, "name": "Филиали Вахдат", "shortName": "Вахдат", "address": "ш. Вахдат, кӯч. Истиқлол 34", "phoneNumber": "+992 44 600 0006", "email": "vahdat@arvand.tj", "mailing_index": "735500", "openDate": "2016-02-14", "status_id": 1},
-			{"id": 7, "name": "Филиали Ҳисор", "shortName": "Ҳисор", "address": "ш. Ҳисор, кӯч. Наврӯз 56", "phoneNumber": "+992 44 600 0007", "email": "hisor@arvand.tj", "mailing_index": "735140", "openDate": "2017-04-18", "status_id": 1},
-			{"id": 8, "name": "Филиали Турсунзода", "shortName": "Турсунзода", "address": "ш. Турсунзода, кӯч. Дӯстӣ 78", "phoneNumber": "+992 44 600 0008", "email": "tursunzoda@arvand.tj", "mailing_index": "735400", "openDate": "2018-07-22", "status_id": 1},
-			{"id": 9, "name": "Филиали Бохтар", "shortName": "Бохтар", "address": "ш. Бохтар, кӯч. Садриддин Айнӣ 90", "phoneNumber": "+992 44 600 0009", "email": "bokhtar@arvand.tj", "mailing_index": "735140", "openDate": "2019-10-30", "status_id": 1},
-			{"id": 10, "name": "Филиали Хуҷанд", "shortName": "Хуҷанд", "address": "ш. Хуҷанд, кӯч. Гагарин 21", "phoneNumber": "+992 44 600 0010", "email": "khujand@arvand.tj", "mailing_index": "735700", "openDate": "2020-12-12", "status_id": 1},
-			{"id": 11, "name": "Филиали Кӯлоб", "shortName": "Кӯлоб", "address": "ш. Кӯлоб, кӯч. Борбад 11", "phoneNumber": "+992 44 600 0011", "email": "kulob@arvand.tj", "mailing_index": "736100", "openDate": "2021-08-08", "status_id": 1},
+			{"id": 1, "name": "Филиали марказӣ", "shortName": "Марказӣ", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "phoneNumber": "+992 44 600 0001", "email": "central@arvand.tj", "email_index": "734003", "openDate": "2010-01-15", "status_id": 1},
+			{"id": 2, "name": "Филиали Исмоили Сомонӣ", "shortName": "И. Сомонӣ", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "phoneNumber": "+992 44 600 0002", "email": "somoni@arvand.tj", "email_index": "734012", "openDate": "2012-03-10", "status_id": 1},
+			{"id": 3, "name": "Филиали Фирдавсӣ", "shortName": "Фирдавсӣ", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "phoneNumber": "+992 44 600 0003", "email": "firdavsi@arvand.tj", "email_index": "734025", "openDate": "2013-06-25", "status_id": 1},
+			{"id": 4, "name": "Филиали Сино", "shortName": "Сино", "address": "ш. Душанбе, кӯч. Сино 89", "phoneNumber": "+992 44 600 0004", "email": "sino@arvand.tj", "email_index": "734019", "openDate": "2014-09-05", "status_id": 1},
+			{"id": 5, "name": "Филиали Шоҳмансур", "shortName": "Шоҳмансур", "address": "ш. Душанбе, кӯч. Шоҳмансур 12", "phoneNumber": "+992 44 600 0005", "email": "shohmansur@arvand.tj", "email_index": "734024", "openDate": "2015-11-20", "status_id": 1},
+			{"id": 6, "name": "Филиали Вахдат", "shortName": "Вахдат", "address": "ш. Вахдат, кӯч. Истиқлол 34", "phoneNumber": "+992 44 600 0006", "email": "vahdat@arvand.tj", "email_index": "735500", "openDate": "2016-02-14", "status_id": 1},
+			{"id": 7, "name": "Филиали Ҳисор", "shortName": "Ҳисор", "address": "ш. Ҳисор, кӯч. Наврӯз 56", "phoneNumber": "+992 44 600 0007", "email": "hisor@arvand.tj", "email_index": "735140", "openDate": "2017-04-18", "status_id": 1},
+			{"id": 8, "name": "Филиали Турсунзода", "shortName": "Турсунзода", "address": "ш. Турсунзода, кӯч. Дӯстӣ 78", "phoneNumber": "+992 44 600 0008", "email": "tursunzoda@arvand.tj", "email_index": "735400", "openDate": "2018-07-22", "status_id": 1},
+			{"id": 9, "name": "Филиали Бохтар", "shortName": "Бохтар", "address": "ш. Бохтар, кӯч. Садриддин Айнӣ 90", "phoneNumber": "+992 44 600 0009", "email": "bokhtar@arvand.tj", "email_index": "735140", "openDate": "2019-10-30", "status_id": 1},
+			{"id": 10, "name": "Филиали Хуҷанд", "shortName": "Хуҷанд", "address": "ш. Хуҷанд, кӯч. Гагарин 21", "phoneNumber": "+992 44 600 0010", "email": "khujand@arvand.tj", "email_index": "735700", "openDate": "2020-12-12", "status_id": 1},
+			{"id": 11, "name": "Филиали Кӯлоб", "shortName": "Кӯлоб", "address": "ш. Кӯлоб, кӯч. Борбад 11", "phoneNumber": "+992 44 600 0011", "email": "kulob@arvand.tj", "email_index": "736100", "openDate": "2021-08-08", "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
@@ -497,7 +497,7 @@ func main() {
 		})
 	})
 
-	api.GET("/pos-terminal", func(c *gin.Context) {
+	api.GET("/pos", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "ATM-123456", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 1, "status_id": 1},
 			{"id": 2, "name": "ATM-234567", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 1, "status_id": 1},

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../../lib/services/api/authApi";
-import { useAuth } from "../../../lib/hooks/useAuth";
+// import { login } from "../../../lib/services/api/authApi.js";
+// import { useAuth } from "../../../lib/hooks/useAuth.js";
 
 export default function Login() {
-    const { setAccessToken, setUserRole, setPermissions } = useAuth();
+    // const { setAccessToken, setUserRole, setPermissions } = useAuth();
     const [loginField, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(true);
@@ -13,11 +13,11 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await login(loginField, password, rememberMe);
-            setAccessToken(res.access_token);
-            setUserRole(res.role);
-            setPermissions(res.permissions);
-            navigate("/");
+            // const res = await login(loginField, password, rememberMe);
+            // setAccessToken(res.access_token);
+            // setUserRole(res.role);
+            // setPermissions(res.permissions);
+            navigate("/main");
         } catch (err) {
             console.err("Login failed", err);
         }

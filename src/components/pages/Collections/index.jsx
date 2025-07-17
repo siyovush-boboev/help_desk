@@ -4,10 +4,11 @@ import Breadcrumbs from "../../layout/Breadcrumbs";
 import ControlBar from "../../layout/ControlBar";
 import DataTable from "../../layout/DataTable";
 import Pagination from "../../layout/Pagination";
-import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages";
-import { onDelete, loadDataPreload, loadDataTable } from "../../../lib/utils/helpers.jsx";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
+import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../../lib/utils/helpers.jsx";
 import { ModalContext } from "../../../lib/contexts/ModalContext.js";
-import FiltersModal from "../../layout/FiltersForm/index.jsx";
+import FiltersModal from "../../layout/FiltersForm";
+
 
 export default function Collections() {
     const { collectionName } = useParams(); // auto updates on URL change
@@ -35,34 +36,14 @@ export default function Collections() {
             setLoading(false);
             return;
         }
-
-        setData([]);
-        setPreload({});
-        setLoading(true);
-        setError("");
-
-        loadDataPreload(
-            setPreload,
-            setLoading,
-            setError,
-            API_RESOURCES,
-            TABLE_PAGES_CONFIG,
-            config
-        );
+        setData([]); setPreload({}); setLoading(true); setError("");
+        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
     }, [collectionName, config]);
 
     // Load table data when collectionName or filters change
     useEffect(() => {
         if (!config) return;
-
-        loadDataTable(
-            setData,
-            setLoading,
-            setError,
-            API_RESOURCES,
-            config,
-            filtersFromUrl
-        );
+        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [collectionName, searchParams, filtersFromUrl, config]);
 
     const onFilter = () => {
@@ -74,15 +55,14 @@ export default function Collections() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => {
-                        flat[k] = v.join(",");
-                    });
+                    Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
                     setSearchParams(flat);
                 }}
                 onClose={closeModal}
             />
         );
     };
+
 
     if (loading) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
@@ -96,14 +76,14 @@ export default function Collections() {
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate
                 onFilter={onFilter}
-                onCreate={() => console.log("create logic")}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName])}
             />
 
             <DataTable
                 columns={config.columns}
                 data={data?.result || []}
                 pageData={preload}
-                onEdit={(id) => console.log("edit", id)}
+                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], data?.result.find((item) => item.id === id))}
                 onDelete={(id) => onDelete(setModalContent, closeModal, id)}
             />
 

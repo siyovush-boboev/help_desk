@@ -1,23 +1,3 @@
-export const API_RESOURCES = {
-  main: "/main",
-  order: "/order",
-  user: "/user",
-  status: "/status",
-  priority: "/priority",
-  department: "/department",
-  otdel: "/otdel",
-  branch: "/branch",
-  office: "/office",
-  role: "/role",
-  permission: "/permission",
-  equipment_type: "/equipment_type",
-  atm: "/atm",
-  terminal: "/terminal",
-  pos: "/pos-terminal",
-  coeo: "/coeo",
-};
-
-
 export const TABLE_PAGES_CONFIG = {
   main: {
     singular: "Главная",
@@ -151,7 +131,7 @@ export const TABLE_PAGES_CONFIG = {
       "Дата открытия": "openDate",
       "Почтовый адресс": "email",
       "Телефон": "phoneNumber",
-      "Почтовый индекс": "mailing_index",
+      "Почтовый индекс": "email_index",
       "Короткое наименование": "shortName",
       "Статус": "status_id",
       "Действия": null
@@ -304,5 +284,141 @@ export const TABLE_PAGES_CONFIG = {
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
+  },
+  report: {
+    singular: "Отчет",
+    plural: "Отчеты",
+    resource: "report",
+    preload: [],
+  },
+  setting: {
+    singular: "Настройка",
+    plural: "Настройки",
+    resource: "setting",
+    preload: [],
   }
+};
+
+
+export const FORM_CONFIG = {
+  main: {
+    name: { label: "Наименование заявки", type: "text", required: true },
+    department_id: { label: "Департамент", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+    priority_id: { label: "Приоритет", type: "select", required: true },
+    duration: { label: "Срок", type: "datetime-local", required: true },
+    branch_id: { label: "Филиал", type: "select", required: true },
+    office_id: { label: "Офис ЦБО", type: "select", required: true },
+    equipment_id: { label: "Оборудование", type: "select", required: true },
+    user_id: { label: "Исполнитель", type: "select", required: true },
+    address: { label: "Адрес", type: "text", required: false },
+    comment: { label: "Комментарий", type: "textarea", required: false },
+  },
+  order: {
+    name: { label: "Наименование заявки", type: "text", required: true },
+    department_id: { label: "Департамент", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+    priority_id: { label: "Приоритет", type: "select", required: true },
+    duration: { label: "Срок", type: "datetime-local", required: true },
+    branch_id: { label: "Филиал", type: "select", required: true },
+    office_id: { label: "Офис ЦБО", type: "select", required: true },
+    equipment_id: { label: "Оборудование", type: "select", required: true },
+    user_id: { label: "Исполнитель", type: "select", required: true },
+    address: { label: "Адрес", type: "text", required: false },
+    comment: { label: "Комментарий", type: "textarea", required: false },
+  },
+  user: {
+    fio: { label: "Имя", type: "text", required: true },
+    department_id: { label: "Департамент", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: true },
+    branch_id: { label: "Филиал", type: "select", required: true },
+    office_id: { label: "Офис ЦБО", type: "select", required: true },
+    phoneNumber: { label: "Телефон", type: "text", required: false },
+    email: { label: "E-mail", type: "email", required: true },
+    role_id: { label: "Роль", type: "select", required: true },
+    photo: { label: "Фото", type: "file", required: false },
+    position: { label: "Должность", type: "text", required: false },
+  },
+  status: {
+    name: { label: "Наименование", type: "text", required: true },
+    icon: { label: "Иконка", type: "file", required: false },
+    type: { label: "Тип", type: "number", required: true },
+  },
+  priority: {
+    name: { label: "Наименование", type: "text", required: true },
+    icon: { label: "Иконка", type: "file", required: false },
+    rate: { label: "Тип", type: "number", required: true },
+  },
+  department: {
+    name: { label: "Наименование", type: "text", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
+  otdel: {
+    name: { label: "Наименование", type: "text", required: true },
+    department_id: { label: "Департамент", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
+  branch: {
+    name: { label: "Наименование", type: "text", required: true },
+    address: { label: "Адрес", type: "text", required: false },
+    openDate: { label: "Дата открытия", type: "date", required: false },
+    email: { label: "Почтовый адрес", type: "email", required: false },
+    phoneNumber: { label: "Телефон", type: "text", required: false },
+    email_index: { label: "Почтовый индекс", type: "text", required: false },
+    shortName: { label: "Короткое наименование", type: "text", required: false },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
+  office: {
+    name: { label: "Наименование", type: "text", required: true },
+    address: { label: "Адрес", type: "text", required: false },
+    openDate: { label: "Дата открытия", type: "date", required: false },
+    branch_id: { label: "Филиал", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
+  role: {
+    name: { label: "Наименование", type: "text", required: true },
+    description: { label: "Описание", type: "textarea", required: false },
+    permission: { label: "Привелигия", type: "multiselect", required: true },
+  },
+  permission: {
+    name: { label: "Наименование", type: "text", required: true },
+    description: { label: "Описание", type: "textarea", required: false },
+  },
+  equipment_type: {
+    name: { label: "Наименование", type: "text", required: true },
+  },
+  atm: {
+      name: { label: "Номер банкомата", type: "text", required: true },
+      branch_id: { label: "Филиал", type: "select", required: true },
+      office_id: { label: "Офис ЦБО", type: "select", required: true },
+      address: { label: "Адрес банкомата", type: "text", required: false },
+      type_id: { label: "Оборудование", type: "select", required: true },
+      status_id: { label: "Статус", type: "select", required: true },
+  },
+  terminal: {
+      name: { label: "Номер терминала", type: "text", required: true },
+      branch_id: { label: "Филиал", type: "select", required: true },
+      office_id: { label: "Офис ЦБО", type: "select", required: true },
+      address: { label: "Адрес терминала", type: "text", required: false },
+      type_id: { label: "Оборудование", type: "select", required: true },
+      status_id: { label: "Статус", type: "select", required: true },
+  },
+  pos: {
+      name: { label: "Номер POS-терминала", type: "text", required: true },
+      branch_id: { label: "Филиал", type: "select", required: true },
+      office_id: { label: "Офис ЦБО", type: "select", required: true },
+      address: { label: "Адрес POS-терминала", type: "text", required: false },
+      type_id: { label: "Оборудование", type: "select", required: true },
+      status_id: { label: "Статус", type: "select", required: true },
+    },
+  coeo: {
+      name: { label: "Номер терминала", type: "text", required: true },
+      branch_id: { label: "Филиал", type: "select", required: true },
+      office_id: { label: "Офис ЦБО", type: "select", required: true },
+      address: { label: "Адрес терминала", type: "text", required: false },
+      type_id: { label: "Оборудование", type: "select", required: true },
+      status_id: { label: "Статус", type: "select", required: true },
+  },
 };

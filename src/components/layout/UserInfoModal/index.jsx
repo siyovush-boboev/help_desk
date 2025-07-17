@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../../lib/constants";
-import { API_RESOURCES } from "../../../lib/pages";
+import { TABLE_PAGES_CONFIG } from "../../../lib/pages";
 
 export default function UserInfoModal({ userId, onClose, departments }) {
     const [userData, setUserData] = useState(null);
@@ -9,7 +9,7 @@ export default function UserInfoModal({ userId, onClose, departments }) {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const url = `${API_BASE_URL}${API_RESOURCES["user"]}/${userId}`;
+                const url = `${API_BASE_URL}/${TABLE_PAGES_CONFIG["user"]["resource"]}/${userId}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 setUserData(data["result"]);
