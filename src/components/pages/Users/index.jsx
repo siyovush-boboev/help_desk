@@ -1,15 +1,18 @@
 import { useEffect, useState, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import Breadcrumbs from "../../layout/Breadcrumbs/index.jsx";
-import ControlBar from "../../layout/ControlBar/index.jsx";
-import DataTable from "../../layout/DataTable/index.jsx";
-import Pagination from "../../layout/Pagination/index.jsx";
-import { TABLE_PAGES_CONFIG, API_RESOURCES } from "../../../lib/pages.js";
-import { loadDataPreload, loadDataTable, onDelete } from "../../../lib/utils/helpers.jsx";
-import { ModalContext } from "../../../lib/contexts/ModalContext.js";
-import FiltersModal from "../../layout/FiltersForm/index.jsx";
+import Breadcrumbs from "../../layout/Breadcrumbs";
+import ControlBar from "../../layout/ControlBar";
+import DataTable from "../../layout/DataTable";
+import Pagination from "../../layout/Pagination";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
+import { loadDataPreload, loadDataTable, onDelete, onCreate } from "../../../lib/utils/helpers";
+import { ModalContext } from "../../../lib/contexts/ModalContext";
+import FiltersModal from "../../layout/FiltersForm";
 
-const config = TABLE_PAGES_CONFIG["user"];
+
+const PAGE_NAME = "user";
+const config = TABLE_PAGES_CONFIG[PAGE_NAME];
+
 
 export default function Users() {
     const [data, setData] = useState([]);
@@ -22,34 +25,18 @@ export default function Users() {
     // Parse filters from URL
     const filtersFromUrl = useMemo(() => {
         const obj = {};
-        searchParams.forEach((v, k) => {
-            obj[k] = v.split(",");
-        });
+        searchParams.forEach((v, k) => { obj[k] = v.split(","); });
         return obj;
     }, [searchParams]);
 
     // Load preload data
     useEffect(() => {
-        loadDataPreload(
-            setPreload,
-            setLoading,
-            setError,
-            API_RESOURCES,
-            TABLE_PAGES_CONFIG,
-            config
-        );
+        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
     }, []);
 
     // Load main table data
     useEffect(() => {
-        loadDataTable(
-            setData,
-            setLoading,
-            setError,
-            API_RESOURCES,
-            config,
-            filtersFromUrl
-        );
+        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [searchParams, filtersFromUrl]);
 
     const onFilter = () => {
@@ -61,9 +48,7 @@ export default function Users() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => {
-                        flat[k] = v.join(",");
-                    });
+                    Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
                     setSearchParams(flat);
                 }}
                 onClose={closeModal}
@@ -85,14 +70,14 @@ export default function Users() {
                 showCreate
                 onDelete={() => onDelete(setModalContent, closeModal)}
                 onFilter={onFilter}
-                onCreate={() => console.log("create logic")}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
             />
 
             <DataTable
                 columns={config.columns}
                 data={data?.result || []}
                 pageData={preload}
-                onEdit={(id) => console.log("edit", id)}
+                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], data?.result.find((item) => item.id === id))}
                 onDelete={(id) => onDelete(setModalContent, closeModal, id)}
             />
 

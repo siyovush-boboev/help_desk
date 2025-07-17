@@ -139,7 +139,7 @@ export default function DataTable({
                         <tr>
                             {<td>Всего</td>}
                             {Object.keys(columns).map((col) => (
-                                <td>
+                                <td key={col}>
                                     {(col === "Открыто" || col === "Закрыто") &&
                                         main_page_sums[col]
                                     }

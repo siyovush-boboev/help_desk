@@ -1,5 +1,4 @@
 import { API_BASE_URL } from "../../../lib/constants";
-import { API_RESOURCES } from "../../../lib/pages";
 
 
 function getCorrectSpelling(n) {
