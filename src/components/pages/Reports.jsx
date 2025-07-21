@@ -1,4 +1,4 @@
-import Breadcrumbs from "../../layout/Breadcrumbs";
+import Breadcrumbs from "../layout/Breadcrumbs";
 
 export default function Reports() {
     return (

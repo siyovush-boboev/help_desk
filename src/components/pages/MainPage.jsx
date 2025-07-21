@@ -1,10 +1,10 @@
 import { useEffect, useState, useContext } from "react";
-import Breadcrumbs from "../../layout/Breadcrumbs";
-import ControlBar from "../../layout/ControlBar";
-import DataTable from "../../layout/DataTable";
-import { loadDataPreload, loadDataTable, onCreate } from "../../../lib/utils/helpers";
-import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
-import { ModalContext } from "../../../lib/contexts/ModalContext";
+import Breadcrumbs from "../layout/Breadcrumbs";
+import ControlBar from "../layout/ControlBar";
+import DataTable from "../layout/DataTable";
+import { loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
+import { ModalContext } from "../../lib/contexts/ModalContext";
 
 
 const PAGE_NAME = "main";
@@ -16,11 +16,16 @@ export default function MainPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
+    const [preloadLoaded, setPreloadLoaded] = useState(false);
+
 
 
     // load preload data once on mount
     useEffect(() => {
-        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
+            .then(() => {
+                setPreloadLoaded(true);
+            });
     }, []);
 
     // load table data on URL filters change
@@ -28,7 +33,7 @@ export default function MainPage() {
         loadDataTable(setData, setLoading, setError, config);
     }, []);
 
-    if (loading) return <p>Загрузка...</p>;
+    if (loading || !preloadLoaded) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
 
     return (

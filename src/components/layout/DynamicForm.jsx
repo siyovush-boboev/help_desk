@@ -1,20 +1,82 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { DEPENDANT_FIELDS } from "../../lib/pages";
+
+
+const onEmailChange = (e => {
+    const email = e.target.value;
+    const loginField = document.querySelector('input[name="login"]');
+    loginField.value = email.split("@")[0];
+})
+
 
 export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null }) {
+    const [dynamicOptions, setDynamicOptions] = useState({}); // key = fieldName, value = filtered options obj
+
     if (!("Статус" in preloadData))
-        preloadData["Статус"] = { "1": "Активен", "0": "Неактивен" };
+        preloadData["Статус"] = { "1": { name: "Активен" }, "0": { name: "Неактивен" } };
+
+    function onOptionChange(fieldName) {
+        const origin_select = document.querySelector(`select[name="${fieldName}"]`);
+        const origin_id = Number(origin_select.value);
+
+        if (DEPENDANT_FIELDS.asc[fieldName]) {
+            DEPENDANT_FIELDS.asc[fieldName].forEach(dependentField => {
+                const origin_label = origin_select.previousSibling.textContent.trim();
+                const option_to_select_id = preloadData[origin_label][origin_id][dependentField];
+                const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
+                if (dependentSelect) {
+                    dependentSelect.value = option_to_select_id;
+                    // Recursively handle asc dependencies
+                    if (DEPENDANT_FIELDS.asc[dependentField]) {
+                        onOptionChange(dependentField);
+                    }
+                }
+            });
+        }
+
+        if (DEPENDANT_FIELDS.desc[fieldName]) {
+            DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
+                const dependentLabel = config[dependentField]?.label || dependentField;
+                const rawOptions = preloadData[dependentLabel] || {};
+
+                const filtered = Object.fromEntries(
+                    Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
+                );
+
+                setDynamicOptions(prev => ({
+                    ...prev,
+                    [dependentField]: filtered
+                }));
+
+                // Recursively handle desc dependencies
+                if (DEPENDANT_FIELDS.desc[dependentField]) {
+                    onOptionChange(dependentField);
+                }
+            });
+        }
+    }
 
     const defaultValues = {};
 
     if (itemData) {
         for (const key in config) {
             if (itemData[key] !== undefined) {
-                // For multiselects (arrays), assign as is
                 if (config[key].type === "multiselect")
                     defaultValues[key] = itemData[key].map(String); // convert to string for checkbox value match
                 else
                     defaultValues[key] = itemData[key];
             }
+        }
+    }
+    else {
+        if ("status_id" in config) {
+            // find status id which has the name "Активен" or "Открыто"
+            const default_status_id = Object.keys(preloadData["Статус"]).find(
+                id => preloadData["Статус"][id].name === "Активен"
+                    || preloadData["Статус"][id].name === "Открыто"
+            );
+            defaultValues["status_id"] = default_status_id;
         }
     }
 
@@ -59,10 +121,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             };
         }
         else if (field.type === "multiselect") {
-            rules.validate = {
-                notEmpty: (val) =>
-                    val?.length > 0 || `Выберите хотя бы один вариант для ${field.label.toLowerCase()}`,
-            };
+            rules.validate = { notEmpty: (val) => val?.length > 0 || `Выберите хотя бы один вариант для ${field.label.toLowerCase()}`, };
         }
 
         return rules;
@@ -70,28 +129,30 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     return (
         <div className="modal-content">
-            <p>{itemData ? "Создание" : "Редактирование"}</p>
+            <p>{itemData ? "Редактирование" : "Создание"}</p>
             <form onSubmit={handleSubmit(onSubmit)} noValidate id="editForm">
                 {Object.entries(config).map(([fieldName, field]) => {
                     let preload_title = field.label || fieldName;
                     if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                         preload_title = "Пользователь";
-                    const preloadOptions = preloadData?.[preload_title] || {};
+                    const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
                     if (field.type === "select") {
                         return (
                             <div key={fieldName} className="edit-form-field">
                                 <label>{field.label}</label>
                                 <select defaultValue=""
                                     {...register(fieldName, getValidationRules(field))}
+                                    onChange={() => onOptionChange(fieldName)}
                                 >
                                     <option value="" disabled>
                                         Выберите {field.label.toLowerCase()}
                                     </option>
                                     {Object.entries(preloadOptions).map(([id, name]) => (
                                         <option key={id} value={id}>
-                                            {name}
+                                            {name["name"]}
                                         </option>
-                                    ))}
+                                    ))
+                                    }
                                 </select>
                                 {errors[fieldName] && (
                                     <p>{errors[fieldName].message}</p>
@@ -112,9 +173,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                                 type="checkbox"
                                                 value={val}
                                                 {...register(fieldName, getValidationRules(field))}
-                                            // checked={field.value?.includes(Number(val))}
                                             />
-                                            <span>{label}</span>
+                                            <span>{label["name"]}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -152,6 +212,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 <input
                                     type={field.type || "text"}
                                     {...register(fieldName, getValidationRules(field))}
+                                    onChange={(fieldName === "email" || null) && onEmailChange}
+                                    disabled={fieldName === "login"}
                                 />
                             )}
                             {errors[fieldName] && (

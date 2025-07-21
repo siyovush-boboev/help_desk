@@ -459,6 +459,25 @@ func main() {
 		})
 	})
 
+	api.GET("/equipment", func(c *gin.Context) {
+		data := []gin.H{
+			{"id": 1, "name": "ATM-123456", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 1, "status_id": 1},
+			{"id": 2, "name": "ATM-234567", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 1, "status_id": 1},
+			{"id": 3, "name": "ATM-345678", "address": "ш. Душанбе, кӯч. Фирдавсӣ 67", "branch_id": 3, "office_id": 3, "type_id": 1, "status_id": 1},
+			{"id": 4, "name": "ATM-456789", "address": "ш. Душанбе, кӯч. Сино 89", "branch_id": 4, "office_id": 4, "type_id": 1, "status_id": 1},
+			{"id": 5, "name": "Terminal-1001", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 2, "status_id": 1},
+			{"id": 6, "name": "Terminal-1002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 2, "status_id": 1},
+			{"id": 7, "name": "POS-2001", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 3, "status_id": 1},
+			{"id": 8, "name": "POS-2002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 3, "status_id": 1},
+			{"id": 9, "name": "DigitalOffice-3001", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 4, "status_id": 1},
+			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"result":      data,
+			"status_code": 200,
+		})
+	})
+
 	api.GET("/atm", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "ATM-123456", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 1, "status_id": 1},

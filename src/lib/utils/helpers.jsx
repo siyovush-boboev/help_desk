@@ -41,7 +41,7 @@ export function navbarClickHandler(e) {
         nav.style.left = '-1000px';
 }
 
-export const loadDataPreload = async (setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config) => {
+export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, config) => {
     try {
         const preloadResults = await Promise.all(
             config.preload.map((key) =>
@@ -51,23 +51,25 @@ export const loadDataPreload = async (setPreload, setLoading, setError, TABLE_PA
 
         const preloadData = {};
         config.preload.forEach((key, i) => {
-            key = TABLE_PAGES_CONFIG[key].singular || key;
+            const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
             const raw = preloadResults[i];
             const prepped = raw.result.reduce((acc, item) => {
                 const id = item.id || item._id || item.ID;
                 const name = item.name || item.title || item.fio || id;
-                acc[id] = name;
+                acc[id] = { name: name };
+                Object.entries(item).forEach(([field, value]) => {
+                    if (field.endsWith("_id") && field !== "id" && field !== "_id")
+                        acc[id][field] = value;
+                });
                 return acc;
             }, {});
-            preloadData[key] = prepped;
+            preloadData[singularKey] = prepped;
         });
 
         setPreload(preloadData);
     } catch (err) {
         console.error(err);
         setError("Ошибка загрузки данных");
-    } finally {
-        setLoading(false);
     }
 };
 
@@ -131,7 +133,6 @@ export function onCreateSubmit(new_data, itemData, closeModal) {
                 (typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") &&
                 newVal !== oldVal
             ) {
-                console.log(`changes in field: ${key}:`, newVal);
                 new_edits = true;
             }
 
@@ -140,7 +141,6 @@ export function onCreateSubmit(new_data, itemData, closeModal) {
                 newVal instanceof FileList &&
                 newVal.length > 0
             ) {
-                console.log(`changes in field: ${key}:`, newVal);
                 new_edits = true;
             }
 
@@ -153,7 +153,6 @@ export function onCreateSubmit(new_data, itemData, closeModal) {
                     !newVal.every((v, i) => v === oldVal[i])
                 )
             ) {
-                console.log(`changes in field: ${key}:`, newVal);
                 new_edits = true;
             }
 
@@ -165,7 +164,6 @@ export function onCreateSubmit(new_data, itemData, closeModal) {
                 !(newVal instanceof FileList)
             ) {
                 if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-                    console.log(`changes in field: ${key}:`, newVal);
                     new_edits = true;
                 }
             }

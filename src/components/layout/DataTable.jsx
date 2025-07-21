@@ -1,4 +1,4 @@
-import { DeleteTableRowIcon, EditTableRowIcon } from "../../ui/icons.jsx";
+import { DeleteTableRowIcon, EditTableRowIcon } from "../ui/icons.jsx";
 
 
 export default function DataTable({
@@ -74,7 +74,7 @@ export default function DataTable({
                             }
 
                             else if (colName === "Заявитель") {
-                                const user_full_name = pageData["Пользователь"]?.[item["user_id"]];
+                                const user_full_name = pageData["Пользователь"]?.[item["user_id"]]["name"];
                                 const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
                                 return (
                                     <td key={i + colName}>
@@ -87,8 +87,8 @@ export default function DataTable({
 
                             else if (colName === "Статус") {
                                 let status = "";
-                                const statusOptions = pageData?.[colName] || { 0: "Неактивный", 1: "Активный" };
-                                status = statusOptions[item[field]];
+                                const statusOptions = pageData?.[colName] || { "0": { name: "Неактивный" }, "1": { name: "Активный" } };
+                                status = statusOptions[item[field]]?.["name"];
                                 if (status === "Закрыто") hideRow = true;
                                 return <td key={i + colName}>{status}</td>;
                             }
@@ -107,12 +107,12 @@ export default function DataTable({
 
                             else if (field?.includes("_id")) {
                                 if (field === "user_id") {
-                                    const user = pageData["user"]?.[item[field]];
+                                    const user = pageData["user"]?.[item[field]]["name"];
                                     const name = user?.fio?.split(" ").slice(0, 2).join(" ") || "";
                                     return <td key={i + colName}>{name}</td>;
                                 }
                                 else if (colName in pageData) {
-                                    return <td key={i + colName}>{pageData[colName]?.[item[field]] || ""}</td>;
+                                    return <td key={i + colName}>{pageData[colName]?.[item[field]]["name"] || ""}</td>;
                                 }
                             }
                             else if (colName === "Открыто" || colName === "Закрыто") {

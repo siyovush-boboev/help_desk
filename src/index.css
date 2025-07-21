@@ -395,6 +395,16 @@ button:active {
   box-shadow: 0 0 12px var(--pagination-shadow);
 }
 
+.pagination-container input {
+  width: 5ch;
+  padding: 4px;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  outline: none;
+  box-shadow: none;
+  text-align: center;
+}
+
 #table-delete-button,
 #table-edit-button {
   border: 1px solid var(--primary-color);

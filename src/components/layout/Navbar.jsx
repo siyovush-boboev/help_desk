@@ -1,7 +1,7 @@
-import { HomeIcon, ApplicationsIcon, UsersIcon, ReportsIcon, SettingsIcon, CollectionIcon } from '../../ui/icons.jsx';
-import { navbarClickHandler } from '../../../lib/utils/helpers.jsx';
-import { TABLE_PAGES_CONFIG } from '../../../lib/pages.js';
-import NavbarLink from '../../ui/NavbarLink.jsx';
+import { HomeIcon, ApplicationsIcon, UsersIcon, ReportsIcon, SettingsIcon, CollectionIcon } from '../ui/icons.jsx';
+import { navbarClickHandler } from '../../lib/utils/helpers.jsx';
+import { TABLE_PAGES_CONFIG } from '../../lib/pages.js';
+import NavbarLink from '../ui/NavbarLink.jsx';
 
 
 const ICONS = {
@@ -61,7 +61,6 @@ export default function Navbar() {
                         key={label}
                         label={label}
                         href={href}
-                        onClick={(e) => e.stopPropagation()}
                     />
                 ))}
 
@@ -73,7 +72,6 @@ export default function Navbar() {
                             key={label}
                             label={label}
                             href={href}
-                            onClick={(e) => e.stopPropagation()}
                         />
                     ))}
                 </div>

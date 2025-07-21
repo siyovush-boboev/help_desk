@@ -11,31 +11,42 @@ export default function Pagination({
 }) {
     const [page, setPage] = useState(currentPage);
     const [size, setSize] = useState(initialPageSize);
+    const [inputVal, setInputVal] = useState(currentPage);
 
+    // sync external page changes
     useEffect(() => {
         setPage(currentPage);
+        setInputVal(currentPage);
     }, [currentPage]);
 
-    const handlePrev = () => {
-        if (page > 1) {
-            const newPage = page - 1;
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages && newPage !== page) {
             setPage(newPage);
-            onPageChange(newPage);
-        }
-    };
-
-    const handleNext = () => {
-        if (page < totalPages) {
-            const newPage = page + 1;
-            setPage(newPage);
+            setInputVal(newPage);
             onPageChange(newPage);
         }
     };
 
     const handleSizeChange = (e) => {
         const newSize = parseInt(e.target.value, 10);
-        setSize(newSize);
-        onPageSizeChange(newSize);
+        if (!isNaN(newSize) && newSize !== size) {
+            setSize(newSize);
+            onPageSizeChange(newSize);
+        }
+    };
+
+    const handleInputChange = (e) => {
+        const val = e.target.value;
+        setInputVal(val);
+    };
+
+    const handleInputBlur = () => {
+        const num = parseInt(inputVal, 10);
+        if (!isNaN(num)) {
+            handlePageChange(num);
+        } else {
+            setInputVal(page); // reset if invalid
+        }
     };
 
     return (
@@ -59,17 +70,28 @@ export default function Pagination({
             <div>
                 <button
                     id="prev-table-page-btn"
-                    onClick={handlePrev}
+                    onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
                 >
                     ←
                 </button>
+
                 <span id="page-info">
-                    Страница {page} из {totalPages}
+                    Страница&nbsp;
+                    <input
+                        type="text"
+                        value={inputVal}
+                        onChange={handleInputChange}
+                        onBlur={handleInputBlur}
+                        min={1}
+                        max={totalPages}
+                    />
+                    &nbsp;из {totalPages}
                 </span>
+
                 <button
                     id="next-table-page-btn"
-                    onClick={handleNext}
+                    onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
                 >
                     →
