@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiltersIcon, PlusIcon, TrashIcon } from "../../ui/icons";
+import { FiltersIcon, PlusIcon, TrashIcon } from "../ui/icons";
 
 export default function ControlBar({
     showSearch = false,

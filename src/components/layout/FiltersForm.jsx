@@ -1,4 +1,4 @@
-export default function FiltersModal({ filters, preload, defaultFilters = {}, onApply, onClose }) {
+export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const handleApply = (e) => {
         const options_list = document.querySelectorAll(".filter-options-list");
         const checked_options = {};
@@ -41,10 +41,10 @@ export default function FiltersModal({ filters, preload, defaultFilters = {}, on
                     <label key={key}>
                         <input
                             type="checkbox"
-                            value={key}
+                            value={key["name"]}
                             defaultChecked={defaultFilters[filter.id]?.includes(key)}
                         />
-                        {value}
+                        {value["name"]}
                     </label>
                 ))}
             </div>

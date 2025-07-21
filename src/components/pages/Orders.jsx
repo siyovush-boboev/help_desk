@@ -1,14 +1,14 @@
 import { useEffect, useState, useContext, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import Breadcrumbs from "../../layout/Breadcrumbs";
-import ControlBar from "../../layout/ControlBar";
-import DataTable from "../../layout/DataTable";
-import Pagination from "../../layout/Pagination";
-import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
-import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../../lib/utils/helpers.jsx";
-import { ModalContext } from "../../../lib/contexts/ModalContext.js";
-import FiltersModal from "../../layout/FiltersForm";
-import UserInfoModal from "../../layout/UserInfoModal";
+import Breadcrumbs from "../layout/Breadcrumbs";
+import ControlBar from "../layout/ControlBar";
+import DataTable from "../layout/DataTable";
+import Pagination from "../layout/Pagination";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages.js";
+import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers.jsx";
+import { ModalContext } from "../../lib/contexts/ModalContext.js";
+import FiltersModal from "../layout/FiltersForm";
+import UserInfoModal from "../layout/UserInfoModal";
 
 
 const PAGE_NAME = "order";
@@ -21,6 +21,7 @@ export default function Orders() {
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [preloadLoaded, setPreloadLoaded] = useState(false);
 
     const filtersFromUrl = useMemo(() => {
         const obj = {};
@@ -56,14 +57,17 @@ export default function Orders() {
     };
 
     useEffect(() => {
-        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
+            .then(() => {
+                setPreloadLoaded(true);
+            });
     }, []);
 
     useEffect(() => {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [searchParams, filtersFromUrl]);
 
-    if (loading) return <p>Загрузка...</p>;
+    if (loading || !preloadLoaded) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
 
     return (

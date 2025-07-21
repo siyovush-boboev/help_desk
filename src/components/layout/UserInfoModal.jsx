@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../../../lib/constants";
-import { TABLE_PAGES_CONFIG } from "../../../lib/pages";
+import { API_BASE_URL } from "../../lib/constants";
+import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 
 export default function UserInfoModal({ userId, onClose, departments }) {
     const [userData, setUserData] = useState(null);
@@ -55,7 +55,7 @@ export default function UserInfoModal({ userId, onClose, departments }) {
     }
 
     const [lastName, firstName, middleName] = userData.fio.split(" ");
-    const departmentName = departments[userData.department_id] || userData.department_id;
+    const departmentName = departments[userData.department_id]["name"] || userData.department_id;
 
     const infoBlocks = [
         { id: "last_name", label: "Фамилия", value: lastName },

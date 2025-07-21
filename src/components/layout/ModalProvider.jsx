@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { ModalContext } from "../../../lib/contexts/ModalContext.js";
+import { ModalContext } from "../../lib/contexts/ModalContext.js";
 
 export default function ModalProvider({ children }) {
     const [modalContent, setModalContent] = useState(null);

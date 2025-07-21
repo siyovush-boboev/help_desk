@@ -1,50 +1,47 @@
 import { useEffect, useState, useContext, useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import Breadcrumbs from "../../layout/Breadcrumbs";
-import ControlBar from "../../layout/ControlBar";
-import DataTable from "../../layout/DataTable";
-import Pagination from "../../layout/Pagination";
-import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../../lib/pages";
-import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../../lib/utils/helpers.jsx";
-import { ModalContext } from "../../../lib/contexts/ModalContext.js";
-import FiltersModal from "../../layout/FiltersForm";
+import { useSearchParams } from "react-router-dom";
+import Breadcrumbs from "../layout/Breadcrumbs";
+import ControlBar from "../layout/ControlBar";
+import DataTable from "../layout/DataTable";
+import Pagination from "../layout/Pagination";
+import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
+import { loadDataPreload, loadDataTable, onDelete, onCreate } from "../../lib/utils/helpers";
+import { ModalContext } from "../../lib/contexts/ModalContext";
+import FiltersModal from "../layout/FiltersForm";
 
 
-export default function Collections() {
-    const { collectionName } = useParams(); // auto updates on URL change
-    const config = TABLE_PAGES_CONFIG[collectionName];
+const PAGE_NAME = "user";
+const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
+
+export default function Users() {
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
     const [searchParams, setSearchParams] = useSearchParams();
+    const [preloadLoaded, setPreloadLoaded] = useState(false);
 
+    // Parse filters from URL
     const filtersFromUrl = useMemo(() => {
         const obj = {};
-        searchParams.forEach((v, k) => {
-            obj[k] = v.split(",");
-        });
+        searchParams.forEach((v, k) => { obj[k] = v.split(","); });
         return obj;
     }, [searchParams]);
 
-    // Load preload when collectionName changes
+    // Load preload data
     useEffect(() => {
-        if (!config) {
-            setError("Такой страницы не существует");
-            setLoading(false);
-            return;
-        }
-        setData([]); setPreload({}); setLoading(true); setError("");
-        loadDataPreload(setPreload, setLoading, setError, TABLE_PAGES_CONFIG, config);
-    }, [collectionName, config]);
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
+            .then(() => {
+                setPreloadLoaded(true);
+            });
+    }, []);
 
-    // Load table data when collectionName or filters change
+    // Load main table data
     useEffect(() => {
-        if (!config) return;
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [collectionName, searchParams, filtersFromUrl, config]);
+    }, [searchParams, filtersFromUrl]);
 
     const onFilter = () => {
         if (!config.filters || config.filters.length === 0) return;
@@ -63,8 +60,7 @@ export default function Collections() {
         );
     };
 
-
-    if (loading) return <p>Загрузка...</p>;
+    if (loading || !preloadLoaded) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
 
     return (
@@ -73,17 +69,19 @@ export default function Collections() {
 
             <ControlBar
                 showSearch
+                showDelete
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate
+                onDelete={() => onDelete(setModalContent, closeModal)}
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
             />
 
             <DataTable
                 columns={config.columns}
                 data={data?.result || []}
                 pageData={preload}
-                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], data?.result.find((item) => item.id === id))}
+                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], data?.result.find((item) => item.id === id))}
                 onDelete={(id) => onDelete(setModalContent, closeModal, id)}
             />
 

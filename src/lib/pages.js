@@ -3,7 +3,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Главная",
     plural: "Главная",
     resource: "main",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment_type", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
     columns: {
       "№": null,
       "Наименование": "Наименование",
@@ -16,7 +16,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Заявка",
     plural: "Заявки",
     resource: "order",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment_type", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -116,7 +116,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "department_id", label: "Департамент"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
     ]
   },
   branch: {
@@ -187,8 +187,8 @@ export const TABLE_PAGES_CONFIG = {
     }
   },
   equipment_type: {
-    singular: "Оборудование",
-    plural: "Оборудования",
+    singular: "Тип оборудования",
+    plural: "Типы оборудований",
     resource: "equipment_type",
     preload: [],
     columns: {
@@ -196,6 +196,28 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Действия": null
     }
+  },
+  equipment: {
+    singular: "Оборудование",
+    plural: "Оборудования",
+    resource: "equipment",
+    preload: ["branch", "office", "equipment_type"],
+    columns: {
+      "№": null,
+      "Номер оборудования": "name",
+      "Филиал": "branch_id",
+      "Офис ЦБО": "office_id",
+      "Адрес оборудования": "address",
+      "Тип оборудования": "type_id",
+      "Статус": "status_id",
+      "Действия": null
+    },
+    filters: [
+      {id: "type_id", label: "Тип оборудования"},
+      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "branch_id", label: "Филиал"},
+      {id: "office_id", label: "Офис ЦБО"},
+    ]
   },
   atm: {
     singular: "Банкомат",
@@ -208,12 +230,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес банкомата": "address",
-      "Оборудование": "type_id",
+      "Тип оборудования": "type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Оборудование"},
+      {id: "type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -230,12 +252,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес терминала": "address",
-      "Оборудование": "type_id",
+      "Тип оборудования": "type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Оборудование"},
+      {id: "type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -252,12 +274,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес POS-терминала": "address",
-      "Оборудование": "type_id",
+      "Тип оборудования": "type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Оборудование"},
+      {id: "type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -274,12 +296,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес банкомата": "address",
-      "Оборудование": "type_id",
+      "Тип оборудования": "type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Оборудование"},
+      {id: "type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -335,7 +357,8 @@ export const FORM_CONFIG = {
     otdel_id: { label: "Отдел", type: "select", required: true },
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
-    phoneNumber: { label: "Телефон", type: "text", required: false },
+    login: { label: "Логин", type: "text", required: false },
+    phoneNumber: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
     role_id: { label: "Роль", type: "select", required: true },
     photo: { label: "Фото", type: "file", required: false },
@@ -422,3 +445,22 @@ export const FORM_CONFIG = {
       status_id: { label: "Статус", type: "select", required: true },
   },
 };
+
+
+export const DEPENDANT_FIELDS = {
+  desc: {
+    department_id: ["otdel_id"],
+    branch_id: ["office_id"],
+    office_id: ["equipment_id"],
+    equipment_type: ["equipment_id"]
+  },
+};
+
+// add "asc" key which is the reverse of "desc"
+DEPENDANT_FIELDS.asc = Object.entries(DEPENDANT_FIELDS.desc).reduce((acc, [key, values]) => {
+  values.forEach(value => {
+    if (!acc[value]) acc[value] = [];
+    acc[value].push(key);
+  });
+  return acc;
+}, {});
