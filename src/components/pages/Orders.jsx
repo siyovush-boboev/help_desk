@@ -10,7 +10,6 @@ import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import FiltersModal from "../layout/FiltersForm";
 import UserInfoModal from "../layout/UserInfoModal";
 
-
 const PAGE_NAME = "order";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
@@ -20,14 +19,20 @@ export default function Orders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
-    const [searchParams, setSearchParams] = useSearchParams();
     const [preloadLoaded, setPreloadLoaded] = useState(false);
+    const [showClosed, setShowClosed] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page")) || 1;
+    const pageSize = parseInt(searchParams.get("pageSize")) || 10;
+    const searchQuery = searchParams.get("q") || "";
 
-    const filtersFromUrl = useMemo(() => {
-        const obj = {};
-        searchParams.forEach((v, k) => { obj[k] = v.split(","); });
-        return obj;
-    }, [searchParams]);
+    const filtersFromUrl = useMemo(
+        () => Object.fromEntries([...searchParams].map(([k, v]) => [k, v.split(",")])),
+        [searchParams]
+    );
+    const handleSearch = (term) => {
+        setSearchParams({ ...Object.fromEntries(searchParams), q: term, page: 1, pageSize, });
+    };
 
     const onShowUser = (userId) => {
         setModalContent(
@@ -41,6 +46,7 @@ export default function Orders() {
 
     const onFilter = () => {
         if (!config.filters || config.filters.length === 0) return;
+
         setModalContent(
             <FiltersModal
                 filters={config.filters}
@@ -49,7 +55,25 @@ export default function Orders() {
                 onApply={(newFilters) => {
                     const flat = {};
                     Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
-                    setSearchParams(flat);
+
+                    // check closed filter logic stays here if needed
+                    const statusSingularKey = TABLE_PAGES_CONFIG["status"]?.singular;
+                    let zakritoSelected = false;
+
+                    if (
+                        statusSingularKey &&
+                        preload[statusSingularKey] &&
+                        newFilters.status_id
+                    ) {
+                        const selectedStatusIds = newFilters.status_id.map(id => Number(id));
+                        zakritoSelected = selectedStatusIds.some((id) => {
+                            const statusObj = preload[statusSingularKey][id];
+                            return statusObj?.name === "Закрыто";
+                        });
+                    }
+                    setShowClosed(zakritoSelected);
+                    setSearchParams({ ...flat, page: 1, pageSize, q: searchQuery, });
+                    closeModal();
                 }}
                 onClose={closeModal}
             />
@@ -57,10 +81,7 @@ export default function Orders() {
     };
 
     useEffect(() => {
-        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
-            .then(() => {
-                setPreloadLoaded(true);
-            });
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config).then(() => setPreloadLoaded(true));
     }, []);
 
     useEffect(() => {
@@ -80,26 +101,44 @@ export default function Orders() {
                 showFilters={config.filters && config.filters.length > 0}
                 showShowHide
                 showCreate
-                onDelete={() => onDelete(setModalContent, closeModal)}
+                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"])}
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
+                showClosed={showClosed}
+                setShowClosed={setShowClosed}
+                onSearch={handleSearch}
+                initialSearchValue={searchQuery} // sync input with URL param q
             />
 
             <DataTable
                 columns={config.columns}
                 data={data?.result || []}
                 pageData={preload}
-                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], data?.result.find((item) => item.id === id))}
+                onEdit={(id) =>
+                    onCreate(
+                        setModalContent,
+                        closeModal,
+                        preload,
+                        FORM_CONFIG[PAGE_NAME],
+                        config["resource"],
+                        data?.result.find((item) => item.id === id)
+                    )
+                }
                 onShowUser={onShowUser}
+                showClosed={showClosed} // pass down to DataTable for filtering rows display
             />
 
             <Pagination
                 totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
-                currentPage={data?.pagination?.currentPage || 1}
+                currentPage={currentPage}
                 totalPages={data?.pagination?.totalPages || 1}
-                initialPageSize={data?.pagination?.pageSize || 10}
-                onPageChange={(page) => console.log("Page:", page)}
-                onPageSizeChange={(size) => console.log("Size:", size)}
+                pageSize={pageSize}
+                onPageChange={(page) => {
+                    setSearchParams({ ...Object.fromEntries(searchParams), page, pageSize, q: searchQuery, });
+                }}
+                onPageSizeChange={(size) => {
+                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, pageSize: size, q: searchQuery, });
+                }}
             />
         </>
     );

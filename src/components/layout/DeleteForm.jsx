@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../../lib/constants";
+import { fetcher } from "../../lib/services/api/httpClient";
 
 
 function getCorrectSpelling(n) {
@@ -11,7 +12,7 @@ function getCorrectSpelling(n) {
 }
 
 
-export default function DeleteModal({ data, onClose, id = null }) {
+export default function DeleteModal({ data, onClose, id = null, url }) {
     const prepped_data = [];
     data.forEach((item) => {
         prepped_data.push(item.getAttribute("row-id"));
@@ -19,8 +20,25 @@ export default function DeleteModal({ data, onClose, id = null }) {
     if (prepped_data.length === 0 && id)
         prepped_data.push(id);
 
+    function deleteItem(itemId) {
+        fetcher({
+            url: `/${url}/${itemId}`,
+            method: "DELETE"
+        }).then(() => console.log(`Deleted item with id: ${itemId}`))
+            .catch((error) => console.error(`Error deleting item with id ${itemId}:`, error));
+    }
+
     const handleDelete = (e) => {
-        // Call API here to delete the items and refresh the page
+        if (prepped_data.length !== 0) {
+            console.log("Deleting items:", prepped_data);
+            prepped_data.forEach((itemId) => {
+                deleteItem(itemId);
+            });
+        }
+        else if (id) {
+            console.log("Deleting item with id:", id);
+            deleteItem(id);
+        }
         e.stopPropagation();
         onClose();
     }

@@ -2,32 +2,69 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
 
-
 const onEmailChange = (e => {
     const email = e.target.value;
     const loginField = document.querySelector('input[name="login"]');
     loginField.value = email.split("@")[0];
 })
 
-
 export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null }) {
-    const [dynamicOptions, setDynamicOptions] = useState({}); // key = fieldName, value = filtered options obj
+    const [dynamicOptions, setDynamicOptions] = useState({});
+    const [, setTriggeredFields] = useState(new Set());
 
     if (!("Статус" in preloadData))
         preloadData["Статус"] = { "1": { name: "Активен" }, "0": { name: "Неактивен" } };
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+    } = useForm({ defaultValues: getDefaultValues() });
+
+    function getDefaultValues() {
+        const defaults = {};
+
+        if (itemData) {
+            for (const key in config) {
+                if (itemData[key] !== undefined) {
+                    if (config[key].type === "multiselect") {
+                        defaults[key] = itemData[key].map(String);
+                    } else if (config[key].type === "datetime-local") {
+                        defaults[key] = itemData[key]?.slice(0, 16);
+                    } else {
+                        defaults[key] = itemData[key];
+                    }
+                    if (key === "email")
+                        defaults["login"] = itemData[key].split("@")[0];
+                }
+            }
+        } else {
+            if ("status_id" in config) {
+                const default_status_id = Object.keys(preloadData["Статус"]).find(
+                    id => preloadData["Статус"][id].name === "Активен"
+                        || preloadData["Статус"][id].name === "Открыто"
+                );
+                defaults["status_id"] = default_status_id;
+            }
+        }
+
+        return defaults;
+    }
 
     function onOptionChange(fieldName) {
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
         const origin_id = Number(origin_select.value);
 
+        setTriggeredFields(prev => new Set(prev.add(fieldName)));
+
         if (DEPENDANT_FIELDS.asc[fieldName]) {
             DEPENDANT_FIELDS.asc[fieldName].forEach(dependentField => {
                 const origin_label = origin_select.previousSibling.textContent.trim();
-                const option_to_select_id = preloadData[origin_label][origin_id][dependentField];
+                const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
-                    dependentSelect.value = option_to_select_id;
-                    // Recursively handle asc dependencies
+                    setValue(dependentField, option_to_select_id, { shouldValidate: true });
                     if (DEPENDANT_FIELDS.asc[dependentField]) {
                         onOptionChange(dependentField);
                     }
@@ -39,7 +76,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                 const dependentLabel = config[dependentField]?.label || dependentField;
                 const rawOptions = preloadData[dependentLabel] || {};
-
                 const filtered = Object.fromEntries(
                     Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
                 );
@@ -49,42 +85,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     [dependentField]: filtered
                 }));
 
-                // Recursively handle desc dependencies
+                const firstOptionId = Object.keys(filtered)[0];
+                if (firstOptionId) {
+                    setValue(dependentField, firstOptionId, { shouldValidate: true });
+                }
+
                 if (DEPENDANT_FIELDS.desc[dependentField]) {
                     onOptionChange(dependentField);
                 }
             });
         }
     }
-
-    const defaultValues = {};
-
-    if (itemData) {
-        for (const key in config) {
-            if (itemData[key] !== undefined) {
-                if (config[key].type === "multiselect")
-                    defaultValues[key] = itemData[key].map(String); // convert to string for checkbox value match
-                else
-                    defaultValues[key] = itemData[key];
-            }
-        }
-    }
-    else {
-        if ("status_id" in config) {
-            // find status id which has the name "Активен" or "Открыто"
-            const default_status_id = Object.keys(preloadData["Статус"]).find(
-                id => preloadData["Статус"][id].name === "Активен"
-                    || preloadData["Статус"][id].name === "Открыто"
-            );
-            defaultValues["status_id"] = default_status_id;
-        }
-    }
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({ defaultValues });
 
     const getValidationRules = (field) => {
         const rules = {};
@@ -136,6 +147,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                         preload_title = "Пользователь";
                     const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+
                     if (field.type === "select") {
                         return (
                             <div key={fieldName} className="edit-form-field">
@@ -151,8 +163,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                         <option key={id} value={id}>
                                             {name["name"]}
                                         </option>
-                                    ))
-                                    }
+                                    ))}
                                 </select>
                                 {errors[fieldName] && (
                                     <p>{errors[fieldName].message}</p>

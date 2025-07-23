@@ -9,10 +9,8 @@ import { loadDataPreload, loadDataTable, onDelete, onCreate } from "../../lib/ut
 import { ModalContext } from "../../lib/contexts/ModalContext";
 import FiltersModal from "../layout/FiltersForm";
 
-
 const PAGE_NAME = "user";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
-
 
 export default function Users() {
     const [data, setData] = useState([]);
@@ -20,28 +18,19 @@ export default function Users() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
-    const [searchParams, setSearchParams] = useSearchParams();
     const [preloadLoaded, setPreloadLoaded] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentPage = parseInt(searchParams.get("page")) || 1;
+    const pageSize = parseInt(searchParams.get("pageSize")) || 10;
+    const searchQuery = searchParams.get("q") || "";
 
-    // Parse filters from URL
-    const filtersFromUrl = useMemo(() => {
-        const obj = {};
-        searchParams.forEach((v, k) => { obj[k] = v.split(","); });
-        return obj;
-    }, [searchParams]);
-
-    // Load preload data
-    useEffect(() => {
-        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
-            .then(() => {
-                setPreloadLoaded(true);
-            });
-    }, []);
-
-    // Load main table data
-    useEffect(() => {
-        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [searchParams, filtersFromUrl]);
+    const filtersFromUrl = useMemo(
+        () => Object.fromEntries([...searchParams].map(([k, v]) => [k, v.split(",")])),
+        [searchParams]
+    );
+    const handleSearch = (term) => {
+        setSearchParams({ ...Object.fromEntries(searchParams), q: term, page: 1, pageSize, });
+    };
 
     const onFilter = () => {
         if (!config.filters || config.filters.length === 0) return;
@@ -53,12 +42,21 @@ export default function Users() {
                 onApply={(newFilters) => {
                     const flat = {};
                     Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
-                    setSearchParams(flat);
+                    setSearchParams({ ...flat, page: 1, pageSize, q: searchQuery, });
+                    closeModal();
                 }}
                 onClose={closeModal}
             />
         );
     };
+
+    useEffect(() => {
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config).then(() => setPreloadLoaded(true));
+    }, []);
+
+    useEffect(() => {
+        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
+    }, [searchParams, filtersFromUrl]);
 
     if (loading || !preloadLoaded) return <p>Загрузка...</p>;
     if (error) return <p>{error}</p>;
@@ -72,26 +70,45 @@ export default function Users() {
                 showDelete
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate
-                onDelete={() => onDelete(setModalContent, closeModal)}
+                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"])}
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
+                onSearch={handleSearch}
+                initialSearchValue={searchQuery}
             />
 
             <DataTable
                 columns={config.columns}
                 data={data?.result || []}
                 pageData={preload}
-                onEdit={(id) => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], data?.result.find((item) => item.id === id))}
-                onDelete={(id) => onDelete(setModalContent, closeModal, id)}
+                onEdit={(id) =>
+                    onCreate(
+                        setModalContent,
+                        closeModal,
+                        preload,
+                        FORM_CONFIG[PAGE_NAME],
+                        config["resource"],
+                        data?.result.find((item) => item.id === id)
+                    )
+                }
+                onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
             />
 
             <Pagination
                 totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
-                currentPage={data?.pagination?.currentPage || 1}
+                currentPage={currentPage}
                 totalPages={data?.pagination?.totalPages || 1}
-                initialPageSize={data?.pagination?.pageSize || 10}
-                onPageChange={(page) => console.log("Page:", page)}
-                onPageSizeChange={(size) => console.log("Size:", size)}
+                pageSize={pageSize}
+                onPageChange={(page) => {
+                    setSearchParams({
+                        ...Object.fromEntries(searchParams), page, pageSize, q: searchQuery,
+                    });
+                }}
+                onPageSizeChange={(size) => {
+                    setSearchParams({
+                        ...Object.fromEntries(searchParams), page: 1, pageSize: size, q: searchQuery,
+                    });
+                }}
             />
         </>
     );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiltersIcon, PlusIcon, TrashIcon } from "../ui/icons";
 
 export default function ControlBar({
@@ -10,29 +10,28 @@ export default function ControlBar({
     onDelete = () => console.log("Delete clicked"),
     onFilter = () => console.log("Filter clicked"),
     onCreate = () => console.log("Create clicked"),
+    showClosed,
+    setShowClosed,
+    onSearch,
+    initialSearchValue = "",
 }) {
-    const [searchValue, setSearchValue] = useState("");
+    const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
-    const [showClosed, setShowClosed] = useState(false);
+
+    useEffect(() => {
+        setSearchValue(initialSearchValue);
+        setShowClear(initialSearchValue.length > 0);
+    }, [initialSearchValue]);
 
     const handleSearchKeyDown = (e) => {
         setShowClear(true);
         if (e.key === "Enter") {
-            console.log(`Searching for: ${searchValue}`);
+            onSearch(searchValue.trim());
         }
     };
 
     const toggleShowClosed = () => {
         setShowClosed((prev) => !prev);
-        const status_column_index = [...document.querySelectorAll(".custom-table thead th")].find(el => el.textContent == "Статус")?.cellIndex;
-        if (status_column_index) {
-            const rows = document.querySelectorAll(".custom-table tbody tr");
-            rows.forEach(row => {
-                const statusCell = row.cells[status_column_index];
-                if (statusCell)
-                    row.style.display = !showClosed || statusCell.textContent !== "Закрыто" ? "" : "none";
-            });
-        }
         console.log(`Toggle closed rows: ${!showClosed}`);
     };
 
@@ -53,6 +52,7 @@ export default function ControlBar({
                             onClick={() => {
                                 setSearchValue("");
                                 setShowClear(false);
+                                onSearch(""); // clear search in URL & data
                             }}
                         >
                             ❌
