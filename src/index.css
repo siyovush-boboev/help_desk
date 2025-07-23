@@ -540,7 +540,7 @@ button:active {
   font-size: 24px;
   font-weight: 700;
   text-align: center;
-  padding-top: 12px;
+  padding: 12px 0;
 }
 
 .filters-list {

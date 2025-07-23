@@ -9,6 +9,7 @@ export default function DataTable({
     onDelete = () => { },
     onShowUser = () => { },
     main_page = false,
+    showClosed = false
 }) {
     const handleSelectAll = (e) => {
         const checkboxes = document.querySelectorAll(".custom-table tbody input[type='checkbox']");
@@ -89,7 +90,7 @@ export default function DataTable({
                                 let status = "";
                                 const statusOptions = pageData?.[colName] || { "0": { name: "Неактивный" }, "1": { name: "Активный" } };
                                 status = statusOptions[item[field]]?.["name"];
-                                if (status === "Закрыто") hideRow = true;
+                                if (status === "Закрыто") hideRow = !showClosed;
                                 return <td key={i + colName}>{status}</td>;
                             }
 

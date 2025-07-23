@@ -93,7 +93,7 @@ export const loadDataTable = async (setData, setLoading, setError, config, filte
 };
 
 
-export function onDelete(setModalContent, closeModal, id = null) {
+export function onDelete(setModalContent, closeModal, id = null, url) {
     const data_to_delete = [...document.querySelectorAll(
         ".custom-table tbody tr"
     )].filter(
@@ -103,86 +103,97 @@ export function onDelete(setModalContent, closeModal, id = null) {
 
     if (data_to_delete.length !== 0 || id)
         setModalContent(
-            <DeleteForm data={data_to_delete} onClose={closeModal} id={id} />
+            <DeleteForm data={data_to_delete} onClose={closeModal} id={id} url={url} />
         );
 }
 
 
-export function onCreateSubmit(new_data, itemData, closeModal) {
-    Object.entries(new_data).map(([key, val]) => {
-        if (typeof itemData?.[key] === "number" && !isNaN(itemData?.[key]) || key.slice(-3) === "_id")
+
+export async function onCreateSubmit(new_data, itemData, closeModal, url) {
+    // Convert number-like fields properly
+    Object.entries(new_data).forEach(([key, val]) => {
+        if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
             new_data[key] = Number(val);
-        else if (Array.isArray(val))
+        } else if (Array.isArray(val)) {
             new_data[key] = val.map(Number);
-    })
-    // console.log("Create data:", new_data);
-    // console.log("passed data:", itemData);
-    if (!itemData) {
-        console.log("Creating new item");
-        console.log("call API here to create data", new_data);
-    }
-    else {
-        new_data.id = itemData.id; // Ensure ID is set for editing
-        let new_edits = false;
-        for (const key in new_data) {
-            const newVal = new_data[key];
-            const oldVal = itemData[key];
+        }
+    });
 
-            // Compare primitives (string, number, boolean)
-            if (
-                (typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") &&
-                newVal !== oldVal
-            ) {
-                new_edits = true;
-            }
+    try {
+        if (!itemData) {
+            // CREATE NEW
+            console.log("Creating new item", new_data);
+            await fetcher({
+                url: "/" + url,
+                method: "POST",
+                body: new_data,
+            });
+            console.log("Created successfully");
+        } else {
+            // EDIT EXISTING - collect only changed fields for PATCH
+            new_data.id = itemData.id; // Keep id just in case
 
-            // Compare FileList
-            if (
-                newVal instanceof FileList &&
-                newVal.length > 0
-            ) {
-                new_edits = true;
-            }
+            const changedFields = {};
+            for (const key in new_data) {
+                if (key === "login")
+                    continue;
+                if (key === "duration") {
+                    itemData[key] = itemData[key]?.slice(0, 16);;
+                }
+                const newVal = new_data[key];
+                const oldVal = itemData[key];
 
-            // Compare arrays
-            if (
-                Array.isArray(newVal) &&
-                (
-                    !Array.isArray(oldVal) ||
-                    newVal.length !== oldVal.length ||
-                    !newVal.every((v, i) => v === oldVal[i])
-                )
-            ) {
-                new_edits = true;
-            }
+                const isDifferent =
+                    // check primitive changes
+                    ((typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") && newVal !== oldVal) ||
 
-            // Compare objects (shallow)
-            if (
-                typeof newVal === "object" &&
-                newVal !== null &&
-                !Array.isArray(newVal) &&
-                !(newVal instanceof FileList)
-            ) {
-                if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-                    new_edits = true;
+                    // check FileList with length > 0
+                    (newVal instanceof FileList && newVal.length > 0) ||
+
+                    // check arrays for diff length or items
+                    (Array.isArray(newVal) &&
+                        (!Array.isArray(oldVal) ||
+                            newVal.length !== oldVal.length ||
+                            !newVal.every((v, i) => v === oldVal[i]))) ||
+
+                    // shallow object diff by JSON stringify
+                    (typeof newVal === "object" &&
+                        newVal !== null &&
+                        !Array.isArray(newVal) &&
+                        !(newVal instanceof FileList) &&
+                        JSON.stringify(newVal) !== JSON.stringify(oldVal));
+
+                if (isDifferent) {
+                    changedFields[key] = newVal;
                 }
             }
+
+            if (Object.keys(changedFields).length > 0) {
+                console.log("Editing existing item with changed fields:", changedFields);
+                await fetcher({
+                    url: `/${url}/${new_data.id}`,
+                    method: "PATCH",
+                    body: changedFields,
+                });
+                console.log("Updated successfully");
+            } else {
+                console.log("No changes detected, not submitting");
+            }
         }
-        if (new_edits)
-            console.log("call API here to edit data");
-        else
-            console.log("No changes detected, not submitting");
+
+        closeModal(); // Only close modal if no errors
+    } catch (err) {
+        console.error("API error:", err.message);
+        // Optional: show error message to user here
     }
-    closeModal();
 }
 
-
-export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, itemData = null) {
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null) {
     setModalContent(
         <DynamicForm
             config={FORM_CONFIG}
             preloadData={preload}
-            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal)}
+            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url)}
             onClose={closeModal}
             itemData={itemData}
         />

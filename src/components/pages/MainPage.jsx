@@ -18,14 +18,10 @@ export default function MainPage() {
     const { setModalContent, closeModal } = useContext(ModalContext);
     const [preloadLoaded, setPreloadLoaded] = useState(false);
 
-
-
     // load preload data once on mount
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
-            .then(() => {
-                setPreloadLoaded(true);
-            });
+            .then(() => setPreloadLoaded(true));
     }, []);
 
     // load table data on URL filters change
@@ -41,7 +37,7 @@ export default function MainPage() {
             <Breadcrumbs text={config.plural} />
             <ControlBar
                 showCreate
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"])}
             />
             <DataTable
                 columns={config.columns}

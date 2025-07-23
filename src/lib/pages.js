@@ -99,7 +99,7 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
     ]
   },
   otdel: {
@@ -137,7 +137,7 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
     ]
   },
   office: {
@@ -156,7 +156,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "branch_id", label: "Филиал"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]}
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
     ]
   },
   role: {
@@ -214,7 +214,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -236,7 +236,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -258,7 +258,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -280,7 +280,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -302,7 +302,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: ["Активный", "Неактивный"]},
+      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -333,7 +333,7 @@ export const FORM_CONFIG = {
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
     equipment_id: { label: "Оборудование", type: "select", required: true },
-    user_id: { label: "Исполнитель", type: "select", required: true },
+    executor_id: { label: "Исполнитель", type: "select", required: true },
     address: { label: "Адрес", type: "text", required: false },
     comment: { label: "Комментарий", type: "textarea", required: false },
   },
@@ -347,7 +347,7 @@ export const FORM_CONFIG = {
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
     equipment_id: { label: "Оборудование", type: "select", required: true },
-    user_id: { label: "Исполнитель", type: "select", required: true },
+    executor_id: { label: "Исполнитель", type: "select", required: true },
     address: { label: "Адрес", type: "text", required: false },
     comment: { label: "Комментарий", type: "textarea", required: false },
   },

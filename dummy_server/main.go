@@ -308,6 +308,12 @@ func main() {
 		})
 	})
 
+	api.DELETE("/user/1", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status_code": 200,
+		})
+	})
+
 	api.GET("/status", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "icon": "icon1", "name": "Открыто", "type": 1},
