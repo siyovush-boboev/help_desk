@@ -52,7 +52,7 @@ export default function ControlBar({
                             onClick={() => {
                                 setSearchValue("");
                                 setShowClear(false);
-                                onSearch(""); // clear search in URL & data
+                                onSearch("");
                             }}
                         >
                             ❌

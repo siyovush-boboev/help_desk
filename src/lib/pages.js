@@ -15,7 +15,7 @@ export const TABLE_PAGES_CONFIG = {
   order: {
     singular: "Заявка",
     plural: "Заявки",
-    resource: "order",
+    resource: "orders",
     preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
     columns: {
       "CHECKMARK": null,
@@ -41,7 +41,7 @@ export const TABLE_PAGES_CONFIG = {
   user: {
     singular: "Пользователь",
     plural: "Пользователи",
-    resource: "user",
+    resource: "users",
     preload: ["department", "otdel", "branch", "office", "role"],
     columns: {
       "CHECKMARK": null,
@@ -64,7 +64,7 @@ export const TABLE_PAGES_CONFIG = {
   status: {
     singular: "Статус",
     plural: "Статусы",
-    resource: "status",
+    resource: "statuses",
     preload: [],
     columns: {
       "№": null,
@@ -77,7 +77,7 @@ export const TABLE_PAGES_CONFIG = {
   priority: {
     singular: "Приоритет",
     plural: "Приоритеты",
-    resource: "priority",
+    resource: "priorities",
     preload: [],
     columns: {
       "№": null,
@@ -90,7 +90,7 @@ export const TABLE_PAGES_CONFIG = {
   department: {
     singular: "Департамент",
     plural: "Департаменты",
-    resource: "department",
+    resource: "departments",
     preload: [],
     columns: {
       "№": null,
@@ -105,7 +105,7 @@ export const TABLE_PAGES_CONFIG = {
   otdel: {
     singular: "Отдел",
     plural: "Отделы",
-    resource: "otdel",
+    resource: "otdels",
     preload: ["department"],
     columns: {
       "№": null,
@@ -122,7 +122,7 @@ export const TABLE_PAGES_CONFIG = {
   branch: {
     singular: "Филиал",
     plural: "Филиалы",
-    resource: "branch",
+    resource: "branches",
     preload: [],
     columns: {
       "№": null,
@@ -143,7 +143,7 @@ export const TABLE_PAGES_CONFIG = {
   office: {
     singular: "Офис ЦБО",
     plural: "Офисы ЦБО",
-    resource: "office",
+    resource: "offices",
     preload: ["branch", "department"],
     columns: {
       "№": null,
@@ -162,7 +162,7 @@ export const TABLE_PAGES_CONFIG = {
   role: {
     singular: "Роль",
     plural: "Роли",
-    resource: "role",
+    resource: "roles",
     preload: ["permission"],
     columns: {
       "№": null,
@@ -177,7 +177,7 @@ export const TABLE_PAGES_CONFIG = {
   permission: {
     singular: "Привелигия",
     plural: "Привелигии",
-    resource: "permission",
+    resource: "permissions",
     preload: [],
     columns: {
       "№": null,
@@ -189,7 +189,7 @@ export const TABLE_PAGES_CONFIG = {
   equipment_type: {
     singular: "Тип оборудования",
     plural: "Типы оборудований",
-    resource: "equipment_type",
+    resource: "equipment_types",
     preload: [],
     columns: {
       "№": null,
@@ -200,7 +200,7 @@ export const TABLE_PAGES_CONFIG = {
   equipment: {
     singular: "Оборудование",
     plural: "Оборудования",
-    resource: "equipment",
+    resource: "equipments",
     preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,

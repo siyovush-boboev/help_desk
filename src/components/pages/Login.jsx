@@ -1,28 +1,37 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-// import { login } from "../../../lib/services/api/authApi.js";
-// import { useAuth } from "../../../lib/hooks/useAuth.js";
+import { API_BASE_URL } from "../../lib/constants";
 
-export default function Login() {
-    // const { setAccessToken, setUserRole, setPermissions } = useAuth();
-    const [loginField, setLogin] = useState("");
-    const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(true);
+import axios from "../../lib/contexts/axiosInstance"; // import your axios instance
+import { AuthContext } from "../../lib/contexts/authContext";
+
+
+const Login = () => {
+    const { setAccessToken } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
+    const [err, setErr] = useState("");
+
+    const handleLogin = async (e) => {
+        e.preventDefault(); // ✅ move this up so it works properly
+        setErr("");
+
         try {
-            // const res = await login(loginField, password, rememberMe);
-            // setAccessToken(res.access_token);
-            // setUserRole(res.role);
-            // setPermissions(res.permissions);
-            navigate("/main");
-        } catch (err) {
-            console.err("Login failed", err);
+            const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
+
+            if (res.statusText !== "OK") throw new Error("Login failed");
+
+            const data = await res.data; // { access_token: "..." }
+            setAccessToken(data.access_token); // update context
+            navigate("/main"); // ✅ go to dashboard or whatever
+        } catch (e) {
+            setErr("Login failed. Check creds bruh");
+            console.error(e); // log exact err
         }
     };
-
 
     return (
         <div className="main-login-container">
@@ -35,7 +44,7 @@ export default function Login() {
                 {/* Right Side (Login Form) */}
                 <div className="login-right">
                     <h2>Войти в личный кабинет</h2>
-                    <form id="login-form" onSubmit={handleSubmit}>
+                    <form id="login-form" onSubmit={handleLogin}>
                         <div>
                             <label htmlFor="login" className="form-label">Логин</label>
                             <input
@@ -44,8 +53,8 @@ export default function Login() {
                                 className="form-control"
                                 id="login"
                                 placeholder="Введите ваш логин"
-                                value={loginField}
-                                onChange={(e) => setLogin(e.target.value)}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
                         </div>
@@ -61,6 +70,7 @@ export default function Login() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                minLength={6}
                             />
                         </div>
 
@@ -84,6 +94,9 @@ export default function Login() {
                     </form>
                 </div>
             </div>
+            {err && <div style={{ color: 'red' }}>{err}</div>}
         </div>
     );
-}
+};
+
+export default Login;

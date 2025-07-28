@@ -28,13 +28,13 @@ const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
 );
 
 const COLLECTION_LINKS = collectionPages
-    .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo")
+    .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
     .map(([, config]) => ({
         label: config.plural,
         href: config.resource,
     }));
 
-const EQUIPMENT_SUBLINKS = ["atm", "terminal", "pos", "coeo"]
+const EQUIPMENT_SUBLINKS = ["atm", "terminal", "pos", "coeo", "equipment"]
     .filter((key) => TABLE_PAGES_CONFIG[key])
     .map((key) => ({
         label: TABLE_PAGES_CONFIG[key].plural,

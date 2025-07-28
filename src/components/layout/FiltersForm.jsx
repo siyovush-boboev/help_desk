@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DEPENDANT_FIELDS } from "../../lib/pages"; // 👈 same place as other file
+import { DEPENDANT_FIELDS } from "../../lib/pages";
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
@@ -13,18 +13,27 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                 children.includes(filter.id)
             )?.[0];
 
+            const allOptions = preload[filter.label.replace("Заявитель", "Пользователь")] || {};
+            let filtered = Object.entries(allOptions);
+
             if (parentField && selectedValues[parentField]?.length > 0) {
                 const parentSelected = selectedValues[parentField].map(id => Number(id));
-                const allOptions = preload[filter.label.replace("Заявитель", "Пользователь")] || {};
+                // Filter ONLY if option's parent value matches selected ascendants
+                filtered = filtered.filter(([, value]) =>
+                    parentSelected.includes(value[parentField])
+                );
 
-                const filtered = Object.entries(allOptions).filter(([, value]) => {
-                    return parentSelected.includes(value[parentField]);
-                });
+                // 🧠 Add back already selected values that got filtered out
+                const selectedInThisField = selectedValues[filter.id] || [];
+                const missingSelected = selectedInThisField.filter(
+                    key => !filtered.some(([k]) => k === key) && allOptions[key]
+                );
 
-                newFilteredOptions[filter.id] = Object.fromEntries(filtered);
-            } else {
-                newFilteredOptions[filter.id] = preload[filter.label.replace("Заявитель", "Пользователь")] || {};
+                const missingEntries = missingSelected.map(key => [key, allOptions[key]]);
+                filtered = [...filtered, ...missingEntries];
             }
+
+            newFilteredOptions[filter.id] = Object.fromEntries(filtered);
         });
 
         setFilteredOptions(newFilteredOptions);

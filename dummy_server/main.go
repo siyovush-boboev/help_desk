@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -80,9 +82,81 @@ func loadTemplates(pattern string) *template.Template {
 	return tmpl
 }
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid Authorization header"})
+			c.Abort()
+			fmt.Println("header shii")
+			return
+		}
+
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+
+		token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			c.Abort()
+			fmt.Println("token invalid or exprd shii")
+			return
+		}
+
+		claims, ok := token.Claims.(*Claims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.Abort()
+			fmt.Println("claims invalid shii")
+			return
+		}
+
+		if claims.ExpiresAt.Time.Before(time.Now()) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
+			c.Abort()
+			fmt.Println("token expired shii")
+			return
+		}
+
+		// 👇 You can store claims for use in handlers if u want
+		c.Set("login", claims.Username)
+		c.Set("role", claims.Role)
+
+		c.Next()
+	}
+}
+
 func main() {
 	r := gin.Default()
-	api := r.Group("/api/v1")
+	r.Use(CORSMiddleware())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	api := r.Group("/api")
+	api.Use(AuthMiddleware())
+
 	// api.Use(DummyAuthMiddleware())
 
 	// Load all templates from templates/ recursively
@@ -97,23 +171,7 @@ func main() {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
 
-	r.GET("/admin", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "admin-main.html", nil)
-	})
-
-	r.GET("/user", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "user-main.html", nil)
-	})
-
-	r.GET("/executor", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "executor-main.html", nil)
-	})
-
-	r.GET("/auditor", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "auditor-main.html", nil)
-	})
-
-	r.POST("api/v1/auth/login", func(c *gin.Context) {
+	r.POST("api/auth/login", func(c *gin.Context) {
 		var creds struct {
 			Login      string `json:"login"`
 			Password   string `json:"password"`
@@ -150,12 +208,12 @@ func main() {
 			perms = []string{}
 		}
 
-		// Create Access Token (15 min)
+		// Create Access Token
 		accessClaims := &Claims{
 			Username: creds.Login,
 			Role:     role,
 			RegisteredClaims: jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(20 * time.Second)),
 			},
 		}
 		accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -166,9 +224,9 @@ func main() {
 		}
 
 		// 🧠 Here: decide refresh expiry based on rememberMe
-		refreshDuration := 7 * 24 * time.Hour
+		refreshDuration := 20 * time.Minute
 		if !creds.RememberMe {
-			refreshDuration = 15 * time.Minute
+			refreshDuration = 1 * time.Minute
 		}
 
 		refreshClaims := &Claims{
@@ -204,7 +262,7 @@ func main() {
 		})
 	})
 
-	r.POST("api/v1/auth/refresh", func(c *gin.Context) {
+	r.POST("api/auth/refresh", func(c *gin.Context) {
 		rtCookie, err := c.Cookie("refresh_token")
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "No refresh token"})
@@ -227,7 +285,7 @@ func main() {
 		}
 
 		// Generate new access token
-		newAccessToken, err := generateToken(claims.Username, claims.Role, 15*time.Minute)
+		newAccessToken, err := generateToken(claims.Username, claims.Role, 20*time.Second)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token"})
 			return
@@ -253,7 +311,7 @@ func main() {
 		})
 	})
 
-	api.GET("/order", func(c *gin.Context) {
+	api.GET("/orders", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1023, "name": "Ошибка входа в систему", "department_id": 1, "otdel_id": 1, "priority_id": 3, "status_id": 1, "branch_id": 1, "office_id": 1, "equipment_id": 1, "user_id": 1, "duration": "2024-06-01T09:15:00Z", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "created_at": "2024-06-01T08:00:00Z"},
 			{"id": 2045, "name": "Не работает принтер", "department_id": 2, "otdel_id": 2, "priority_id": 1, "status_id": 3, "branch_id": 2, "office_id": 2, "equipment_id": 2, "user_id": 2, "duration": "2024-06-02T10:30:00Z", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "created_at": "2024-06-02T09:00:00Z"},
@@ -283,7 +341,7 @@ func main() {
 		})
 	})
 
-	api.GET("/user", func(c *gin.Context) {
+	api.GET("/users", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"},
 			{"id": 2, "fio": "Саидов Фаррух Махмадович", "email": "farrukh.saidov@arvand.tj", "phoneNumber": "+992902345678", "role_id": 3, "branch_id": 2, "department_id": 2, "office_id": 2, "otdel_id": 2, "position": "Специалист по кадрам"},
@@ -308,13 +366,7 @@ func main() {
 		})
 	})
 
-	api.DELETE("/user/1", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status_code": 200,
-		})
-	})
-
-	api.GET("/status", func(c *gin.Context) {
+	api.GET("/statuses", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "icon": "icon1", "name": "Открыто", "type": 1},
 			{"id": 2, "icon": "icon2", "name": "В работе", "type": 1},
@@ -332,7 +384,7 @@ func main() {
 		})
 	})
 
-	api.GET("/priority", func(c *gin.Context) {
+	api.GET("/priorities", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "icon": "icon-low", "name": "Низкий", "rate": 1},
 			{"id": 2, "icon": "icon-medium", "name": "Средний", "rate": 2},
@@ -345,7 +397,7 @@ func main() {
 		})
 	})
 
-	api.GET("/department", func(c *gin.Context) {
+	api.GET("/departments", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "Департамент информационных технологий", "status_id": 0},
 			{"id": 2, "name": "Департамент кадров", "status_id": 1},
@@ -360,7 +412,7 @@ func main() {
 		})
 	})
 
-	api.GET("/otdel", func(c *gin.Context) {
+	api.GET("/otdels", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "Отдел IT", "status_id": 1, "department_id": 1},
 			{"id": 2, "name": "Отдел кадров", "status_id": 1, "department_id": 2},
@@ -373,7 +425,7 @@ func main() {
 		})
 	})
 
-	api.GET("/branch", func(c *gin.Context) {
+	api.GET("/branches", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "Филиали марказӣ", "shortName": "Марказӣ", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "phoneNumber": "+992 44 600 0001", "email": "central@arvand.tj", "email_index": "734003", "openDate": "2010-01-15", "status_id": 1},
 			{"id": 2, "name": "Филиали Исмоили Сомонӣ", "shortName": "И. Сомонӣ", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "phoneNumber": "+992 44 600 0002", "email": "somoni@arvand.tj", "email_index": "734012", "openDate": "2012-03-10", "status_id": 1},
@@ -393,7 +445,7 @@ func main() {
 		})
 	})
 
-	api.GET("/office", func(c *gin.Context) {
+	api.GET("/offices", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "КБО Марказӣ", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "openDate": "2010-01-15", "branch_id": 1, "status_id": 1},
 			{"id": 2, "name": "КБО Исмоили Сомонӣ", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "openDate": "2012-03-10", "branch_id": 2, "status_id": 1},
@@ -420,7 +472,7 @@ func main() {
 		})
 	})
 
-	api.GET("/role", func(c *gin.Context) {
+	api.GET("/roles", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "super admin", "description": "Полный доступ ко всем функциям и настройкам системы", "permission": []int{1, 2, 3, 4, 5, 6, 7, 8, 9}},
 			{"id": 2, "name": "admin", "description": "Администрирование пользователей и основных настроек", "permission": []int{1, 2, 3, 4, 5, 6, 7, 8}},
@@ -434,7 +486,7 @@ func main() {
 		})
 	})
 
-	api.GET("/permission", func(c *gin.Context) {
+	api.GET("/permissions", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "Просмотр заявок", "description": "Возможность просматривать все заявки в системе"},
 			{"id": 2, "name": "Создание заявок", "description": "Возможность создавать новые заявки"},
@@ -452,7 +504,7 @@ func main() {
 		})
 	})
 
-	api.GET("/equipment_type", func(c *gin.Context) {
+	api.GET("/equipment_types", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "Банкомат"},
 			{"id": 2, "name": "Терминал"},
@@ -465,7 +517,7 @@ func main() {
 		})
 	})
 
-	api.GET("/equipment", func(c *gin.Context) {
+	api.GET("/equipments", func(c *gin.Context) {
 		data := []gin.H{
 			{"id": 1, "name": "ATM-123456", "address": "ш. Душанбе, кӯч. Рӯдакӣ 123", "branch_id": 1, "office_id": 1, "type_id": 1, "status_id": 1},
 			{"id": 2, "name": "ATM-234567", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 1, "status_id": 1},
@@ -560,7 +612,7 @@ func main() {
 		})
 	})
 
-	api.GET("/user/1", func(c *gin.Context) {
+	api.GET("/users/1", func(c *gin.Context) {
 		data := gin.H{
 			"id":          1,
 			"fio":         "Шамолов Тупаланг Уроганович",
@@ -577,6 +629,12 @@ func main() {
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
+			"status_code": 200,
+		})
+	})
+
+	api.DELETE("/users/1", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
 			"status_code": 200,
 		})
 	})

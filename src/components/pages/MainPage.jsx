@@ -24,7 +24,6 @@ export default function MainPage() {
             .then(() => setPreloadLoaded(true));
     }, []);
 
-    // load table data on URL filters change
     useEffect(() => {
         loadDataTable(setData, setLoading, setError, config);
     }, []);

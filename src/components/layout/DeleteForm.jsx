@@ -1,5 +1,4 @@
-import { API_BASE_URL } from "../../lib/constants";
-import { fetcher } from "../../lib/services/api/httpClient";
+import axios from "../../lib/contexts/axiosInstance";
 
 
 function getCorrectSpelling(n) {
@@ -21,10 +20,7 @@ export default function DeleteModal({ data, onClose, id = null, url }) {
         prepped_data.push(id);
 
     function deleteItem(itemId) {
-        fetcher({
-            url: `/${url}/${itemId}`,
-            method: "DELETE"
-        }).then(() => console.log(`Deleted item with id: ${itemId}`))
+        axios.delete(`/${url}/${itemId}`).then(() => console.log(`Deleted item with id: ${itemId}`))
             .catch((error) => console.error(`Error deleting item with id ${itemId}:`, error));
     }
 

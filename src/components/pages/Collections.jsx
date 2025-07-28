@@ -10,7 +10,10 @@ import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import FiltersModal from "../layout/FiltersForm";
 
 export default function Collections() {
-    const { collectionName } = useParams(); // auto updates on URL change
+    let { collectionName } = useParams(); // auto updates on URL change
+    collectionName = Object.keys(TABLE_PAGES_CONFIG).find(
+        key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
+    );
     const config = TABLE_PAGES_CONFIG[collectionName];
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});

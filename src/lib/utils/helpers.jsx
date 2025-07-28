@@ -1,14 +1,8 @@
-import { useContext } from 'react';
-import { AuthContext } from '../contexts/authBS.js';
-import { fetcher } from "../services/api/httpClient.js";
+// import { fetcher } from "../services/api/fetcher.js";
+import axios from "../contexts/axiosInstance";
 import DeleteForm from "../../components/layout/DeleteForm";
 import DynamicForm from "../../components/layout/DynamicForm";
 
-
-// Hook to use auth context anywhere
-export function useAuth() {
-    return useContext(AuthContext);
-}
 
 export function navbarClickHandler(e) {
     e.stopPropagation();
@@ -45,14 +39,14 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
     try {
         const preloadResults = await Promise.all(
             config.preload.map((key) =>
-                fetcher({ url: "/" + TABLE_PAGES_CONFIG[key]["resource"] })
+                axios.get("/" + TABLE_PAGES_CONFIG[key]["resource"])
             )
         );
 
         const preloadData = {};
         config.preload.forEach((key, i) => {
             const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
-            const raw = preloadResults[i];
+            const raw = preloadResults[i].data;
             const prepped = raw.result.reduce((acc, item) => {
                 const id = item.id || item._id || item.ID;
                 const name = item.name || item.title || item.fio || id;
@@ -82,8 +76,8 @@ export const loadDataTable = async (setData, setLoading, setError, config, filte
             queryString = new URLSearchParams(filters).toString();
         }
         const url = `/${config.resource}?${queryString}`;
-        const mainRes = await fetcher({ url });
-        setData(mainRes);
+        const mainRes = await axios.get(url);
+        setData(mainRes.data);
     } catch (err) {
         console.error(err);
         setError("Ошибка загрузки таблицы");
@@ -123,9 +117,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
         if (!itemData) {
             // CREATE NEW
             console.log("Creating new item", new_data);
-            await fetcher({
+            await axios.post({
                 url: "/" + url,
-                method: "POST",
                 body: new_data,
             });
             console.log("Created successfully");
@@ -170,9 +163,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
 
             if (Object.keys(changedFields).length > 0) {
                 console.log("Editing existing item with changed fields:", changedFields);
-                await fetcher({
+                await axios.put({
                     url: `/${url}/${new_data.id}`,
-                    method: "PATCH",
                     body: changedFields,
                 });
                 console.log("Updated successfully");
