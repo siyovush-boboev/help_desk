@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
+import OrderHistory from "./OrderHistory";
 
 const onEmailChange = (e => {
     const email = e.target.value;
@@ -139,105 +140,110 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     };
 
     return (
-        <div className="modal-content">
-            <p>{itemData ? "Редактирование" : "Создание"}</p>
-            <form onSubmit={handleSubmit(onSubmit)} noValidate id="editForm">
-                {Object.entries(config).map(([fieldName, field]) => {
-                    let preload_title = field.label || fieldName;
-                    if (preload_title === "Исполнитель" || preload_title === "Заявитель")
-                        preload_title = "Пользователь";
-                    const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+        <>
+            <div className="form-container">
+                <div className="bruh">
+                    <p>{itemData ? "Редактирование" : "Создание"}</p>
+                    <form onSubmit={handleSubmit(onSubmit)} noValidate id="editForm">
+                        {Object.entries(config).map(([fieldName, field]) => {
+                            let preload_title = field.label || fieldName;
+                            if (preload_title === "Исполнитель" || preload_title === "Заявитель")
+                                preload_title = "Пользователь";
+                            const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
 
-                    if (field.type === "select") {
-                        return (
-                            <div key={fieldName} className="edit-form-field">
-                                <label>{field.label}</label>
-                                <select defaultValue=""
-                                    {...register(fieldName, getValidationRules(field))}
-                                    onChange={() => onOptionChange(fieldName)}
-                                >
-                                    <option value="" disabled>
-                                        Выберите {field.label.toLowerCase()}
-                                    </option>
-                                    {Object.entries(preloadOptions).map(([id, name]) => (
-                                        <option key={id} value={id}>
-                                            {name["name"]}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors[fieldName] && (
-                                    <p>{errors[fieldName].message}</p>
-                                )}
-                            </div>
-                        );
-                    }
+                            if (field.type === "select") {
+                                return (
+                                    <div key={fieldName} className="edit-form-field">
+                                        <label>{field.label}</label>
+                                        <select defaultValue=""
+                                            {...register(fieldName, getValidationRules(field))}
+                                            onChange={() => onOptionChange(fieldName)}
+                                        >
+                                            <option value="" disabled>
+                                                Выберите {field.label.toLowerCase()}
+                                            </option>
+                                            {Object.entries(preloadOptions).map(([id, name]) => (
+                                                <option key={id} value={id}>
+                                                    {name["name"]}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors[fieldName] && (
+                                            <p>{errors[fieldName].message}</p>
+                                        )}
+                                    </div>
+                                );
+                            }
 
-                    if (field.type === "multiselect") {
-                        const options = preloadData?.[field.label] || {};
-                        return (
-                            <div key={fieldName} className="edit-form-field">
-                                <label>{field.label}</label>
-                                <div className="checkbox-container">
-                                    {Object.entries(options).map(([val, label]) => (
-                                        <label key={val} className="checkbox-item">
-                                            <input
-                                                type="checkbox"
-                                                value={val}
-                                                {...register(fieldName, getValidationRules(field))}
-                                            />
-                                            <span>{label["name"]}</span>
-                                        </label>
-                                    ))}
+                            if (field.type === "multiselect") {
+                                const options = preloadData?.[field.label] || {};
+                                return (
+                                    <div key={fieldName} className="edit-form-field">
+                                        <label>{field.label}</label>
+                                        <div className="checkbox-container">
+                                            {Object.entries(options).map(([val, label]) => (
+                                                <label key={val} className="checkbox-item">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={val}
+                                                        {...register(fieldName, getValidationRules(field))}
+                                                    />
+                                                    <span>{label["name"]}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        {errors[fieldName] && (
+                                            <p>{errors[fieldName].message}</p>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            if (field.type === "file") {
+                                return (
+                                    <div key={fieldName} className="edit-form-field">
+                                        <label>{field.label}</label>
+                                        <input
+                                            type="file"
+                                            {...register(fieldName, getValidationRules(field))}
+                                        />
+                                        {errors[fieldName] && (
+                                            <p>{errors[fieldName].message}</p>
+                                        )}
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div key={fieldName} className="edit-form-field">
+                                    <label>{field.label}</label>
+                                    {field.type === "textarea" ? (
+                                        <textarea
+                                            {...register(fieldName, getValidationRules(field))}
+                                            rows={4}
+                                        />
+                                    ) : (
+                                        <input
+                                            type={field.type || "text"}
+                                            {...register(fieldName, getValidationRules(field))}
+                                            onChange={(fieldName === "email" || null) && onEmailChange}
+                                            disabled={fieldName === "login"}
+                                        />
+                                    )}
+                                    {errors[fieldName] && (
+                                        <p>{errors[fieldName].message}</p>
+                                    )}
                                 </div>
-                                {errors[fieldName] && (
-                                    <p>{errors[fieldName].message}</p>
-                                )}
-                            </div>
-                        );
-                    }
-
-                    if (field.type === "file") {
-                        return (
-                            <div key={fieldName} className="edit-form-field">
-                                <label>{field.label}</label>
-                                <input
-                                    type="file"
-                                    {...register(fieldName, getValidationRules(field))}
-                                />
-                                {errors[fieldName] && (
-                                    <p>{errors[fieldName].message}</p>
-                                )}
-                            </div>
-                        );
-                    }
-
-                    return (
-                        <div key={fieldName} className="edit-form-field">
-                            <label>{field.label}</label>
-                            {field.type === "textarea" ? (
-                                <textarea
-                                    {...register(fieldName, getValidationRules(field))}
-                                    rows={4}
-                                />
-                            ) : (
-                                <input
-                                    type={field.type || "text"}
-                                    {...register(fieldName, getValidationRules(field))}
-                                    onChange={(fieldName === "email" || null) && onEmailChange}
-                                    disabled={fieldName === "login"}
-                                />
-                            )}
-                            {errors[fieldName] && (
-                                <p>{errors[fieldName].message}</p>
-                            )}
+                            );
+                        })}
+                        <div className="modal-buttons">
+                            <button id="confirmBtn" type="submit">Сохранить</button>
+                            <button id="cancelBtn" onClick={onClose}>Отмена</button>
                         </div>
-                    );
-                })}
-                <div className="modal-buttons">
-                    <button id="confirmBtn" type="submit">Сохранить</button>
-                    <button id="cancelBtn" onClick={onClose}>Отмена</button>
+                    </form>
                 </div>
-            </form>
-        </div>
+                {itemData && <OrderHistory orderId={itemData.id} />}
+            </div>
+        </>
     );
 }

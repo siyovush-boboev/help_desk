@@ -438,7 +438,6 @@ button:active {
 
 .modal-content {
   color: var(--white);
-  max-width: 750px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -535,11 +534,11 @@ button:active {
   margin: 20px;
 }
 
-.modal-form>p:first-child,
-.modal-content>p:first-child {
+.modal-content>div>div>p:first-child {
   font-size: 24px;
   font-weight: 700;
   text-align: center;
+  margin: 0 auto;
   padding: 12px 0;
 }
 
@@ -590,6 +589,7 @@ button:active {
   padding: 20px 12px;
   gap: 20px;
   overflow: auto;
+  max-width: 750px;
 }
 
 #editForm input:not([type="checkbox"]),
@@ -623,6 +623,13 @@ button:active {
   background-color: yellow;
   padding: 4px;
   border-radius: 4px;
+}
+
+.form-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  overflow: auto;
 }
 
 .filters-form {
@@ -751,6 +758,10 @@ button:active {
   color: red;
 }
 
+.history-entry {
+  margin: 12px;
+}
+
 @media (max-width: 768px) {
   nav {
     position: absolute;
@@ -819,5 +830,9 @@ button:active {
 
   .user-info-main-container {
     max-width: 260px;
+  }
+
+  .form-container {
+    flex-direction: column;
   }
 }

@@ -647,18 +647,50 @@ func main() {
 	})
 
 	api.DELETE("/users/1", func(c *gin.Context) {
-		data := gin.H{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"}
 		c.JSON(http.StatusOK, gin.H{
 			"status_code": 200,
-			"result":      data,
 		})
 	})
 
-	api.DELETE("/me", func(c *gin.Context) {
-		data := gin.H{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"}
+	api.GET("/orders/1023/history", func(c *gin.Context) {
+		data := gin.H{
+			"status": true,
+			"body": []gin.H{
+				{
+					"icon": "status_open",
+					"lines": []string{
+						"Создал(а) заявку: «Тест №77777777: Проверка авто-назначения»",
+						"Назначен(а) исполнитель: Пользователь Тестовый",
+						"Заявка должна автоматически назначиться на руководителя 7777777777!!.",
+						"Прикреплен файл: 4a9e06c8-da60-4a12-a490-d70369421544.pdf",
+					},
+					"actor": gin.H{
+						"id":  9,
+						"fio": "Супер Админ Тестовый",
+					},
+					"created_at": "24.07.2025 / 15:14",
+				},
+				{
+					"icon": "status_inprogress",
+					"lines": []string{
+						"Назначен(а) исполнитель: Исполнитель Тестовый 3",
+						"Изменен статус заявки на ID: В работе",
+						"Немедленно исправить ошибку 111111 !.",
+						"Прикреплен файл: data-1752735035097.csv",
+					},
+					"actor": gin.H{
+						"id":  11,
+						"fio": "Пользователь Тестовый",
+					},
+					"created_at": "24.07.2025 / 15:30",
+				},
+			},
+			"message": "История заявки успешно получена",
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"status_code": 200,
 			"result":      data,
+			"status_code": 200,
 		})
 	})
 
