@@ -213,7 +213,7 @@ func main() {
 			Username: creds.Login,
 			Role:     role,
 			RegisteredClaims: jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(20 * time.Second)),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
 			},
 		}
 		accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -224,9 +224,9 @@ func main() {
 		}
 
 		// 🧠 Here: decide refresh expiry based on rememberMe
-		refreshDuration := 20 * time.Minute
+		refreshDuration := 7 * 24 * time.Hour
 		if !creds.RememberMe {
-			refreshDuration = 1 * time.Minute
+			refreshDuration = 30 * time.Minute
 		}
 
 		refreshClaims := &Claims{
@@ -254,11 +254,17 @@ func main() {
 			true, // HttpOnly
 		)
 
-		// 🎁 send response
 		c.JSON(http.StatusOK, gin.H{
-			"access_token": accessString,
-			"role":         role,
-			"permissions":  perms,
+			"status": true,
+			"body": gin.H{
+				"access_token": accessString,
+				"permissions":  perms,
+				"user": gin.H{
+					"id":      1,
+					"role_id": 1,
+				},
+			},
+			"message": "Авторизация прошла успешно",
 		})
 	})
 
@@ -285,15 +291,22 @@ func main() {
 		}
 
 		// Generate new access token
-		newAccessToken, err := generateToken(claims.Username, claims.Role, 20*time.Second)
+		newAccessToken, err := generateToken(claims.Username, claims.Role, 5*time.Minute)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token"})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"access_token": newAccessToken,
-			"role":         claims.Role,
+			"status": true,
+			"body": gin.H{
+				"access_token": newAccessToken,
+				"user": gin.H{
+					"id":      1,
+					"role_id": 1,
+				},
+			},
+			"message": "access token refreshed successfully",
 		})
 	})
 
@@ -625,7 +638,7 @@ func main() {
 
 			"office_id": 1,
 			"otdel_id":  1,
-			"position":  "Супер админ",
+			"position":  "Должность пользователя",
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"result":      data,
@@ -634,8 +647,18 @@ func main() {
 	})
 
 	api.DELETE("/users/1", func(c *gin.Context) {
+		data := gin.H{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"}
 		c.JSON(http.StatusOK, gin.H{
 			"status_code": 200,
+			"result":      data,
+		})
+	})
+
+	api.DELETE("/me", func(c *gin.Context) {
+		data := gin.H{"id": 1, "fio": "Рахимов Алишер Саидович", "email": "alisher.rahimov@arvand.tj", "phoneNumber": "+992901234567", "role_id": 2, "branch_id": 1, "department_id": 1, "office_id": 1, "otdel_id": 1, "position": "Начальник отдела IT"}
+		c.JSON(http.StatusOK, gin.H{
+			"status_code": 200,
+			"result":      data,
 		})
 	})
 

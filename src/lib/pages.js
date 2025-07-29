@@ -44,7 +44,6 @@ export const TABLE_PAGES_CONFIG = {
     resource: "users",
     preload: ["department", "otdel", "branch", "office", "role"],
     columns: {
-      "CHECKMARK": null,
       "Имя": "fio",
       "Департамент": "department_id",
       "Отдел": "otdel_id",

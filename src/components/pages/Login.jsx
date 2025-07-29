@@ -1,8 +1,8 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../lib/constants";
 
-import axios from "../../lib/contexts/axiosInstance"; // import your axios instance
+import axios from "../../lib/contexts/axiosInstance";
 import { AuthContext } from "../../lib/contexts/authContext";
 
 
@@ -14,9 +14,11 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
     const [err, setErr] = useState("");
+    const passwordRef = useRef(null);
+
 
     const handleLogin = async (e) => {
-        e.preventDefault(); // ✅ move this up so it works properly
+        e.preventDefault();
         setErr("");
 
         try {
@@ -24,12 +26,18 @@ const Login = () => {
 
             if (res.statusText !== "OK") throw new Error("Login failed");
 
-            const data = await res.data; // { access_token: "..." }
+            const data = await res.data.body; // { access_token: "..." }
             setAccessToken(data.access_token); // update context
             navigate("/main"); // ✅ go to dashboard or whatever
         } catch (e) {
-            setErr("Login failed. Check creds bruh");
-            console.error(e); // log exact err
+            passwordRef.current?.focus();
+            if (e.code === "ERR_NETWORK")
+                setErr("Проверьте подключение к интернету");
+            else if (e.code === "ERR_BAD_REQUEST")
+                setErr("Неверный логин или пароль");
+            else
+                setErr("Произошла ошибка при входе");
+            console.error(e);
         }
     };
 
@@ -71,12 +79,13 @@ const Login = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 minLength={6}
+                                ref={passwordRef}
                             />
                         </div>
+                        <div className="login-error">{err}&nbsp;</div>
 
                         <div>
                             <div className="form-check">
-                                <label className="form-check-label" htmlFor="rememberMe">Запомнить меня</label>
                                 <input
                                     type="checkbox"
                                     className="form-check-input"
@@ -84,6 +93,7 @@ const Login = () => {
                                     checked={rememberMe}
                                     onChange={(e) => setRememberMe(e.target.checked)}
                                 />
+                                <label className="form-check-label" htmlFor="rememberMe">Запомнить меня</label>
                             </div>
                             <div>
                                 <a href="#" className="auth-page-link">Забыли пароль?</a>
@@ -94,7 +104,6 @@ const Login = () => {
                     </form>
                 </div>
             </div>
-            {err && <div style={{ color: 'red' }}>{err}</div>}
         </div>
     );
 };

@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
+import axios from "../../lib/contexts/axiosInstance";
 
 export default function UserInfoModal({ userId, onClose, departments }) {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
+    console.log(departments);
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const url = `${API_BASE_URL}/${TABLE_PAGES_CONFIG["user"]["resource"]}/${userId}`;
-                const res = await fetch(url);
-                const data = await res.json();
+                const res = await axios.get(url);
+                const data = res.data;
                 setUserData(data["result"]);
             } catch (err) {
                 console.error("Failed to load user data:", err);
@@ -55,7 +57,7 @@ export default function UserInfoModal({ userId, onClose, departments }) {
     }
 
     const [lastName, firstName, middleName] = userData.fio.split(" ");
-    const departmentName = departments[userData.department_id]["name"] || userData.department_id;
+    const departmentName = departments?.[userData.department_id]["name"] || userData.department_id;
 
     const infoBlocks = [
         { id: "last_name", label: "Фамилия", value: lastName },

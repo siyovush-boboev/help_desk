@@ -11,9 +11,10 @@ export function navbarClickHandler(e) {
     const dropdownToggler = e.target.closest('.dropdown-container');
 
     // Mark the clicked link as active
-    document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
-    if (target)
+    if (target && !target.classList.contains('active')) {
+        document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
         target.classList.add('active');
+    }
 
     if (dropdownToggler && !target) {
         // select all the dropdown links that are not inside a dropdown container

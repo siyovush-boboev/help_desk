@@ -12,108 +12,70 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-const subscribeTokenRefresh = (cb) => {
-  refreshSubscribers.push(cb);
-};
-
-const onRefreshed = (newToken) => {
-  refreshSubscribers.forEach((cb) => cb(newToken));
-  refreshSubscribers = [];
-};
-
 async function refreshToken() {
-  const res = await instance.post("/auth/refresh");
-  const newToken = res.data.access_token;
-  setAccessToken(newToken);
-  return newToken;
+  try {
+    const res = await instance.post("/auth/refresh");
+    const newToken = res.data.body.access_token;
+    setAccessToken(newToken);
+    return newToken;
+  } catch (err) {
+    clearAccessToken();
+    window.location.href = "/login";
+    throw err;
+  }
 }
 
-// ✅ Request interceptor
+// ✅ Request Interceptor
 instance.interceptors.request.use(
   async (config) => {
-    // Skip refresh logic for login and refresh endpoints
     const isLogin = config.url.includes("/auth/login");
     const isRefresh = config.url.includes("/auth/refresh");
+
+    // Don’t touch login or refresh calls
     if (isLogin || isRefresh) return config;
 
-    // 🔍 Preemptively refresh token if expiring soon
-    if (willTokenExpireSoon()) {
-      if (!isRefreshing) {
-        isRefreshing = true;
-        try {
-          const newToken = await refreshToken();
-          onRefreshed(newToken);
-        } catch (err) {
-          clearAccessToken();
-          window.location.href = "/login";
-          return Promise.reject(err);
-        } finally {
-          isRefreshing = false;
-        }
-      }
+    let token = getAccessToken();
 
-      await new Promise((resolve) => {
-        subscribeTokenRefresh((newToken) => {
-          config.headers["Authorization"] = `Bearer ${newToken}`;
-          resolve();
-        });
-      });
-    } else {
-      const token = getAccessToken();
-      if (token) config.headers["Authorization"] = `Bearer ${token}`;
+    // 🔄 Refresh if token is expiring
+    if (willTokenExpireSoon() || !token) {
+      try {
+        token = await refreshToken();
+      } catch (err) {
+        console.error("Failed to refresh token:", err);
+        return Promise.reject(err);
+      }
     }
 
+    if (token) config.headers["Authorization"] = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor for rare edge cases (401 after sending)
+// ✅ Response Interceptor (only retry once on 401)
 instance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  (res) => res,
+  async (err) => {
+    const originalRequest = err.config;
 
-    const isRefreshEndpoint = originalRequest.url.includes("/auth/refresh");
-    const isLoginEndpoint = originalRequest.url.includes("/auth/login");
+    const isAuthErr = err.response?.status === 401;
+    const notRetrying = !originalRequest._retry;
+    const notLoginOrRefresh =
+      !originalRequest.url.includes("/auth/login") &&
+      !originalRequest.url.includes("/auth/refresh");
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !isRefreshEndpoint &&
-      !isLoginEndpoint
-    ) {
+    if (isAuthErr && notRetrying && notLoginOrRefresh) {
       originalRequest._retry = true;
-
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((newToken) => {
-            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-            resolve(instance(originalRequest));
-          });
-        });
-      }
-
-      isRefreshing = true;
       try {
-        const res = await refreshToken();
-        onRefreshed(res);
-
-        originalRequest.headers["Authorization"] = `Bearer ${res}`;
+        const newToken = await refreshToken();
+        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
         return instance(originalRequest);
-      } catch (err) {
-        clearAccessToken();
-        window.location.href = "/login";
-        return Promise.reject(err);
-      } finally {
-        isRefreshing = false;
+      } catch (e) {
+        return Promise.reject(e);
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 

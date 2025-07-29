@@ -8,12 +8,14 @@ import { setAccessToken as setTokenManagerAccessToken, clearAccessToken as clear
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessTokenState] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [userData, setUserData] = useState(null);
 
     const refreshAccessToken = useCallback(async () => {
         try {
             const res = await axios.post(API_BASE_URL + "/auth/refresh");
-            setAccessTokenState(res.data.access_token);
-            setTokenManagerAccessToken(res.data.access_token);
+            setAccessTokenState(res.data.body.access_token);
+            setTokenManagerAccessToken(res.data.body.access_token);
+            setUserData(res.data.body.user);
             return true;
         } catch {
             setAccessTokenState(null);
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ accessToken, setAccessToken, refreshAccessToken, loading }}>
+        <AuthContext.Provider value={{ accessToken, setAccessToken, refreshAccessToken, loading, userData }}>
             {!loading && children}
         </AuthContext.Provider>
     );

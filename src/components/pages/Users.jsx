@@ -67,10 +67,8 @@ export default function Users() {
 
             <ControlBar
                 showSearch
-                showDelete
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate
-                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"])}
                 onFilter={onFilter}
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
                 onSearch={handleSearch}
