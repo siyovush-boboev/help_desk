@@ -17,8 +17,9 @@ async function refreshToken() {
     const res = await instance.post("/auth/refresh");
     const newToken = res.data.body.access_token;
     setAccessToken(newToken);
+    console.log("New access token set in axios:", newToken);
     return newToken;
-  } catch (err) {
+  } catch (err) {    
     clearAccessToken();
     window.location.href = "/login";
     throw err;
@@ -39,6 +40,8 @@ instance.interceptors.request.use(
     // 🔄 Refresh if token is expiring
     if (willTokenExpireSoon() || !token) {
       try {
+        console.log("Token is expiring soon or not present, refreshing...");
+        console.log("not present:", !token);
         token = await refreshToken();
       } catch (err) {
         console.error("Failed to refresh token:", err);
@@ -67,6 +70,7 @@ instance.interceptors.response.use(
     if (isAuthErr && notRetrying && notLoginOrRefresh) {
       originalRequest._retry = true;
       try {
+        console.log("gettin new token and retrying request with new token...");
         const newToken = await refreshToken();
         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
         return instance(originalRequest);

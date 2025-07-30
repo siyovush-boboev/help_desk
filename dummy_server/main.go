@@ -18,6 +18,7 @@ var jwtKey = []byte("supersecret_access_key")
 var jwtRefreshKey = []byte("supersecret_refresh_key")
 
 type Claims struct {
+	UserID   string `json:"sub"`
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
@@ -40,6 +41,7 @@ func generateToken(username, role string, expiresIn time.Duration) (string, erro
 	claims := &Claims{
 		Username: username,
 		Role:     role,
+		UserID:   "1",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
 		},
@@ -135,7 +137,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 👇 You can store claims for use in handlers if u want
+		// 🔥 Store all the important shit in context
+		c.Set("userID", claims.UserID) // 👈 Add this line
 		c.Set("login", claims.Username)
 		c.Set("role", claims.Role)
 
@@ -145,7 +148,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 func main() {
 	r := gin.Default()
-	r.Use(CORSMiddleware())
+	// r.Use(CORSMiddleware())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -212,6 +215,7 @@ func main() {
 		accessClaims := &Claims{
 			Username: creds.Login,
 			Role:     role,
+			UserID:   "1",
 			RegisteredClaims: jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
 			},
@@ -224,7 +228,7 @@ func main() {
 		}
 
 		// 🧠 Here: decide refresh expiry based on rememberMe
-		refreshDuration := 7 * 24 * time.Hour
+		refreshDuration := 30 * 24 * time.Hour
 		if !creds.RememberMe {
 			refreshDuration = 30 * time.Minute
 		}
@@ -232,6 +236,7 @@ func main() {
 		refreshClaims := &Claims{
 			Username: creds.Login,
 			Role:     role,
+			UserID:   "1",
 			RegisteredClaims: jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshDuration)),
 			},
@@ -301,13 +306,30 @@ func main() {
 			"status": true,
 			"body": gin.H{
 				"access_token": newAccessToken,
-				"user": gin.H{
-					"id":      1,
-					"role_id": 1,
-				},
 			},
 			"message": "access token refreshed successfully",
 		})
+	})
+
+	api.GET("/auth/me", func(c *gin.Context) {
+		userID, exists := c.Get("userID")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthenticated"})
+			return
+		}
+
+		// Replace this with your DB call
+		user := gin.H{
+			"id":            userID,
+			"email":         "user@example.com",
+			"phoneNumber":   "+992901234567",
+			"fio":           "Lil Coder J",
+			"role":          "user",
+			"position":      "Junior Developer",
+			"department_id": 1,
+		}
+
+		c.JSON(http.StatusOK, user)
 	})
 
 	// api/main/

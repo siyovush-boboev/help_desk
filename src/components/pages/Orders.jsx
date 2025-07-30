@@ -121,7 +121,8 @@ export default function Orders() {
                         preload,
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
-                        data?.result.find((item) => item.id === id)
+                        data?.result.find((item) => item.id === id),
+                        true
                     )
                 }
                 onShowUser={onShowUser}

@@ -1,34 +1,37 @@
-import { useState, useEffect, useCallback } from "react";
-import axios from "./axiosInstance"; // your custom axios instance (we’ll make next)
+import { useEffect, useState } from "react";
+import axios from "./axiosInstance";
 import { AuthContext } from "./authContext";
 import { API_BASE_URL } from "../constants";
-import { setAccessToken as setTokenManagerAccessToken, clearAccessToken as clearTokenManagerAccessToken } from "../services/api/tokenManager";
+import {
+    setAccessToken as setTokenManagerAccessToken,
+    clearAccessToken as clearTokenManagerAccessToken,
+} from "../services/api/tokenManager";
 
 
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessTokenState] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState(null);
-
-    const refreshAccessToken = useCallback(async () => {
-        try {
-            const res = await axios.post(API_BASE_URL + "/auth/refresh");
-            setAccessTokenState(res.data.body.access_token);
-            setTokenManagerAccessToken(res.data.body.access_token);
-            setUserData(res.data.body.user);
-            return true;
-        } catch {
-            setAccessTokenState(null);
-            clearTokenManagerAccessToken();
-            return false;
-        }
-    }, []);
+    const [authFailed, setAuthFailed] = useState(false);
 
     useEffect(() => {
-        refreshAccessToken().finally(() => setLoading(false));
-    }, [refreshAccessToken]);
+        const fetchInitialToken = async () => {
+            try {
+                const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+                const token = res.data.body.access_token;
+                setAccessTokenState(token);
+                setTokenManagerAccessToken(token);
+                setAuthFailed(false);
+            } catch (err) {
+                console.error("Failed to fetch initial token:", err);
+                clearTokenManagerAccessToken();
+                setAuthFailed(true); // 👈 FLAG
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchInitialToken();
+    }, []);
 
-    // Sync context state token to token manager
     const setAccessToken = (token) => {
         setAccessTokenState(token);
         if (token) {
@@ -39,8 +42,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ accessToken, setAccessToken, refreshAccessToken, loading, userData }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ accessToken, setAccessToken, loading, authFailed, setAuthFailed }}>
+            {loading ? <div>Загрузка...</div> : children}
         </AuthContext.Provider>
     );
 };

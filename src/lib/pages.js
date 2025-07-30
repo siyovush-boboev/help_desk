@@ -365,12 +365,14 @@ export const FORM_CONFIG = {
   },
   status: {
     name: { label: "Наименование", type: "text", required: true },
-    icon: { label: "Иконка", type: "file", required: false },
+    icon_big: { label: "Иконка (большая)", type: "file", required: false },
+    icon_small: { label: "Иконка (маленькая)", type: "file", required: false },
     type: { label: "Тип", type: "number", required: true },
   },
   priority: {
     name: { label: "Наименование", type: "text", required: true },
-    icon: { label: "Иконка", type: "file", required: false },
+    icon_big: { label: "Иконка (большая)", type: "file", required: false },
+    icon_small: { label: "Иконка (маленькая)", type: "file", required: false },
     rate: { label: "Тип", type: "number", required: true },
   },
   department: {

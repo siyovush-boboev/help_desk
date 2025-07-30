@@ -5,6 +5,15 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
     const [filteredOptions, setFilteredOptions] = useState({});
 
+    filters.forEach(filter => {
+        if (filter.options) {
+            preload[filter.label] = filter.options.reduce((acc, item, index) => {
+                acc[index] = item;
+                return acc;
+            }, {});
+        }
+    });
+
     useEffect(() => {
         const newFilteredOptions = {};
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
 import OrderHistory from "./OrderHistory";
@@ -9,7 +9,7 @@ const onEmailChange = (e => {
     loginField.value = email.split("@")[0];
 })
 
-export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null }) {
+export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false }) {
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
 
@@ -55,47 +55,70 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     function onOptionChange(fieldName) {
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
-        const origin_id = Number(origin_select.value);
+        const origin_val = origin_select.value;
 
+        // 🚨 If empty string aka reset trigger
+        if (origin_val === "") {
+            if (DEPENDANT_FIELDS.desc[fieldName]) {
+                DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
+                    const dependentLabel = config[dependentField]?.label || dependentField;
+                    const rawOptions = preloadData[dependentLabel] || {};
+
+                    // restore full options
+                    setDynamicOptions(prev => ({
+                        ...prev,
+                        [dependentField]: rawOptions
+                    }));
+
+                    // also clear value if u want
+                    setValue(dependentField, "");
+
+                    // 💥 recursively reset all downstream deps too
+                    if (DEPENDANT_FIELDS.desc[dependentField])
+                        onOptionChange(dependentField);
+                });
+            }
+
+            return; // exit early, don’t do the filtering stuff
+        }
+
+        const origin_id = Number(origin_val); // safe now
         setTriggeredFields(prev => new Set(prev.add(fieldName)));
 
-        if (DEPENDANT_FIELDS.asc[fieldName]) {
+        const asc = (fieldName) => {
             DEPENDANT_FIELDS.asc[fieldName].forEach(dependentField => {
                 const origin_label = origin_select.previousSibling.textContent.trim();
                 const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
-                    setValue(dependentField, option_to_select_id, { shouldValidate: true });
-                    if (DEPENDANT_FIELDS.asc[dependentField]) {
-                        onOptionChange(dependentField);
-                    }
+                    setValue(dependentField, option_to_select_id);
+                    if (DEPENDANT_FIELDS.asc[dependentField])
+                        asc(dependentField);
                 }
             });
-        }
+        };
 
-        if (DEPENDANT_FIELDS.desc[fieldName]) {
+        const desc = (fieldName) => {
             DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                 const dependentLabel = config[dependentField]?.label || dependentField;
                 const rawOptions = preloadData[dependentLabel] || {};
                 const filtered = Object.fromEntries(
                     Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
                 );
-
                 setDynamicOptions(prev => ({
                     ...prev,
                     [dependentField]: filtered
                 }));
-
                 const firstOptionId = Object.keys(filtered)[0];
-                if (firstOptionId) {
-                    setValue(dependentField, firstOptionId, { shouldValidate: true });
-                }
-
-                if (DEPENDANT_FIELDS.desc[dependentField]) {
-                    onOptionChange(dependentField);
-                }
+                if (firstOptionId)
+                    setValue(dependentField, Number(firstOptionId));
+                if (DEPENDANT_FIELDS.desc[dependentField])
+                    desc(dependentField);
             });
-        }
+        };
+
+        if (DEPENDANT_FIELDS.asc[fieldName]) asc(fieldName);
+        if (DEPENDANT_FIELDS.desc[fieldName]) desc(fieldName);
     }
 
     const getValidationRules = (field) => {
@@ -139,6 +162,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         return rules;
     };
 
+    useEffect(() => {
+        if (itemData) {
+            // go thru all fields that got dependants in DESC and manually trigger the filters
+            Object.keys(DEPENDANT_FIELDS.desc).forEach(fieldName => {
+                if (itemData[fieldName] !== undefined) {
+                    onOptionChange(fieldName);
+                }
+            });
+        }
+    }, []);
+
     return (
         <>
             <div className="form-container">
@@ -155,11 +189,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 return (
                                     <div key={fieldName} className="edit-form-field">
                                         <label>{field.label}</label>
-                                        <select defaultValue=""
+                                        <select
                                             {...register(fieldName, getValidationRules(field))}
                                             onChange={() => onOptionChange(fieldName)}
                                         >
-                                            <option value="" disabled>
+                                            <option value="">
                                                 Выберите {field.label.toLowerCase()}
                                             </option>
                                             {Object.entries(preloadOptions).map(([id, name]) => (
@@ -242,7 +276,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         </div>
                     </form>
                 </div>
-                {itemData && <OrderHistory orderId={itemData.id} />}
+                {show_history && itemData && <OrderHistory orderId={itemData.id} />}
             </div>
         </>
     );

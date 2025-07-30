@@ -181,7 +181,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
     }
 }
 
-export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null) {
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false) {
     setModalContent(
         <DynamicForm
             config={FORM_CONFIG}
@@ -189,6 +189,7 @@ export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url,
             onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url)}
             onClose={closeModal}
             itemData={itemData}
+            show_history={show_history}
         />
     );
 }

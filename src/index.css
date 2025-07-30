@@ -483,7 +483,7 @@ button:active {
   background-color: var(--white);
   color: var(--text-color);
   z-index: 10000;
-  padding: 20px;
+  padding: 40px;
 }
 
 .user-info-main-container p:first-child {
@@ -534,7 +534,8 @@ button:active {
   margin: 20px;
 }
 
-.modal-content>div>div>p:first-child {
+.modal-content>div>p:first-child,
+.modal-content>div>div:not(.user-info-main-container)>p:first-child {
   font-size: 24px;
   font-weight: 700;
   text-align: center;
@@ -627,7 +628,7 @@ button:active {
 
 .form-container {
   display: flex;
-  gap: 20px;
+  gap: 32px;
   padding: 20px;
   overflow: auto;
 }
@@ -758,8 +759,36 @@ button:active {
   color: red;
 }
 
+.order-history>p {
+  margin-bottom: 20px;
+}
+
 .history-entry {
-  margin: 12px;
+  margin: 12px 0;
+  display: flex;
+  font-size: 10px;
+  gap: 6px;
+}
+
+.entry-info {
+  max-width: 320px;
+}
+
+.entry-lines {
+  list-style-type: none;
+}
+
+.entry-lines>li {
+  margin-bottom: 4px;
+}
+
+.entry-icon {
+  max-width: 48px;
+  width: 100%;
+}
+
+.entry-meta {
+  margin-bottom: 12px;
 }
 
 @media (max-width: 768px) {
@@ -829,6 +858,7 @@ button:active {
   }
 
   .user-info-main-container {
+    padding: 20px;
     max-width: 260px;
   }
 

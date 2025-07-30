@@ -12,7 +12,6 @@ export default function OrderHistory({ orderId = 1023 }) {
             try {
                 const res = await axios.get(`${API_BASE_URL}/orders/${orderId}/history`);
                 setHistory(res.data?.result?.body || []);
-                console.log(res);
             } catch (e) {
                 console.error("❌ Error loading history:", e);
                 setErr("Ошибка загрузки истории заявки");
@@ -25,7 +24,10 @@ export default function OrderHistory({ orderId = 1023 }) {
     }, [orderId]);
 
     if (loading) return <p>⏳ Подгружаем историю заявки...</p>;
-    if (err) return <p className="text-danger">{err}</p>;
+    if (err) {
+        console.error("Ошибка при загрузке истории:", err);
+        return;
+    };
     if (history.length === 0) return <p>🤷‍♂️ История пуста</p>;
 
     return (
@@ -34,9 +36,10 @@ export default function OrderHistory({ orderId = 1023 }) {
             {history.map((entry, idx) => (
                 <div key={idx} className="history-entry">
                     <div className="entry-icon">{entry.icon}</div>
+                    <hr style={{ color: "red", borderStyle: "solid" }}></hr>
                     <div className="entry-info">
                         <div className="entry-meta">
-                            <span className="entry-time">{entry.created_at}</span>&nbsp;
+                            <span className="entry-time">{entry.created_at}</span>&nbsp;&nbsp;
                             <strong className="entry-fio">{entry.actor?.fio}</strong>
                         </div>
                         <ul className="entry-lines">

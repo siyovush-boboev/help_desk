@@ -3,10 +3,9 @@ import { API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import axios from "../../lib/contexts/axiosInstance";
 
-export default function UserInfoModal({ userId, onClose, departments }) {
-    const [userData, setUserData] = useState(null);
+export default function UserInfoModal({ userId, onClose, departments, data = null }) {
+    const [userData, setUserData] = useState(data);
     const [loading, setLoading] = useState(true);
-    console.log(departments);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -21,8 +20,11 @@ export default function UserInfoModal({ userId, onClose, departments }) {
                 setLoading(false);
             }
         };
-        fetchUser();
-    }, [userId]);
+        if (!data)  // Only fetch if data is not preloaded
+            fetchUser();
+        else
+            setLoading(false);
+    }, [userId, data]);
 
     if (loading) {
         return (
@@ -84,7 +86,7 @@ export default function UserInfoModal({ userId, onClose, departments }) {
                     <div className="user-full-size-pic">
                         <img
                             src={userData.avatar || "userPic"}
-                            alt="User avatar"
+                            alt=""
                         />
                     </div>
                     <div className="user-text-info">

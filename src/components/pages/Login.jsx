@@ -7,7 +7,7 @@ import { AuthContext } from "../../lib/contexts/authContext";
 
 
 const Login = () => {
-    const { setAccessToken } = useContext(AuthContext);
+    const { setAccessToken, setAuthFailed } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
@@ -23,16 +23,16 @@ const Login = () => {
 
         try {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
-
             if (res.statusText !== "OK") throw new Error("Login failed");
-
-            const data = await res.data.body; // { access_token: "..." }
-            setAccessToken(data.access_token); // update context
-            navigate("/main"); // ✅ go to dashboard or whatever
+            const data = await res.data.body;
+            setAccessToken(data.access_token);
+            setAuthFailed(false);
+            navigate("/main");
         } catch (e) {
+            setAuthFailed(true);
             passwordRef.current?.focus();
             if (e.code === "ERR_NETWORK")
-                setErr("Проверьте подключение к интернету");
+                setErr("Не удается подключиться к серверу");
             else if (e.code === "ERR_BAD_REQUEST")
                 setErr("Неверный логин или пароль");
             else
