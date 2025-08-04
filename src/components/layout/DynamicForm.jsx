@@ -9,7 +9,8 @@ const onEmailChange = (e => {
     loginField.value = email.split("@")[0];
 })
 
-export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false }) {
+export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = null }) {
+    console.log("show history in dynamic form:", show_history);
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
 
@@ -172,6 +173,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             });
         }
     }, []);
+    console.log(show_history, itemData);
 
     return (
         <>

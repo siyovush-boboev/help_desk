@@ -21,17 +21,18 @@ export default function Header() {
                     preload: ["department"]
                 });
 
-                // ✅ Only call /auth/me once
                 const res = await axiosInstance.get(`${API_BASE_URL}/auth/me`);
+                const data = res.data.body;
                 const {
                     id,
                     fio,
                     position,
                     department_id,
                     email,
-                    phoneNumber,
-                    avatar
-                } = res.data;
+                    phone_number,
+                    PhotoURL
+                } = data;
+                setUserDetails(data);
 
                 setUserDetails({
                     id,
@@ -39,12 +40,13 @@ export default function Header() {
                     position,
                     department_id,
                     email,
-                    phoneNumber,
-                    avatar
+                    phone_number,
+                    PhotoURL
                 });
-                setLoading(false);
             } catch (err) {
                 console.error("Failed to load header data:", err);
+            } finally {
+                setLoading(false);
             }
         };
 

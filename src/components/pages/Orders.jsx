@@ -5,7 +5,7 @@ import ControlBar from "../layout/ControlBar";
 import DataTable from "../layout/DataTable";
 import Pagination from "../layout/Pagination";
 import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages.js";
-import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers.jsx";
+import { onDelete, loadDataPreload, loadDataTable, onCreate as on_create_func } from "../../lib/utils/helpers.jsx";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import FiltersModal from "../layout/FiltersForm";
 import UserInfoModal from "../layout/UserInfoModal";
@@ -103,7 +103,7 @@ export default function Orders() {
                 showCreate
                 onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"])}
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
+                onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
                 showClosed={showClosed}
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
@@ -114,8 +114,8 @@ export default function Orders() {
                 columns={config.columns}
                 data={data?.body || []}
                 pageData={preload}
-                onEdit={(id) =>
-                    onCreate(
+                onEdit={(id) => {
+                    on_create_func(
                         setModalContent,
                         closeModal,
                         preload,
@@ -124,7 +124,7 @@ export default function Orders() {
                         data?.body.find((item) => item.id === id),
                         true
                     )
-                }
+                }}
                 onShowUser={onShowUser}
                 showClosed={showClosed} // pass down to DataTable for filtering rows display
             />

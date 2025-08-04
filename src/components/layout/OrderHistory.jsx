@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "../../lib/contexts/axiosInstance";
 import { API_BASE_URL } from "../../lib/constants";
+import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 
-export default function OrderHistory({ orderId = 1023 }) {
+export default function OrderHistory({ orderId }) {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
@@ -10,7 +11,8 @@ export default function OrderHistory({ orderId = 1023 }) {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await axios.get(`${API_BASE_URL}/orders/${orderId}/history`);
+                console.log("🔄 Fetching history for order:", orderId);
+                const res = await axios.get(`${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${orderId}/history`);
                 setHistory(res.data?.body || []);
             } catch (e) {
                 console.error("❌ Error loading history:", e);

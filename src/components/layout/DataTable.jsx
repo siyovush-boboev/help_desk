@@ -17,6 +17,9 @@ export default function DataTable({
     };
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
+    // TODO: handle pagination
+    if ("pagination" in data)
+        data = data["list"]
 
     return (
         <div className="table-wrapper">
@@ -41,7 +44,6 @@ export default function DataTable({
                 <tbody>
                     {data.map((item, i) => {
                         let hideRow = false;
-                        console.log(columns);
 
                         const tds = Object.entries(columns).map(([colName, field]) => {
                             if (colName === "CHECKMARK") {
@@ -75,8 +77,8 @@ export default function DataTable({
                                 );
                             }
 
-                            else if (colName === "Заявитель") {
-                                const user_full_name = pageData["Пользователь"]?.[item.creator.id]["name"];
+                            else if (colName === "Заявитель" || colName === "Исполнитель") {
+                                const user_full_name = item.creator["fio"];
                                 const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
                                 return (
                                     <td key={i + colName}>
@@ -89,7 +91,7 @@ export default function DataTable({
 
                             else if (colName === "Статус") {
                                 let status = "";
-                                const statusOptions = pageData?.[colName] || { "0": { name: "Неактивный" }, "1": { name: "Активный" } };
+                                const statusOptions = pageData?.[colName];
                                 status = statusOptions[item[field]]?.["name"];
                                 if (status === "Закрыто") hideRow = !showClosed;
                                 return <td key={i + colName}>{status}</td>;
@@ -114,12 +116,11 @@ export default function DataTable({
                                     return <td key={i + colName}>{name}</td>;
                                 }
                                 else if (colName in pageData) {
-                                    console.log("pagedata colname:", pageData[colName], "item", item, "field", field.replace("_id", ""), "item field", item[field]);
                                     let field_content = ""
                                     if (item[field])
                                         field_content = pageData[colName][item[field]]?.name;
-                                    else
-                                        field_content = item[field.replace("_id", "")]["name"]
+                                    else if (field in item || field.replace("_id", "") in item)
+                                        field_content = item[field.replace("_id", "")]?.["name"]
                                     return <td key={i + colName}>{field_content || ""}</td>;
                                 }
                             }
@@ -148,9 +149,7 @@ export default function DataTable({
                             {<td>Всего</td>}
                             {Object.keys(columns).map((col) => (
                                 <td key={col}>
-                                    {(col === "Открыто" || col === "Закрыто") &&
-                                        main_page_sums[col]
-                                    }
+                                    {(col === "Открыто" || col === "Закрыто") && main_page_sums[col]}
                                     {(col === "Всего") && main_page_sums["total"]}
                                 </td>
                             ))}

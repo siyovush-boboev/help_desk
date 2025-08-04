@@ -48,7 +48,7 @@ export const TABLE_PAGES_CONFIG = {
       "Департамент": "department_id",
       "Отдел": "otdel_id",
       "Роль": "role_id",
-      "Телефон": "phoneNumber",
+      "Телефон": "phone_number",
       "E-mail": "email",
       "Действия": null
     },
@@ -90,7 +90,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Департамент",
     plural: "Департаменты",
     resource: "department",
-    preload: [],
+    preload: ["status"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -98,14 +98,14 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
+      {id: "status_id", label: "Статус"}
     ]
   },
   otdel: {
     singular: "Отдел",
     plural: "Отделы",
     resource: "otdel",
-    preload: ["department"],
+    preload: ["department", "status"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -115,14 +115,14 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "department_id", label: "Департамент"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
+      {id: "status_id", label: "Статус"}
     ]
   },
   branch: {
     singular: "Филиал",
     plural: "Филиалы",
     resource: "branch",
-    preload: [],
+    preload: ["status"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -136,14 +136,14 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
     ]
   },
   office: {
     singular: "Офис ЦБО",
     plural: "Офисы ЦБО",
     resource: "office",
-    preload: ["branch"],
+    preload: ["branch", "status"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -155,7 +155,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "branch_id", label: "Филиал"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]}
+      {id: "status_id", label: "Статус"}
     ]
   },
   role: {
@@ -200,7 +200,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Оборудование",
     plural: "Оборудования",
     resource: "equipment",
-    preload: ["branch", "office", "equipment_type"],
+    preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
       "Номер оборудования": "name",
@@ -213,7 +213,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -222,7 +222,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Банкомат",
     plural: "Банкоматы",
     resource: "atm",
-    preload: ["branch", "office", "equipment_type"],
+    preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
       "Номер банкомата": "name",
@@ -235,7 +235,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -244,7 +244,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Терминал",
     plural: "Терминалы",
     resource: "terminal",
-    preload: ["branch", "office", "equipment_type"],
+    preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
       "Номер терминала": "name",
@@ -257,7 +257,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -266,7 +266,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "POS-терминал",
     plural: "POS-терминалы",
     resource: "pos",
-    preload: ["branch", "office", "equipment_type"],
+    preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
       "Номер POS-терминала": "name",
@@ -279,7 +279,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -288,7 +288,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "ЦО+ЭО",
     plural: "ЦО+ЭО",
     resource: "coeo",
-    preload: ["branch", "office", "equipment_type"],
+    preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
       "Номер банкомата": "name",
@@ -301,7 +301,7 @@ export const TABLE_PAGES_CONFIG = {
     },
     filters: [
       {id: "type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус", options: [{name: "Активный"}, {name: "Неактивный"}]},
+      {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
     ]
@@ -357,7 +357,7 @@ export const FORM_CONFIG = {
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
     login: { label: "Логин", type: "text", required: false },
-    phoneNumber: { label: "Телефон", type: "text", required: true },
+    phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
     role_id: { label: "Роль", type: "select", required: true },
     photo: { label: "Фото", type: "file", required: false },

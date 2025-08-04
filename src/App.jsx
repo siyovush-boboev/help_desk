@@ -47,8 +47,8 @@ function AppRoutes() {
           <Route path="/" element={<Dashboard />}>
             <Route index element={<Navigate to="main" replace />} />
             <Route path="main" element={<MainPage />} />
-            <Route path="orders" element={<Orders />} />
-            <Route path="users" element={<Users />} />
+            <Route path="order" element={<Orders />} />
+            <Route path="user" element={<Users />} />
             <Route path="report" element={<Reports />} />
             <Route path="setting" element={<Settings />} />
             <Route path=":collectionName" element={<Collections />} />

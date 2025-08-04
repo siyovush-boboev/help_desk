@@ -66,7 +66,7 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
         { id: "first_name", label: "Имя", value: firstName },
         { id: "middle_name", label: "Отчество", value: middleName },
         { id: "email", label: "E-mail", value: userData.email },
-        { id: "phone", label: "Телефон", value: userData.phoneNumber },
+        { id: "phone", label: "Телефон", value: userData.phone_number },
         { id: "position", label: "Должность", value: userData.position },
         { id: "department", label: "Департамент", value: departmentName },
     ];
