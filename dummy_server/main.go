@@ -217,7 +217,7 @@ func main() {
 			Role:     role,
 			UserID:   "1",
 			RegisteredClaims: jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Second)),
 			},
 		}
 		accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -296,7 +296,7 @@ func main() {
 		}
 
 		// Generate new access token
-		newAccessToken, err := generateToken(claims.Username, claims.Role, 5*time.Minute)
+		newAccessToken, err := generateToken(claims.Username, claims.Role, 10*time.Second)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create access token"})
 			return
@@ -341,8 +341,8 @@ func main() {
 			{"Наименование": "Юридический отдел", "Открыто": 2, "Закрыто": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -370,9 +370,9 @@ func main() {
 			"hasPrevPage": true,
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
-			"pagination":  pagination,
+			"body":       data,
+			"status":     true,
+			"pagination": pagination,
 		})
 	})
 
@@ -395,9 +395,9 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
-			"pagination":  pagination,
+			"body":       data,
+			"status":     true,
+			"pagination": pagination,
 		})
 	})
 
@@ -414,8 +414,8 @@ func main() {
 			{"id": 9, "icon": "icon9", "name": "Эскалировано", "type": 4},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -427,8 +427,8 @@ func main() {
 			{"id": 4, "icon": "icon-critical", "name": "Критический", "rate": 4},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -442,8 +442,8 @@ func main() {
 			{"id": 6, "name": "Департамент безопасности", "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -455,8 +455,8 @@ func main() {
 			{"id": 4, "name": "Юридический отдел", "status_id": 1, "department_id": 4},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -475,8 +475,8 @@ func main() {
 			{"id": 11, "name": "Филиали Кӯлоб", "shortName": "Кӯлоб", "address": "ш. Кӯлоб, кӯч. Борбад 11", "phoneNumber": "+992 44 600 0011", "email": "kulob@arvand.tj", "email_index": "736100", "openDate": "2021-08-08", "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -502,8 +502,8 @@ func main() {
 			{"id": 18, "name": "КБО Данғара", "address": "ш. Данғара, кӯч. Истиқлол 77", "openDate": "2022-02-28", "branch_id": 3, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -516,8 +516,8 @@ func main() {
 			{"id": 5, "name": "executor", "description": "Исполнитель заявок", "permission": []int{1, 3}},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -534,8 +534,8 @@ func main() {
 			{"id": 9, "name": "Администрирование системы", "description": "Доступ к административным функциям и настройкам системы"},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -547,8 +547,8 @@ func main() {
 			{"id": 4, "name": "Цифровой офис"},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -566,8 +566,8 @@ func main() {
 			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -585,8 +585,8 @@ func main() {
 			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -604,8 +604,8 @@ func main() {
 			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -623,8 +623,8 @@ func main() {
 			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -642,8 +642,8 @@ func main() {
 			{"id": 10, "name": "DigitalOffice-3002", "address": "ш. Душанбе, кӯч. Исмоили Сомонӣ 45", "branch_id": 2, "office_id": 2, "type_id": 4, "status_id": 1},
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
@@ -663,14 +663,14 @@ func main() {
 			"position":  "Должность пользователя",
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 
 	api.DELETE("/users/1", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status_code": 200,
+			"status": true,
 		})
 	})
 
@@ -711,8 +711,8 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"result":      data,
-			"status_code": 200,
+			"body":   data,
+			"status": true,
 		})
 	})
 

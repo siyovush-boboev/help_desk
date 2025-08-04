@@ -16,15 +16,15 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const fetchInitialToken = async () => {
             try {
-                const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
-                const token = res.data.body.access_token;
+                const res = await axios.post(`${API_BASE_URL}/auth/refresh_token`, {}, { withCredentials: true });
+                const token = res.data.body.accessToken;
                 setAccessTokenState(token);
                 setTokenManagerAccessToken(token);
                 setAuthFailed(false);
             } catch (err) {
                 console.error("Failed to fetch initial token:", err);
                 clearTokenManagerAccessToken();
-                setAuthFailed(true); // 👈 FLAG
+                setAuthFailed(true);
             } finally {
                 setLoading(false);
             }

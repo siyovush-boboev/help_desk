@@ -11,7 +11,7 @@ export default function OrderHistory({ orderId = 1023 }) {
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(`${API_BASE_URL}/orders/${orderId}/history`);
-                setHistory(res.data?.result?.body || []);
+                setHistory(res.data?.body || []);
             } catch (e) {
                 console.error("❌ Error loading history:", e);
                 setErr("Ошибка загрузки истории заявки");

@@ -9,13 +9,16 @@ import { API_BASE_URL } from "../constants";
 
 const instance = axios.create({
   baseURL: API_BASE_URL,
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },  
   withCredentials: true,
 });
 
 async function refreshToken() {
   try {
-    const res = await instance.post("/auth/refresh");
-    const newToken = res.data.body.access_token;
+    const res = await instance.post("/auth/refresh_token");
+    const newToken = res.data.body.accessToken;
     setAccessToken(newToken);
     console.log("New access token set in axios:", newToken);
     return newToken;
@@ -30,18 +33,17 @@ async function refreshToken() {
 instance.interceptors.request.use(
   async (config) => {
     const isLogin = config.url.includes("/auth/login");
-    const isRefresh = config.url.includes("/auth/refresh");
+    const isRefresh = config.url.includes("/auth/refresh_token");
 
-    // Don’t touch login or refresh calls
+    // Не трогаем запросы логина и обновления токена
     if (isLogin || isRefresh) return config;
 
     let token = getAccessToken();
 
-    // 🔄 Refresh if token is expiring
+    // Обновляем токен, если скоро истечет или отсутствует
     if (willTokenExpireSoon() || !token) {
       try {
         console.log("Token is expiring soon or not present, refreshing...");
-        console.log("not present:", !token);
         token = await refreshToken();
       } catch (err) {
         console.error("Failed to refresh token:", err);
@@ -49,13 +51,17 @@ instance.interceptors.request.use(
       }
     }
 
-    if (token) config.headers["Authorization"] = `Bearer ${token}`;
+    if (token){
+      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers["ngrok-skip-browser-warning"] = "true";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// ✅ Response Interceptor (only retry once on 401)
+// ✅ Response Interceptor (повторяет запрос при 401 один раз)
 instance.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -65,12 +71,12 @@ instance.interceptors.response.use(
     const notRetrying = !originalRequest._retry;
     const notLoginOrRefresh =
       !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh");
+      !originalRequest.url.includes("/auth/refresh_token");
 
     if (isAuthErr && notRetrying && notLoginOrRefresh) {
       originalRequest._retry = true;
       try {
-        console.log("gettin new token and retrying request with new token...");
+        console.log("Getting new token and retrying request with new token...");
         const newToken = await refreshToken();
         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
         return instance(originalRequest);

@@ -77,7 +77,7 @@ export default function Users() {
 
             <DataTable
                 columns={config.columns}
-                data={data?.result || []}
+                data={data?.body || []}
                 pageData={preload}
                 onEdit={(id) =>
                     onCreate(
@@ -86,14 +86,14 @@ export default function Users() {
                         preload,
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
-                        data?.result.find((item) => item.id === id)
+                        data?.body.find((item) => item.id === id)
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
             />
 
             <Pagination
-                totalItems={data?.pagination?.totalItems || data["result"]?.length || 0}
+                totalItems={data?.pagination?.totalItems || data["body"]?.length || 0}
                 currentPage={currentPage}
                 totalPages={data?.pagination?.totalPages || 1}
                 pageSize={pageSize}

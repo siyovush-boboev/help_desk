@@ -15,7 +15,7 @@ export const TABLE_PAGES_CONFIG = {
   order: {
     singular: "Заявка",
     plural: "Заявки",
-    resource: "orders",
+    resource: "order",
     preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
     columns: {
       "CHECKMARK": null,
@@ -41,7 +41,7 @@ export const TABLE_PAGES_CONFIG = {
   user: {
     singular: "Пользователь",
     plural: "Пользователи",
-    resource: "users",
+    resource: "user",
     preload: ["department", "otdel", "branch", "office", "role"],
     columns: {
       "Имя": "fio",
@@ -63,7 +63,7 @@ export const TABLE_PAGES_CONFIG = {
   status: {
     singular: "Статус",
     plural: "Статусы",
-    resource: "statuses",
+    resource: "status",
     preload: [],
     columns: {
       "№": null,
@@ -76,7 +76,7 @@ export const TABLE_PAGES_CONFIG = {
   priority: {
     singular: "Приоритет",
     plural: "Приоритеты",
-    resource: "priorities",
+    resource: "priority",
     preload: [],
     columns: {
       "№": null,
@@ -89,7 +89,7 @@ export const TABLE_PAGES_CONFIG = {
   department: {
     singular: "Департамент",
     plural: "Департаменты",
-    resource: "departments",
+    resource: "department",
     preload: [],
     columns: {
       "№": null,
@@ -104,7 +104,7 @@ export const TABLE_PAGES_CONFIG = {
   otdel: {
     singular: "Отдел",
     plural: "Отделы",
-    resource: "otdels",
+    resource: "otdel",
     preload: ["department"],
     columns: {
       "№": null,
@@ -121,17 +121,17 @@ export const TABLE_PAGES_CONFIG = {
   branch: {
     singular: "Филиал",
     plural: "Филиалы",
-    resource: "branches",
+    resource: "branch",
     preload: [],
     columns: {
       "№": null,
       "Наименование": "name",
       "Адрес": "address",
-      "Дата открытия": "openDate",
+      "Дата открытия": "open_date",
       "Почтовый адресс": "email",
-      "Телефон": "phoneNumber",
+      "Телефон": "phone_number",
       "Почтовый индекс": "email_index",
-      "Короткое наименование": "shortName",
+      "Короткое наименование": "short_name",
       "Статус": "status_id",
       "Действия": null
     },
@@ -142,13 +142,13 @@ export const TABLE_PAGES_CONFIG = {
   office: {
     singular: "Офис ЦБО",
     plural: "Офисы ЦБО",
-    resource: "offices",
-    preload: ["branch", "department"],
+    resource: "office",
+    preload: ["branch"],
     columns: {
       "№": null,
       "Наименование": "name",
       "Адрес": "address",
-      "Дата открытия": "openDate",
+      "Дата открытия": "open_date",
       "Филиал": "branch_id",
       "Статус": "status_id",
       "Действия": null
@@ -161,7 +161,7 @@ export const TABLE_PAGES_CONFIG = {
   role: {
     singular: "Роль",
     plural: "Роли",
-    resource: "roles",
+    resource: "role",
     preload: ["permission"],
     columns: {
       "№": null,
@@ -176,7 +176,7 @@ export const TABLE_PAGES_CONFIG = {
   permission: {
     singular: "Привелигия",
     plural: "Привелигии",
-    resource: "permissions",
+    resource: "permission",
     preload: [],
     columns: {
       "№": null,
@@ -188,7 +188,7 @@ export const TABLE_PAGES_CONFIG = {
   equipment_type: {
     singular: "Тип оборудования",
     plural: "Типы оборудований",
-    resource: "equipment_types",
+    resource: "equipment_type",
     preload: [],
     columns: {
       "№": null,
@@ -199,7 +199,7 @@ export const TABLE_PAGES_CONFIG = {
   equipment: {
     singular: "Оборудование",
     plural: "Оборудования",
-    resource: "equipments",
+    resource: "equipment",
     preload: ["branch", "office", "equipment_type"],
     columns: {
       "№": null,
@@ -339,7 +339,7 @@ export const FORM_CONFIG = {
   order: {
     name: { label: "Наименование заявки", type: "text", required: true },
     department_id: { label: "Департамент", type: "select", required: true },
-    otdel_id: { label: "Отдел", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: false },
     status_id: { label: "Статус", type: "select", required: true },
     priority_id: { label: "Приоритет", type: "select", required: true },
     duration: { label: "Срок", type: "datetime-local", required: true },
@@ -387,17 +387,17 @@ export const FORM_CONFIG = {
   branch: {
     name: { label: "Наименование", type: "text", required: true },
     address: { label: "Адрес", type: "text", required: false },
-    openDate: { label: "Дата открытия", type: "date", required: false },
+    open_date: { label: "Дата открытия", type: "date", required: false },
     email: { label: "Почтовый адрес", type: "email", required: false },
-    phoneNumber: { label: "Телефон", type: "text", required: false },
+    phone_number: { label: "Телефон", type: "text", required: false },
     email_index: { label: "Почтовый индекс", type: "text", required: false },
-    shortName: { label: "Короткое наименование", type: "text", required: false },
+    short_name: { label: "Короткое наименование", type: "text", required: false },
     status_id: { label: "Статус", type: "select", required: true },
   },
   office: {
     name: { label: "Наименование", type: "text", required: true },
     address: { label: "Адрес", type: "text", required: false },
-    openDate: { label: "Дата открытия", type: "date", required: false },
+    open_date: { label: "Дата открытия", type: "date", required: false },
     branch_id: { label: "Филиал", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
   },

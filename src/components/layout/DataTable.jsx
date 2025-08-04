@@ -41,6 +41,7 @@ export default function DataTable({
                 <tbody>
                     {data.map((item, i) => {
                         let hideRow = false;
+                        console.log(columns);
 
                         const tds = Object.entries(columns).map(([colName, field]) => {
                             if (colName === "CHECKMARK") {
@@ -75,7 +76,7 @@ export default function DataTable({
                             }
 
                             else if (colName === "Заявитель") {
-                                const user_full_name = pageData["Пользователь"]?.[item["user_id"]]["name"];
+                                const user_full_name = pageData["Пользователь"]?.[item.creator.id]["name"];
                                 const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
                                 return (
                                     <td key={i + colName}>
@@ -108,12 +109,18 @@ export default function DataTable({
 
                             else if (field?.includes("_id")) {
                                 if (field === "user_id") {
-                                    const user = pageData["user"]?.[item[field]]["name"];
+                                    const user = pageData["user"]?.[item[field]]["fio"];
                                     const name = user?.fio?.split(" ").slice(0, 2).join(" ") || "";
                                     return <td key={i + colName}>{name}</td>;
                                 }
                                 else if (colName in pageData) {
-                                    return <td key={i + colName}>{pageData[colName]?.[item[field]]["name"] || ""}</td>;
+                                    console.log("pagedata colname:", pageData[colName], "item", item, "field", field.replace("_id", ""), "item field", item[field]);
+                                    let field_content = ""
+                                    if (item[field])
+                                        field_content = pageData[colName][item[field]]?.name;
+                                    else
+                                        field_content = item[field.replace("_id", "")]["name"]
+                                    return <td key={i + colName}>{field_content || ""}</td>;
                                 }
                             }
                             else if (colName === "Открыто" || colName === "Закрыто") {

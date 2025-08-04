@@ -47,8 +47,10 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
         const preloadData = {};
         config.preload.forEach((key, i) => {
             const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
-            const raw = preloadResults[i].data;
-            const prepped = raw.result.reduce((acc, item) => {
+            let raw_data = preloadResults[i].data.body;
+            if ("pagination" in raw_data)
+                raw_data = raw_data["list"]
+            const prepped = raw_data.reduce((acc, item) => {
                 const id = item.id || item._id || item.ID;
                 const name = item.name || item.title || item.fio || id;
                 acc[id] = { name: name };

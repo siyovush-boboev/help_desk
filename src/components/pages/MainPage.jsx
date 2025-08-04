@@ -40,7 +40,7 @@ export default function MainPage() {
             />
             <DataTable
                 columns={config.columns}
-                data={data?.result || []}
+                data={data?.body || []}
                 pageData={preload}
                 main_page={true}
             />

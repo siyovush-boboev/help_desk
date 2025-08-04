@@ -23,9 +23,9 @@ const Login = () => {
 
         try {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
-            if (res.statusText !== "OK") throw new Error("Login failed");
+            if (res.status === false) throw new Error("Login failed");
             const data = await res.data.body;
-            setAccessToken(data.access_token);
+            setAccessToken(data.accessToken);
             setAuthFailed(false);
             navigate("/main");
         } catch (e) {
