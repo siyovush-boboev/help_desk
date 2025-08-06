@@ -1,4 +1,36 @@
 import { DeleteTableRowIcon, EditTableRowIcon } from "../ui/icons.jsx";
+import { BASE_URL } from "../../lib/constants.js";
+
+
+const handleSelectAll = (e) => {
+    const checkboxes = document.querySelectorAll(".custom-table tbody input[type='checkbox']");
+    checkboxes.forEach(cb => cb.checked = e.target.checked);
+};
+
+function SelectAllCheckbox() {
+    return (
+        <input
+            type="checkbox"
+            id="select-all"
+            title="Выбрать все"
+            onChange={handleSelectAll}
+        />
+    );
+}
+
+function MainPageTotal({ columns, main_page_sums }) {
+    return (
+        <tr>
+            {<td>Всего</td>}
+            {Object.keys(columns).map((col) => (
+                <td key={col}>
+                    {(col === "Открыто" || col === "Закрыто") && main_page_sums[col]}
+                    {(col === "Всего") && main_page_sums["total"]}
+                </td>
+            ))}
+        </tr>
+    );
+}
 
 
 export default function DataTable({
@@ -11,10 +43,6 @@ export default function DataTable({
     main_page = false,
     showClosed = false
 }) {
-    const handleSelectAll = (e) => {
-        const checkboxes = document.querySelectorAll(".custom-table tbody input[type='checkbox']");
-        checkboxes.forEach(cb => cb.checked = e.target.checked);
-    };
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
     // TODO: handle pagination
@@ -24,38 +52,38 @@ export default function DataTable({
     return (
         <div className="table-wrapper">
             <table className="custom-table">
+
                 <thead>
                     <tr>
                         {main_page && <th>-</th>}
                         {Object.keys(columns).map((col) => (
-                            <th key={col}>
-                                {col === "CHECKMARK" ? (
-                                    <input
-                                        type="checkbox"
-                                        id="select-all"
-                                        title="Выбрать все"
-                                        onChange={handleSelectAll}
-                                    />
-                                ) : col}
-                            </th>
+                            <th key={col}>{col === "CHECKMARK" ? <SelectAllCheckbox /> : col}</th>
                         ))}
                     </tr>
                 </thead>
+
                 <tbody>
                     {data.map((item, i) => {
                         let hideRow = false;
 
                         const tds = Object.entries(columns).map(([colName, field]) => {
-                            if (colName === "CHECKMARK") {
-                                return (
-                                    <td key={i + colName}><input type="checkbox" /></td>
-                                );
+                            if (colName === "Статус") {
+                                const status_id = `${item[field]}`;
+                                const status = pageData[colName]?.[status_id];
+                                if (status?.name === "Закрыто") hideRow = !showClosed;
+                                const icon = <img src={BASE_URL + status?.["icon_big"]} alt="" />;
+                                return <td key={i + colName}><div className="status-cell">{icon} {status?.name || ""}</div></td>;
                             }
-
+                            else if (colName === "Иконка") {
+                                const icon = item[field] ? <img src={BASE_URL + item[field]} alt="" /> : "Нет иконки";
+                                return <td key={i + colName}><div className="status-cell">{icon}</div></td>;
+                            }
+                            else if (colName === "CHECKMARK") {
+                                return <td key={i + colName}><input type="checkbox" /></td>;
+                            }
                             else if (colName === "№") {
                                 return <td key={i + colName}>{item["id"] || i + 1}</td>;
                             }
-
                             else if (colName === "Действия") {
                                 return (
                                     <td key={i + colName}>
@@ -66,7 +94,6 @@ export default function DataTable({
                                     </td>
                                 );
                             }
-
                             else if (colName === "Наименование заявки") {
                                 return (
                                     <td key={i + colName}>
@@ -76,27 +103,18 @@ export default function DataTable({
                                     </td>
                                 );
                             }
-
                             else if (colName === "Заявитель" || colName === "Исполнитель") {
                                 const user_full_name = item.creator["fio"];
                                 const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
+                                const user_id = item[colName === "Заявитель" ? "creator" : "executor"]["id"]
                                 return (
                                     <td key={i + colName}>
-                                        <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(item["user_id"]); }}>
+                                        <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
                                             {name}
                                         </a>
                                     </td>
                                 );
                             }
-
-                            else if (colName === "Статус") {
-                                let status = "";
-                                const statusOptions = pageData?.[colName];
-                                status = statusOptions[item[field]]?.["name"];
-                                if (status === "Закрыто") hideRow = !showClosed;
-                                return <td key={i + colName}>{status}</td>;
-                            }
-
                             else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
                                 const val = item[field];
                                 if (val) {
@@ -108,14 +126,8 @@ export default function DataTable({
                                 }
                                 return <td key={i + colName}></td>;
                             }
-
                             else if (field?.includes("_id")) {
-                                if (field === "user_id") {
-                                    const user = pageData["user"]?.[item[field]]["fio"];
-                                    const name = user?.fio?.split(" ").slice(0, 2).join(" ") || "";
-                                    return <td key={i + colName}>{name}</td>;
-                                }
-                                else if (colName in pageData) {
+                                if (colName in pageData) {
                                     let field_content = ""
                                     if (item[field])
                                         field_content = pageData[colName][item[field]]?.name;
@@ -144,17 +156,7 @@ export default function DataTable({
                         );
                     })}
 
-                    {main_page &&
-                        <tr>
-                            {<td>Всего</td>}
-                            {Object.keys(columns).map((col) => (
-                                <td key={col}>
-                                    {(col === "Открыто" || col === "Закрыто") && main_page_sums[col]}
-                                    {(col === "Всего") && main_page_sums["total"]}
-                                </td>
-                            ))}
-                        </tr>
-                    }
+                    {main_page && <MainPageTotal columns main_page_sums />}
 
                 </tbody>
             </table>

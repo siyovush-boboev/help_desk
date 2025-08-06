@@ -10,7 +10,7 @@ import { ModalContext } from "../../lib/contexts/ModalContext";
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
-export default function MainPage() {
+export default function Main() {
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -28,8 +28,8 @@ export default function MainPage() {
         loadDataTable(setData, setLoading, setError, config);
     }, []);
 
-    if (loading || !preloadLoaded) return <p>Загрузка...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (error) return <div className="loader-wrapper"><div className="loader-wrapper"><p>{error}</p></div></div>;
 
     return (
         <>

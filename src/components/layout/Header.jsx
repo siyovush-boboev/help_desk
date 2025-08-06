@@ -30,7 +30,7 @@ export default function Header() {
                     department_id,
                     email,
                     phone_number,
-                    PhotoURL
+                    photo_url
                 } = data;
                 setUserDetails(data);
 
@@ -41,7 +41,7 @@ export default function Header() {
                     department_id,
                     email,
                     phone_number,
-                    PhotoURL
+                    photo_url
                 });
             } catch (err) {
                 console.error("Failed to load header data:", err);
@@ -66,12 +66,14 @@ export default function Header() {
         );
     };
 
+    const onSandwitchClick = () => {
+        const nav = document.querySelector("nav");
+        nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
+    }
+
     return (
         <header>
-            <div className="sandwitch" onClick={() => {
-                const nav = document.querySelector("nav");
-                nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
-            }}>
+            <div className="sandwitch" onClick={onSandwitchClick}>
                 <span>☰</span>
             </div>
 
@@ -81,10 +83,13 @@ export default function Header() {
 
             <div className="user-info">
                 <div className="user-info-clickable" onClick={onUserClick}>
-                    <div className="user-text">
-                        <h4>{loading ? "Загрузка..." : userDetails.fio}</h4>
-                        <p>{loading ? "..." : userDetails.position}</p>
-                    </div>
+                    {loading && <div className="header-loader"></div>}
+                    {!loading &&
+                        <div className="user-text">
+                            <h4>{userDetails.fio}</h4>
+                            <p>{userDetails.position}</p>
+                        </div>
+                    }
                     <div className="user-avatar">
                         <img
                             width="30"

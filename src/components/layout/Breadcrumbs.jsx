@@ -1,5 +1,4 @@
 const Breadcrumbs = ({ text }) => {
-    // Split the text into parts and map each part to a span
     const parts = text.split('/');
     return (
         <div className='breadcrumbs'>

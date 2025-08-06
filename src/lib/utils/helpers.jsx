@@ -53,7 +53,7 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
             const prepped = raw_data.reduce((acc, item) => {
                 const id = item.id || item._id || item.ID;
                 const name = item.name || item.title || item.fio || id;
-                acc[id] = { name: name };
+                acc[id] = { ...item, name };
                 Object.entries(item).forEach(([field, value]) => {
                     if (field.endsWith("_id") && field !== "id" && field !== "_id")
                         acc[id][field] = value;
@@ -73,12 +73,18 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
 export const loadDataTable = async (setData, setLoading, setError, config, filters = {}) => {
     try {
         setLoading(true);
+
         const allEmpty = Object.values(filters).every(arr => arr.length === 1 && arr[0] === "");
+
         let queryString = "";
         if (!allEmpty) {
-            queryString = new URLSearchParams(filters).toString();
+            const filterEntries = Object.entries(filters)
+                .filter(([, v]) => v.length > 0)
+                .map(([key, val]) => `filter[${key}]=${val.join(",")}`);
+            queryString = filterEntries.join("&");
         }
-        const url = `/${config.resource}?${queryString}`;
+
+        const url = `/${config.resource}${queryString ? `?${queryString}` : ""}`;
         const mainRes = await axios.get(url);
         setData(mainRes.data);
     } catch (err) {

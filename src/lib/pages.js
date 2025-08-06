@@ -67,7 +67,7 @@ export const TABLE_PAGES_CONFIG = {
     preload: [],
     columns: {
       "№": null,
-      "Иконка": "icon",
+      "Иконка": "icon_small",
       "Наименование": "name",
       "Тип": "type",
       "Действия": null
@@ -80,7 +80,7 @@ export const TABLE_PAGES_CONFIG = {
     preload: [],
     columns: {
       "№": null,
-      "Иконка": "icon",
+      "Иконка": "icon_small",
       "Наименование": "name",
       "Тип": "rate",
       "Действия": null

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../../lib/constants";
+import { BASE_URL, API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import axios from "../../lib/contexts/axiosInstance";
+import { UserInfoCloseIcon } from "../ui/icons";
 
 export default function UserInfoModal({ userId, onClose, departments, data = null }) {
     const [userData, setUserData] = useState(data);
@@ -13,7 +14,7 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
                 const url = `${API_BASE_URL}/${TABLE_PAGES_CONFIG["user"]["resource"]}/${userId}`;
                 const res = await axios.get(url);
                 const data = res.data;
-                setUserData(data["result"]);
+                setUserData(data["body"]);
             } catch (err) {
                 console.error("Failed to load user data:", err);
             } finally {
@@ -30,13 +31,10 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
         return (
             <div className="user-info-modal-content">
                 <button className="user-info-close-button" onClick={onClose}>
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <line x1="4" y1="4" x2="16" y2="16" stroke="white" strokeWidth="2" />
-                        <line x1="16" y1="4" x2="4" y2="16" stroke="white" strokeWidth="2" />
-                    </svg>
+                    <UserInfoCloseIcon></UserInfoCloseIcon>
                 </button>
                 <div className="user-info-main-container">
-                    <p>Загрузка...</p>
+                    <div className="header-loader"></div>
                 </div>
             </div>
         );
@@ -74,10 +72,7 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
     return (
         <div className="user-info-modal-content">
             <button className="user-info-close-button" onClick={onClose}>
-                <svg width="20" height="20" viewBox="0 0 20 20">
-                    <line x1="4" y1="4" x2="16" y2="16" stroke="white" strokeWidth="2" />
-                    <line x1="16" y1="4" x2="4" y2="16" stroke="white" strokeWidth="2" />
-                </svg>
+                <UserInfoCloseIcon />
             </button>
             <div className="user-info-main-container">
                 <p>Контактная информация</p>
@@ -85,7 +80,7 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
                 <div className="user-info-main-content">
                     <div className="user-full-size-pic">
                         <img
-                            src={userData.avatar || "userPic"}
+                            src={BASE_URL + userData.photo_url || ""}
                             alt=""
                         />
                     </div>

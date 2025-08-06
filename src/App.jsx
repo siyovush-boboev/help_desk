@@ -11,7 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 import Dashboard from "./components/pages/Dashboard";
 import Login from "./components/pages/Login";
-import MainPage from "./components/pages/MainPage";
+import Main from "./components/pages/Main";
 import Orders from "./components/pages/Orders";
 import Users from "./components/pages/Users";
 import Collections from "./components/pages/Collections";
@@ -46,7 +46,7 @@ function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />}>
             <Route index element={<Navigate to="main" replace />} />
-            <Route path="main" element={<MainPage />} />
+            <Route path="main" element={<Main />} />
             <Route path="order" element={<Orders />} />
             <Route path="user" element={<Users />} />
             <Route path="report" element={<Reports />} />

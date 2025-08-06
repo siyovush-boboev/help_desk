@@ -3,7 +3,7 @@ import axios from "../../lib/contexts/axiosInstance";
 import { API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 
-export default function OrderHistory({ orderId }) {
+export default function OrderHistory({ orderId, data }) {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
@@ -11,7 +11,6 @@ export default function OrderHistory({ orderId }) {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                console.log("🔄 Fetching history for order:", orderId);
                 const res = await axios.get(`${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${orderId}/history`);
                 setHistory(res.data?.body || []);
             } catch (e) {
@@ -25,12 +24,43 @@ export default function OrderHistory({ orderId }) {
         fetchHistory();
     }, [orderId]);
 
-    if (loading) return <p>⏳ Подгружаем историю заявки...</p>;
+    if (loading)
+        return <div className="order-history">
+            <p>Жизненный цикл</p>
+            <p>⏳ загрузка истории заявки...</p>
+        </div>;
     if (err) {
         console.error("Ошибка при загрузке истории:", err);
         return;
     };
-    if (history.length === 0) return <p>🤷‍♂️ История пуста</p>;
+    if (history.length === 0)
+        return <div className="order-history">
+            <p>Жизненный цикл</p>
+            <p>🤷‍♂️ История пуста</p>
+        </div>;
+
+    // prepare history entries with files
+    const attachment_line_suffix = "Прикреплен файл: ";
+    history.forEach(entry => {
+        entry.lines = entry.lines.map(line => {
+            if (line?.startsWith(attachment_line_suffix)) {
+                console.log("Found attachment line:", line);
+                const fileName = line.replace(attachment_line_suffix, "");
+                // get file link
+                const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
+                return (
+                    <>
+                        {attachment_line_suffix}
+                        <a key={fileName} href={file_url} target="_blank" rel="noopener noreferrer">
+                            {fileName}
+                        </a>
+                    </>
+                );
+            }
+            return line;
+        });
+    });
+    console.log(data);
 
     return (
         <div className="order-history">

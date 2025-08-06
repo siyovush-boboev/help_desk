@@ -21,15 +21,21 @@ export default function Users() {
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = parseInt(searchParams.get("page")) || 1;
-    const pageSize = parseInt(searchParams.get("pageSize")) || 10;
-    const searchQuery = searchParams.get("q") || "";
+    const limit = parseInt(searchParams.get("limit")) || 10;
+    const searchQuery = searchParams.get("search") || "";
 
-    const filtersFromUrl = useMemo(
-        () => Object.fromEntries([...searchParams].map(([k, v]) => [k, v.split(",")])),
-        [searchParams]
-    );
+    const filtersFromUrl = useMemo(() => {
+        const filters = {};
+        for (const [key, value] of searchParams.entries()) {
+            const match = key.match(/^filter\[(.+?)\]$/);
+            if (match)
+                filters[match[1]] = value.split(",");
+        }
+        return filters;
+    }, [searchParams]);
+
     const handleSearch = (term) => {
-        setSearchParams({ ...Object.fromEntries(searchParams), q: term, page: 1, pageSize, });
+        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, });
     };
 
     const onFilter = () => {
@@ -41,8 +47,8 @@ export default function Users() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
-                    setSearchParams({ ...flat, page: 1, pageSize, q: searchQuery, });
+                    Object.entries(newFilters).forEach(([k, v]) => { flat[`filter[${k}]`] = v.join(","); });
+                    setSearchParams({ ...flat, page: 1, limit, search: searchQuery, });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -58,8 +64,8 @@ export default function Users() {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [searchParams, filtersFromUrl]);
 
-    if (loading || !preloadLoaded) return <p>Загрузка...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
 
     return (
         <>
@@ -93,19 +99,15 @@ export default function Users() {
             />
 
             <Pagination
-                totalItems={data?.pagination?.totalItems || data["body"]?.length || 0}
+                totalItems={data?.body?.pagination?.total_count || data?.body?.length || 0}
                 currentPage={currentPage}
-                totalPages={data?.pagination?.totalPages || 1}
-                pageSize={pageSize}
+                totalPages={data?.body?.pagination?.total_pages || 1}
+                limit={limit}
                 onPageChange={(page) => {
-                    setSearchParams({
-                        ...Object.fromEntries(searchParams), page, pageSize, q: searchQuery,
-                    });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}
                 onPageSizeChange={(size) => {
-                    setSearchParams({
-                        ...Object.fromEntries(searchParams), page: 1, pageSize: size, q: searchQuery,
-                    });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true });
                 }}
             />
         </>

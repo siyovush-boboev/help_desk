@@ -4,16 +4,16 @@ import { FiltersIcon, PlusIcon, TrashIcon } from "../ui/icons";
 export default function ControlBar({
     showSearch = false,
     showDelete = false,
+    showCreate = false,
     showFilters = false,
     showShowHide = false,
-    showCreate = false,
-    onDelete = () => console.log("Delete clicked"),
-    onFilter = () => console.log("Filter clicked"),
-    onCreate = () => console.log("Create clicked"),
+    initialSearchValue = "",
     showClosed,
     setShowClosed,
+    onDelete,
+    onFilter,
+    onCreate,
     onSearch,
-    initialSearchValue = "",
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
@@ -23,17 +23,9 @@ export default function ControlBar({
         setShowClear(initialSearchValue.length > 0);
     }, [initialSearchValue]);
 
-    const handleSearchKeyDown = (e) => {
-        setShowClear(true);
-        if (e.key === "Enter") {
-            onSearch(searchValue.trim());
-        }
-    };
-
-    const toggleShowClosed = () => {
-        setShowClosed((prev) => !prev);
-        console.log(`Toggle closed rows: ${!showClosed}`);
-    };
+    const handleSearchKeyDown = (e) => { setShowClear(true); if (e.key === "Enter") onSearch(searchValue.trim()); };
+    const toggleShowClosed = () => setShowClosed((prev) => !prev);
+    const onClearSearch = () => { setSearchValue(""); setShowClear(false); onSearch(""); }
 
     return (
         <div className="controls">
@@ -46,36 +38,19 @@ export default function ControlBar({
                         onChange={(e) => setSearchValue(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
                     />
-                    {showClear && (
-                        <button
-                            id="clear-button"
-                            onClick={() => {
-                                setSearchValue("");
-                                setShowClear(false);
-                                onSearch("");
-                            }}
-                        >
-                            ❌
-                        </button>
-                    )}
+                    {showClear && <button id="clear-button" onClick={onClearSearch}>❌</button>}
                 </div>
             )}
 
             {showDelete && (
                 <button id="delete_button" onClick={onDelete}>
-                    <span>
-                        <TrashIcon />
-                    </span>
-                    &nbsp;Удалить
+                    <span><TrashIcon /></span>&nbsp;Удалить
                 </button>
             )}
 
             {showFilters && (
                 <button onClick={onFilter}>
-                    <span>
-                        <FiltersIcon />
-                    </span>
-                    &nbsp;Фильтры
+                    <span><FiltersIcon /></span>&nbsp;Фильтры
                 </button>
             )}
 
@@ -87,10 +62,7 @@ export default function ControlBar({
 
             {showCreate && (
                 <button id="create_button" onClick={onCreate}>
-                    <span>
-                        <PlusIcon />
-                    </span>
-                    &nbsp;Создать
+                    <span><PlusIcon /></span>&nbsp;Создать
                 </button>
             )}
         </div>

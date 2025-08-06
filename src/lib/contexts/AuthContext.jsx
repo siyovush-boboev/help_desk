@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ accessToken, setAccessToken, loading, authFailed, setAuthFailed }}>
-            {loading ? <div>Загрузка...</div> : children}
+            {loading ? <div className="loader-wrapper" style={{ width: "100vw", height: "100vh" }}><div className="loader"></div></div> : children}
         </AuthContext.Provider>
     );
 };

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 export default function Pagination({
     totalItems,
     pageSizeOptions = [5, 10, 15, 20, 25, 30],
-    pageSize = 10,
+    limit = 10,
     currentPage = 1,
     totalPages = 1,
     onPageChange = () => { },
@@ -43,7 +43,7 @@ export default function Pagination({
 
     const handleSizeChange = (e) => {
         const newSize = parseInt(e.target.value, 10);
-        if (!isNaN(newSize) && newSize !== pageSize)
+        if (!isNaN(newSize) && newSize !== limit)
             onPageSizeChange(newSize);
     };
 
@@ -53,7 +53,7 @@ export default function Pagination({
                 <span>Всего записей: {totalItems}</span>
                 <span>
                     &nbsp;| Показывать по:&nbsp;
-                    <select id="rows-per-page" value={pageSize} onChange={handleSizeChange}>
+                    <select id="rows-per-page" value={limit} onChange={handleSizeChange}>
                         {pageSizeOptions.map((opt) => (
                             <option key={opt} value={opt}>
                                 {opt}

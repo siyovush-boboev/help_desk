@@ -12,13 +12,15 @@ const ICONS = {
     "setting": SettingsIcon,
 };
 
+const PAGINATION_URL_PARAMS = "?withPagination=true&page=1&limit=10";
+
 const NAVBAR_PAGES = ["main", "order", "user", "report", "setting"];
 
 const MAIN_NAVBAR_LINKS = NAVBAR_PAGES.reduce((acc, key) => {
     acc[key] = {
         icon: ICONS[key] || null,
         label: TABLE_PAGES_CONFIG[key]?.plural || key,
-        href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}`,
+        href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + PAGINATION_URL_PARAMS,
     };
     return acc;
 }, {});
@@ -31,14 +33,14 @@ const COLLECTION_LINKS = collectionPages
     .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
     .map(([, config]) => ({
         label: config.plural,
-        href: config.resource,
+        href: config.resource + PAGINATION_URL_PARAMS,
     }));
 
 const EQUIPMENT_SUBLINKS = ["atm", "terminal", "pos", "coeo", "equipment"]
     .filter((key) => TABLE_PAGES_CONFIG[key])
     .map((key) => ({
         label: TABLE_PAGES_CONFIG[key].plural,
-        href: TABLE_PAGES_CONFIG[key].resource,
+        href: TABLE_PAGES_CONFIG[key].resource + PAGINATION_URL_PARAMS,
     }));
 
 
