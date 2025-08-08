@@ -1,5 +1,5 @@
 import { useState, useContext, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
@@ -13,6 +13,8 @@ import CheckBox from "../layout/auth/CheckBox";
 const Login = () => {
     const { setAccessToken, setAuthFailed } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const next = searchParams.get("next") || "/main";
 
     const passwordRef = useRef(null);
     const [err, setErr] = useState("");
@@ -20,28 +22,34 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setErr("");
+        setLoading(true);
+
         try {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
             if (res.status === false) throw new Error("Login failed");
             const data = await res.data.body;
+
             setAccessToken(data.accessToken);
             setAuthFailed(false);
-            navigate("/main");
+            navigate(next, { replace: true });
         } catch (e) {
             setAuthFailed(true);
             passwordRef.current?.focus();
             setErr(e?.response?.data?.message || "Произошла ошибка при входе");
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <AuthContainer header_text={"Войти в личный кабинет"}>
-            <form id="login-form" onSubmit={handleLogin}>
+            <form id="auth-form" onSubmit={handleLogin}>
                 <AuthInput
                     label={"Логин"}
                     name={"login"}
@@ -79,8 +87,15 @@ const Login = () => {
                     Запомнить меня
                 </CheckBox>
 
-                <div><a href="#" className="auth-page-link">Забыли пароль?</a></div>
-                <button type="submit" className="btn-submit">Войти</button>
+                <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div>
+
+                <button
+                    type="submit"
+                    className="btn-submit"
+                    disabled={loading || !username || !password}
+                >
+                    {loading ? <div className="loader-white" /> : "Войти"}
+                </button>
             </form>
         </AuthContainer>
     );

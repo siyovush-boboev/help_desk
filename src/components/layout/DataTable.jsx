@@ -115,7 +115,7 @@ export default function DataTable({
                                     </td>
                                 );
                             }
-                            else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
+                            else if (colName.toLowerCase().includes("дата")) {
                                 const val = item[field];
                                 if (val) {
                                     const date = new Date(val);

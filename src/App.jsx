@@ -2,8 +2,8 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useNavigate,
-  useLocation,
+  // useNavigate,
+  // useLocation,
   Navigate
 } from "react-router-dom";
 import { AuthProvider } from "./lib/contexts/AuthContext.jsx";
@@ -18,31 +18,34 @@ import Collections from "./components/pages/Collections";
 import Reports from "./components/pages/Reports";
 import Settings from "./components/pages/Settings";
 import ModalProvider from "./components/layout/ModalProvider";
-import { useContext, useEffect } from "react";
-import { AuthContext } from "./lib/contexts/authContext";
+import PasswordReset from "./components/pages/PasswordReset";
+// import { useContext, useEffect } from "react";
+// import { AuthContext } from "./lib/contexts/authContext";
 
 import "./index.css";
 
-function AuthRedirectGate() {
-  const { loading, authFailed } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const location = useLocation();
+// function AuthRedirectGate() {
+//   const { loading, authFailed } = useContext(AuthContext);
+//   const navigate = useNavigate();
+//   const location = useLocation();
 
-  useEffect(() => {
-    if (!loading && authFailed && location.pathname !== "/login") {
-      navigate("/login");
-    }
-  }, [loading, authFailed, location.pathname, navigate]);
+//   useEffect(() => {
+//     if (!loading && authFailed && location.pathname) {
+//       console.log("redirecting to login from auth redirect gate");
+//       navigate("/login");
+//     }
+//   }, [loading, authFailed, location.pathname, navigate]);
 
-  return null;
-}
+//   return null;
+// }
 
 function AppRoutes() {
   return (
     <>
-      <AuthRedirectGate />
+      {/* <AuthRedirectGate /> */}
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/password-reset" element={<PasswordReset />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />}>
             <Route index element={<Navigate to="main" replace />} />

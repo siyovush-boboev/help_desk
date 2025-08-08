@@ -12,6 +12,7 @@ export default function OrderHistory({ orderId, data }) {
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(`${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${orderId}/history`);
+                console.log("res", res);
                 setHistory(res.data?.body || []);
             } catch (e) {
                 console.error("❌ Error loading history:", e);

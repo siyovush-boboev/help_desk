@@ -24,6 +24,7 @@ async function refreshToken() {
     return newToken;
   } catch (err) {    
     clearAccessToken();
+    console.log("Failed to refresh token, redirecting to login...");
     window.location.href = "/login";
     throw err;
   }

@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../lib/contexts/authContext";
+
 import { BASE_URL, API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
-import axios from "../../lib/contexts/axiosInstance";
 import { UserInfoCloseIcon } from "../ui/icons";
+import axios from "../../lib/contexts/axiosInstance";
+
 
 export default function UserInfoModal({ userId, onClose, departments, data = null }) {
     const [userData, setUserData] = useState(data);
     const [loading, setLoading] = useState(true);
+    const [logoutLoading, setLogoutLoading] = useState(false);
+    const navigate = useNavigate();
+    const { logout } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -27,6 +34,14 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
             setLoading(false);
     }, [userId, data]);
 
+    const handleLogout = async () => {
+        setLogoutLoading(true);
+        await logout();
+        setLogoutLoading(false);
+        onClose();
+        navigate("/login");
+    };
+
     if (loading) {
         return (
             <div className="user-info-modal-content">
@@ -34,7 +49,7 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
                     <UserInfoCloseIcon></UserInfoCloseIcon>
                 </button>
                 <div className="user-info-main-container">
-                    <div className="header-loader"></div>
+                    <div className="loader-black"></div>
                 </div>
             </div>
         );
@@ -94,6 +109,8 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
                     </div>
                 </div>
 
+                {logoutLoading ? <div className="loader-black" style={{margin: "auto auto 0 auto"}}></div>
+                               : <button className="btn-logout" onClick={handleLogout}>Выйти</button>}
             </div>
         </div>
     );

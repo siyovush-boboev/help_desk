@@ -70,21 +70,24 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
     }
 };
 
-export const loadDataTable = async (setData, setLoading, setError, config, filters = {}) => {
+
+export const loadDataTable = async (setData, setLoading, setError, config, params = {}) => {
     try {
+        console.log("Loading data with params:", params);
         setLoading(true);
 
-        const allEmpty = Object.values(filters).every(arr => arr.length === 1 && arr[0] === "");
-
-        let queryString = "";
-        if (!allEmpty) {
-            const filterEntries = Object.entries(filters)
-                .filter(([, v]) => v.length > 0)
-                .map(([key, val]) => `filter[${key}]=${val.join(",")}`);
-            queryString = filterEntries.join("&");
-        }
+        const queryString = Object.entries(params)
+            .filter(([, val]) => val !== undefined && val !== null && val !== "")
+            .map(([key, val]) => { 
+                if (Array.isArray(val))
+                    return `filter[${encodeURIComponent(key)}]=${encodeURIComponent(val.join(","))}`;
+                return `${encodeURIComponent(key)}=${encodeURIComponent(val)}` })
+            .join("&");
 
         const url = `/${config.resource}${queryString ? `?${queryString}` : ""}`;
+
+        console.log("Final url:", url);
+
         const mainRes = await axios.get(url);
         setData(mainRes.data);
     } catch (err) {

@@ -328,7 +328,7 @@ export const FORM_CONFIG = {
     otdel_id: { label: "Отдел", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
     priority_id: { label: "Приоритет", type: "select", required: true },
-    duration: { label: "Срок", type: "datetime-local", required: true },
+    duration: { label: "Срок", type: "text", required: true },
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
     equipment_id: { label: "Оборудование", type: "select", required: true },

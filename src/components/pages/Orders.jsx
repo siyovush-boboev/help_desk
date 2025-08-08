@@ -32,6 +32,8 @@ export default function Orders() {
             const match = key.match(/^filter\[(.+?)\]$/);
             if (match)
                 filters[match[1]] = value.split(",");
+            else
+                filters[key] = value;
         }
         return filters;
     }, [searchParams]);
@@ -60,7 +62,8 @@ export default function Orders() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => { flat[`filter[${k}]`] = v.join(","); });
+                    console.log(Object.entries(newFilters));
+                    Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
 
                     // check closed filter logic stays here if needed
                     const statusSingularKey = TABLE_PAGES_CONFIG["status"]?.singular;
@@ -96,8 +99,6 @@ export default function Orders() {
 
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
-
-    console.log("Orders data:", data);
 
     return (
         <>

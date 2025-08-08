@@ -41,8 +41,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    async function logout() {
+        try {
+            await axios.post('/auth/logout', {}, { withCredentials: true }); // hits backend to clear cookie
+        } catch (e) {
+            console.error("Logout error", e);
+        }
+        setAccessToken(null); // clear token from state so user is logged out locally
+    }
+
+
     return (
-        <AuthContext.Provider value={{ accessToken, setAccessToken, loading, authFailed, setAuthFailed }}>
+        <AuthContext.Provider value={{ accessToken, setAccessToken, loading, authFailed, setAuthFailed, logout }}>
             {loading ? <div className="loader-wrapper" style={{ width: "100vw", height: "100vh" }}><div className="loader"></div></div> : children}
         </AuthContext.Provider>
     );
