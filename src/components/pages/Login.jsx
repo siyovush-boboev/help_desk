@@ -5,9 +5,9 @@ import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
 import { AuthContext } from "../../lib/contexts/authContext";
-import AuthInput from "../layout/auth/AuthInput";
-import AuthContainer from "../layout/auth/AuthContainer";
-import CheckBox from "../layout/auth/CheckBox";
+import AuthInput from "../ui/AuthInput";
+import AuthContainer from "../layout/AuthContainer";
+import CheckBox from "../ui/CheckBox";
 
 
 const Login = () => {

@@ -33,8 +33,8 @@ async function refreshToken() {
 // ✅ Request Interceptor
 instance.interceptors.request.use(
   async (config) => {
-    const isLogin = config.url.includes("/auth/login");
-    const isRefresh = config.url.includes("/auth/refresh_token");
+    const isLogin = config.url?.includes("/auth/login");
+    const isRefresh = config.url?.includes("/auth/refresh_token");
 
     // Не трогаем запросы логина и обновления токена
     if (isLogin || isRefresh) return config;
@@ -63,31 +63,31 @@ instance.interceptors.request.use(
 );
 
 // ✅ Response Interceptor (повторяет запрос при 401 один раз)
-instance.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    const originalRequest = err.config;
+// instance.interceptors.response.use(
+//   (res) => res,
+//   async (err) => {
+//     const originalRequest = err.config;
 
-    const isAuthErr = err.response?.status === 401;
-    const notRetrying = !originalRequest._retry;
-    const notLoginOrRefresh =
-      !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/refresh_token");
+//     const isAuthErr = err.response?.status === 401;
+//     // const notRetrying = !originalRequest?._retry;
+//     const notLoginOrRefresh =
+//       !originalRequest.url.includes("/auth/login") &&
+//       !originalRequest.url.includes("/auth/refresh_token");
 
-    if (isAuthErr && notRetrying && notLoginOrRefresh) {
-      originalRequest._retry = true;
-      try {
-        console.log("Getting new token and retrying request with new token...");
-        const newToken = await refreshToken();
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-        return instance(originalRequest);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    }
+//     if (isAuthErr && notLoginOrRefresh) {
+//       // originalRequest._retry = true;
+//       try {
+//         console.log("Getting new token and retrying request with new token...");
+//         const newToken = await refreshToken();
+//         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+//         return instance(originalRequest);
+//       } catch (e) {
+//         return Promise.reject(e);
+//       }
+//     }
 
-    return Promise.reject(err);
-  }
-);
+//     return Promise.reject(err);
+//   }
+// );
 
 export default instance;

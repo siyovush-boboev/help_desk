@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { DEPENDANT_FIELDS } from "../../lib/pages";
+import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import OrderHistory from "./OrderHistory";
 
 
@@ -52,8 +52,8 @@ const getValidationRules = (field) => {
     }
 
     if (field.type === "text") {
-        rules.minLength = { value: 1, message: `Слишком мало символов` };
-        rules.maxLength = { value: 255, message: `Слишком много символов (255)` };
+        rules.minLength = { value: field?.min || 3, message: `Слишком мало символов` };
+        rules.maxLength = { value: field?.max || 255, message: `Слишком много символов (255)` };
     }
     else if (field.type === "number") {
         rules.min = { value: 0, message: `Это число не может быть отрицательным` };
@@ -270,7 +270,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 </form>
             </div>
 
-            {show_history && itemData && <OrderHistory orderId={itemData.id} data={itemData} />}
+            {show_history && itemData && <OrderHistory orderId={itemData.id} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
 
         </div>
     );

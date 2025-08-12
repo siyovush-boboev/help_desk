@@ -62,7 +62,6 @@ export default function Orders() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    console.log(Object.entries(newFilters));
                     Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
 
                     // check closed filter logic stays here if needed
@@ -81,7 +80,7 @@ export default function Orders() {
                         });
                     }
                     setShowClosed(zakritoSelected);
-                    setSearchParams({ ...flat, page: 1, limit, search: searchQuery, });
+                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -97,8 +96,8 @@ export default function Orders() {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [searchParams, filtersFromUrl]);
 
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
 
     return (
         <>
@@ -116,7 +115,7 @@ export default function Orders() {
                 showClosed={showClosed}
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
-                initialSearchValue={searchQuery} // sync input with URL param q
+                initialSearchValue={searchQuery}
             />
 
             <DataTable
@@ -130,8 +129,8 @@ export default function Orders() {
                         preload,
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
-                        data?.body.find((item) => item.id === id),
-                        true
+                        (data.body?.list || data.body).find((item) => item.id === id),
+                        true    // show_history param
                     )
                 }}
                 onShowUser={onShowUser}
@@ -140,9 +139,9 @@ export default function Orders() {
 
             <Pagination
                 totalItems={data?.body?.pagination?.total_count || data?.body?.length || 0}
-                currentPage={currentPage}
+                currentPage={currentPage || data?.body?.pagination?.page || 1}
                 totalPages={data?.body?.pagination?.total_pages || 1}
-                limit={limit}
+                limit={limit || data?.body?.pagination?.limit || 10}
                 onPageChange={(page) => {
                     setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}

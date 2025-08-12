@@ -15,6 +15,7 @@ export default function Collections() {
         key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
     );
     const config = TABLE_PAGES_CONFIG[collectionName];
+    console.log("collectionName:", collectionName, config);
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -26,12 +27,20 @@ export default function Collections() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
 
-    const filtersFromUrl = useMemo(
-        () => Object.fromEntries([...searchParams].map(([k, v]) => [k, v.split(",")])),
-        [searchParams]
-    );
+    const filtersFromUrl = useMemo(() => {
+        const filters = {};
+        for (const [key, value] of searchParams.entries()) {
+            const match = key.match(/^filter\[(.+?)\]$/);
+            if (match)
+                filters[match[1]] = value.split(",");
+            else
+                filters[key] = value;
+        }
+        return filters;
+    }, [searchParams]);
+
     const handleSearch = (term) => {
-        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, });
+        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
     };
 
     useEffect(() => {
@@ -48,7 +57,11 @@ export default function Collections() {
     }, [collectionName, config]);
 
     useEffect(() => {
-        if (!config) return;
+        if (!config) {
+            setError("Такой страницы не существует");
+            setLoading(false);
+            return;
+        }
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [collectionName, searchParams, filtersFromUrl, config]);
 
@@ -61,8 +74,8 @@ export default function Collections() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => { flat[k] = v.join(","); });
-                    setSearchParams({ ...flat, page: 1, limit, search: searchQuery, });
+                    Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
+                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -70,8 +83,8 @@ export default function Collections() {
         );
     };
 
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
 
     return (
         <>
@@ -100,7 +113,7 @@ export default function Collections() {
                         preload,
                         FORM_CONFIG[collectionName],
                         config["resource"],
-                        data?.body.find((item) => item.id === id)
+                        (data.body?.list || data.body).find((item) => item.id === id),
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
@@ -108,9 +121,9 @@ export default function Collections() {
 
             <Pagination
                 totalItems={data?.body?.pagination?.total_count || data?.body?.length || 0}
-                currentPage={currentPage}
+                currentPage={currentPage || data?.body?.pagination?.page || 1}
                 totalPages={data?.body?.pagination?.total_pages || 1}
-                limit={limit}
+                limit={limit || data?.body?.pagination?.limit || 10}
                 onPageChange={(page) => {
                     setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}

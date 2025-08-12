@@ -114,11 +114,13 @@ export function onDelete(setModalContent, closeModal, id = null, url) {
 }
 
 
-
 export async function onCreateSubmit(new_data, itemData, closeModal, url) {
     // Convert number-like fields properly
     Object.entries(new_data).forEach(([key, val]) => {
-        if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
+        console.log("key:", key, "value:", val);
+        if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0))
+            delete new_data[key]; // Remove empty fields
+        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
             new_data[key] = Number(val);
         } else if (Array.isArray(val)) {
             new_data[key] = val.map(Number);
@@ -129,10 +131,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
         if (!itemData) {
             // CREATE NEW
             console.log("Creating new item", new_data);
-            await axios.post({
-                url: "/" + url,
-                body: new_data,
-            });
+            await axios.post("/" + url, {data: new_data});
             console.log("Created successfully");
         } else {
             // EDIT EXISTING - collect only changed fields for PATCH
@@ -143,7 +142,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
                 if (key === "login")
                     continue;
                 if (key === "duration") {
-                    itemData[key] = itemData[key]?.slice(0, 16);;
+                    itemData[key] = itemData[key]?.slice(0, 16);
                 }
                 const newVal = new_data[key];
                 const oldVal = itemData[key];
@@ -175,10 +174,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
 
             if (Object.keys(changedFields).length > 0) {
                 console.log("Editing existing item with changed fields:", changedFields);
-                await axios.put({
-                    url: `/${url}/${new_data.id}`,
-                    body: changedFields,
-                });
+                await axios.put(`/${url}/${new_data.id}`, changedFields);
                 console.log("Updated successfully");
             } else {
                 console.log("No changes detected, not submitting");
@@ -203,4 +199,50 @@ export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url,
             show_history={show_history}
         />
     );
+}
+
+
+export function hide_credentials(credentials, method) {
+    if (method === "email") {
+        const atIndex = credentials.indexOf('@');
+        if (atIndex > 2) {
+            return credentials.slice(0, 2) + '***' + credentials.slice(atIndex);
+        } else {
+            return credentials.slice(0, 1) + '***' + credentials.slice(atIndex);
+        }
+    } else if (method === "phone") {
+        const digitsOnly = credentials.replace(/\D/g, '');
+        if (digitsOnly.length < 4) return credentials; // Not enough digits to mask
+        return digitsOnly.slice(0, 2) + '***' + digitsOnly.slice(-2);
+    }
+    return credentials; // Default case, return as is
+}
+
+export function isValidCredsInput(input){
+    const trimmed = input.trim();
+    if (trimmed === "") return "";
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (emailRegex.test(trimmed)) return "";
+    if (trimmed.includes('@')) return 'Неверный формат email';
+
+    if (/[^+\d\s]/.test(trimmed)) return 'Недопустимые символы в номере';
+    if ((trimmed.match(/\+/g) || []).length > 1) return 'Только один "+" разрешён';
+    if (trimmed.includes('+') && !trimmed.startsWith('+')) return '"+ должен быть в начале';
+
+    const digitsOnly = trimmed.replace(/\s/g, '').replace(/^\+/, '');
+    if (digitsOnly.length < 9 || digitsOnly.length > 12) return 'Номер должен содержать от 9 до 12 цифр';
+    if (trimmed.startsWith("+") && digitsOnly.length < 12) return 'Номер должен содержать 12 цифр, после знака "+"';
+    if (digitsOnly.length === 12 && !digitsOnly.startsWith("992")) return 'Номер должен начинаться с 992';
+
+    return "";
+};
+
+
+export function validate_confirmation(confirmation) {
+    // valid token:
+    // 1.   4 digit string
+    // 2.   a hash string with 32 characters consisting of a-f, A-F, 0-9
+    if (/^\d{4}$/.test(confirmation) || /^[a-f0-9]{32}$/.test(confirmation)) return true;
+    return false;
 }

@@ -30,12 +30,14 @@ export default function Users() {
             const match = key.match(/^filter\[(.+?)\]$/);
             if (match)
                 filters[match[1]] = value.split(",");
+            else
+                filters[key] = value;
         }
         return filters;
     }, [searchParams]);
 
     const handleSearch = (term) => {
-        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, });
+        setSearchParams({ ...Object.fromEntries(searchParams), search: term, limit, page: 1, withPagination: true });
     };
 
     const onFilter = () => {
@@ -47,8 +49,8 @@ export default function Users() {
                 defaultFilters={filtersFromUrl}
                 onApply={(newFilters) => {
                     const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => { flat[`filter[${k}]`] = v.join(","); });
-                    setSearchParams({ ...flat, page: 1, limit, search: searchQuery, });
+                    Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
+                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -64,8 +66,8 @@ export default function Users() {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [searchParams, filtersFromUrl]);
 
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
 
     return (
         <>
@@ -92,7 +94,7 @@ export default function Users() {
                         preload,
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
-                        data?.body.find((item) => item.id === id)
+                        (data.body?.list || data.body).find((item) => item.id === id),
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
@@ -100,9 +102,9 @@ export default function Users() {
 
             <Pagination
                 totalItems={data?.body?.pagination?.total_count || data?.body?.length || 0}
-                currentPage={currentPage}
+                currentPage={currentPage || data?.body?.pagination?.page || 1}
                 totalPages={data?.body?.pagination?.total_pages || 1}
-                limit={limit}
+                limit={limit || data?.body?.pagination?.limit || 10}
                 onPageChange={(page) => {
                     setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}

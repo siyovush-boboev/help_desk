@@ -2,8 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  // useNavigate,
-  // useLocation,
   Navigate
 } from "react-router-dom";
 import { AuthProvider } from "./lib/contexts/AuthContext.jsx";
@@ -19,33 +17,18 @@ import Reports from "./components/pages/Reports";
 import Settings from "./components/pages/Settings";
 import ModalProvider from "./components/layout/ModalProvider";
 import PasswordReset from "./components/pages/PasswordReset";
-// import { useContext, useEffect } from "react";
-// import { AuthContext } from "./lib/contexts/authContext";
+import PasswordChange from "./components/pages/PasswordChange";
 
 import "./index.css";
 
-// function AuthRedirectGate() {
-//   const { loading, authFailed } = useContext(AuthContext);
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   useEffect(() => {
-//     if (!loading && authFailed && location.pathname) {
-//       console.log("redirecting to login from auth redirect gate");
-//       navigate("/login");
-//     }
-//   }, [loading, authFailed, location.pathname, navigate]);
-
-//   return null;
-// }
 
 function AppRoutes() {
   return (
     <>
-      {/* <AuthRedirectGate /> */}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/password-reset" element={<PasswordReset />} />
+        <Route path="/password-change" element={<PasswordChange />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />}>
             <Route index element={<Navigate to="main" replace />} />
