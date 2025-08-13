@@ -11,7 +11,7 @@ function getCorrectSpelling(n) {
 }
 
 
-export default function DeleteModal({ data, onClose, id = null, url }) {
+export default function DeleteForm({ data, onClose, id = null, url, trigger_table_reload }) {
     const prepped_data = [];
     data.forEach((item) => { prepped_data.push(item.getAttribute("row-id")); });
 
@@ -19,7 +19,7 @@ export default function DeleteModal({ data, onClose, id = null, url }) {
         prepped_data.push(id);
 
     function deleteItem(itemId) {
-        axios.delete(`/${url}/${itemId}`).then(() => console.log(`Deleted item with id: ${itemId}`))
+        axios.delete(`/${url}/${itemId}`).then(() => {console.log(`Deleted item with id: ${itemId}`); trigger_table_reload();})
             .catch((error) => console.error(`Error deleting item with id ${itemId}:`, error));
     }
 

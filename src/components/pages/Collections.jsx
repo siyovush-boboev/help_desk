@@ -15,7 +15,6 @@ export default function Collections() {
         key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
     );
     const config = TABLE_PAGES_CONFIG[collectionName];
-    console.log("collectionName:", collectionName, config);
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -26,6 +25,8 @@ export default function Collections() {
     const currentPage = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
+    const [refreshKey, setRefreshKey] = useState(0);
+
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -63,7 +64,7 @@ export default function Collections() {
             return;
         }
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [collectionName, searchParams, filtersFromUrl, config]);
+    }, [collectionName, searchParams, filtersFromUrl, config, refreshKey]);
 
     const onFilter = () => {
         if (!config.filters || config.filters.length === 0) return;
@@ -85,6 +86,7 @@ export default function Collections() {
 
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    console.log("data", data);
 
     return (
         <>
@@ -97,8 +99,9 @@ export default function Collections() {
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
                 onFilter={onFilter}
-                onCreate={() =>
-                    onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"])
+                onCreate={() => {
+                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"]);
+                    }
                 }
             />
 
@@ -106,7 +109,7 @@ export default function Collections() {
                 columns={config.columns}
                 data={data?.body || []}
                 pageData={preload}
-                onEdit={(id) =>
+                onEdit={(id) => {
                     onCreate(
                         setModalContent,
                         closeModal,
@@ -114,9 +117,13 @@ export default function Collections() {
                         FORM_CONFIG[collectionName],
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
-                    )
-                }
-                onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
+                    );
+                }}
+                onDelete={(id) => {
+                    onDelete(setModalContent, closeModal, id, config["resource"], () => {
+                        setRefreshKey(prev => prev + 1); // Refresh data after deletion
+                    });
+                }}
             />
 
             <Pagination

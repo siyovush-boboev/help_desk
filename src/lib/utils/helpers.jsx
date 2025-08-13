@@ -99,7 +99,7 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
 };
 
 
-export function onDelete(setModalContent, closeModal, id = null, url) {
+export function onDelete(setModalContent, closeModal, id = null, url, trigger_table_reload) {
     const data_to_delete = [...document.querySelectorAll(
         ".custom-table tbody tr"
     )].filter(
@@ -109,12 +109,14 @@ export function onDelete(setModalContent, closeModal, id = null, url) {
 
     if (data_to_delete.length !== 0 || id)
         setModalContent(
-            <DeleteForm data={data_to_delete} onClose={closeModal} id={id} url={url} />
+            <DeleteForm data={data_to_delete} onClose={closeModal} id={id} url={url} trigger_table_reload={trigger_table_reload} />
         );
 }
 
 
-export async function onCreateSubmit(new_data, itemData, closeModal, url) {
+export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false) {
+    let files_to_upload = {};
+    
     // Convert number-like fields properly
     Object.entries(new_data).forEach(([key, val]) => {
         console.log("key:", key, "value:", val);
@@ -125,22 +127,54 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
         } else if (Array.isArray(val)) {
             new_data[key] = val.map(Number);
         }
+        // check if the value if a file
+        if (val instanceof FileList && val.length > 0) {
+            files_to_upload[key] = val;
+            delete new_data[key];
+        }
     });
+    if (Object.keys(files_to_upload).length > 0) {
+        files_to_upload.data = { ...new_data };
+        new_data = files_to_upload;
+    }
 
     try {
         if (!itemData) {
             // CREATE NEW
-            console.log("Creating new item", new_data);
-            await axios.post("/" + url, {data: new_data});
+            // check if we have files
+            if (has_file_field || Object.keys(files_to_upload).length > 0) {
+                console.log("Creating new item", files_to_upload);
+                const formData = new FormData();
+
+                // Append JSON as string under key "data"
+                formData.append("data", JSON.stringify(files_to_upload.data));
+
+                // Append files
+                Object.entries(files_to_upload).forEach(([key, val]) => {
+                    if (key === "data") return; // skip the JSON object
+                    if (val instanceof FileList) {
+                        for (let i = 0; i < val.length; i++) {
+                            formData.append(key, val[i]);
+                        }
+                    }
+                });
+
+                await axios.post("/" + url, formData);
+            } else {
+                // No files, just send JSON
+                await axios.post("/" + url, new_data);
+            }
+
             console.log("Created successfully");
         } else {
-            // EDIT EXISTING - collect only changed fields for PATCH
+            // EDIT EXISTING
             new_data.id = itemData.id; // Keep id just in case
 
             const changedFields = {};
+            const changedFiles = {};
+
             for (const key in new_data) {
-                if (key === "login")
-                    continue;
+                if (key === "login") continue;
                 if (key === "duration") {
                     itemData[key] = itemData[key]?.slice(0, 16);
                 }
@@ -148,19 +182,12 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
                 const oldVal = itemData[key];
 
                 const isDifferent =
-                    // check primitive changes
                     ((typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") && newVal !== oldVal) ||
-
-                    // check FileList with length > 0
                     (newVal instanceof FileList && newVal.length > 0) ||
-
-                    // check arrays for diff length or items
                     (Array.isArray(newVal) &&
                         (!Array.isArray(oldVal) ||
                             newVal.length !== oldVal.length ||
                             !newVal.every((v, i) => v === oldVal[i]))) ||
-
-                    // shallow object diff by JSON stringify
                     (typeof newVal === "object" &&
                         newVal !== null &&
                         !Array.isArray(newVal) &&
@@ -168,19 +195,41 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
                         JSON.stringify(newVal) !== JSON.stringify(oldVal));
 
                 if (isDifferent) {
-                    changedFields[key] = newVal;
+                    if (newVal instanceof FileList && newVal.length > 0) {
+                        changedFiles[key] = newVal; // store files separately
+                    } else {
+                        changedFields[key] = newVal;
+                    }
                 }
             }
 
-            if (Object.keys(changedFields).length > 0) {
+            if (Object.keys(changedFields).length > 0 || Object.keys(changedFiles).length > 0) {
                 console.log("Editing existing item with changed fields:", changedFields);
-                await axios.put(`/${url}/${new_data.id}`, changedFields);
+
+                // If we have file changes, use multipart/form-data
+                if (has_file_field || Object.keys(changedFiles).length > 0) {
+                    const formData = new FormData();
+                    formData.append("data", JSON.stringify({ ...changedFields, id: new_data.id }));
+
+                    Object.entries(changedFiles).forEach(([key, val]) => {
+                        if (val instanceof FileList) {
+                            for (let i = 0; i < val.length; i++) {
+                                formData.append(key, val[i]);
+                            }
+                        }
+                    });
+
+                    await axios.put(`/${url}/${new_data.id}`, formData);
+                } else {
+                    // No file changes, send as JSON
+                    await axios.put(`/${url}/${new_data.id}`, changedFields);
+                }
+
                 console.log("Updated successfully");
             } else {
                 console.log("No changes detected, not submitting");
             }
         }
-
         closeModal(); // Only close modal if no errors
     } catch (err) {
         console.error("API error:", err.message);
@@ -189,11 +238,15 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url) {
 }
 
 export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false) {
+    let has_file_field = false;
+    for (const key in FORM_CONFIG) { if (FORM_CONFIG[key].type === "file") { has_file_field = true; break; }}
+    console.log("bitchass form config:", FORM_CONFIG, "bitchass variable:", has_file_field);
+
     setModalContent(
         <DynamicForm
             config={FORM_CONFIG}
             preloadData={preload}
-            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url)}
+            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url, has_file_field)}
             onClose={closeModal}
             itemData={itemData}
             show_history={show_history}

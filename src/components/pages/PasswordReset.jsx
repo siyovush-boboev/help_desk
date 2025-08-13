@@ -17,7 +17,7 @@ export default function PasswordReset() {
         const validationError = isValidCredsInput(credentials);
         setError(validationError);
 
-        if (validationError === "") {
+        if (validationError === "" && credentials.length > 0) {
             const method = credentials.includes('@') ? 'email' : 'phone';
             console.log("valid data:", credentials, "method:", method);
             // TODO: Call API here
