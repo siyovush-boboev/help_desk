@@ -7,7 +7,6 @@ export default function OrderHistory({ orderId, data, status_preload }) {
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
-    console.log("status preload:", status_preload);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -87,25 +86,27 @@ export default function OrderHistory({ orderId, data, status_preload }) {
     });
 
     return (
-        <div className="order-history">
+        <div className="order-history-wrapper">
             <p>Жизненный цикл</p>
-            {history.map((entry, idx) => (
-                <div key={idx} className="history-entry">
-                    <div className="entry-icon"><img src={BASE_URL + entry.icon} alt="icon" /></div>
-                    <hr style={{ color: "#fff", borderStyle: "solid" }}></hr>
-                    <div className="entry-info">
-                        <div className="entry-meta">
-                            <span className="entry-time">{entry.created_at}</span>&nbsp;&nbsp;
-                            <strong className="entry-fio">{entry.actor?.fio}</strong>
+            <div className="order-history">
+                {history.map((entry, idx) => (
+                    <div key={idx} className="history-entry">
+                        <div className="entry-icon"><img src={BASE_URL + entry.icon} alt="icon" /></div>
+                        <hr style={{ color: "#fff", borderStyle: "solid" }}></hr>
+                        <div className="entry-info">
+                            <div className="entry-meta">
+                                <span className="entry-time">{entry.created_at}</span>&nbsp;&nbsp;
+                                <strong className="entry-fio">{entry.actor?.fio}</strong>
+                            </div>
+                            <ul className="entry-lines">
+                                {entry.lines.map((line, i) => (
+                                    <li key={i}>{line}</li>
+                                ))}
+                            </ul>
                         </div>
-                        <ul className="entry-lines">
-                            {entry.lines.map((line, i) => (
-                                <li key={i}>{line}</li>
-                            ))}
-                        </ul>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }

@@ -45,9 +45,15 @@ export default function DataTable({
 }) {
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
-    // TODO: handle pagination
     if ("pagination" in data)
         data = data["list"]
+
+    const priority_colors = {
+        "Низкий": "#22c55e",
+        "Средний": "#eab308",
+        "Высокий": "#f97316",
+        "Критический": "#dc2626",
+    };
 
     return (
         <div className="table-wrapper">
@@ -82,7 +88,7 @@ export default function DataTable({
                                 return <td key={i + colName}><input type="checkbox" /></td>;
                             }
                             else if (colName === "№") {
-                                return <td key={i + colName}>{item["id"] || i + 1}</td>;
+                                return <td key={i + colName}>{i + 1}</td>;
                             }
                             else if (colName === "Действия") {
                                 return (
@@ -104,9 +110,10 @@ export default function DataTable({
                                 );
                             }
                             else if (colName === "Заявитель" || colName === "Исполнитель") {
-                                const user_full_name = item.creator["fio"];
+                                const user = item[colName === "Заявитель" ? "creator" : "executor"];
+                                const user_full_name = user["fio"];
                                 const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
-                                const user_id = item[colName === "Заявитель" ? "creator" : "executor"]["id"]
+                                const user_id = user["id"];
                                 return (
                                     <td key={i + colName}>
                                         <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
@@ -126,23 +133,25 @@ export default function DataTable({
                                 }
                                 return <td key={i + colName}></td>;
                             }
-                            else if (field?.includes("_id")) {
+                            else if (colName === "Открыто" || colName === "Закрыто") {
+                                main_page_sums[colName] += item[field] || 0;
+                            }
+                            else if (colName === "Всего") {
+                                const sum = (data[i]["open"] || 0) + (data[i]["closed"] || 0);
+                                main_page_sums["total"] += sum;
+                                console.log("data i:", data[i]);
+                                return <td key={i + colName}>{sum}</td>;
+                            } else if (field?.includes("_id")) {
                                 if (colName in pageData) {
                                     let field_content = ""
                                     if (item[field])
                                         field_content = pageData[colName][item[field]]?.name;
                                     else if (field in item || field.replace("_id", "") in item)
                                         field_content = item[field.replace("_id", "")]?.["name"]
-                                    return <td key={i + colName}>{field_content || ""}</td>;
+                                    return  <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
+                                                {field_content || ""}
+                                            </td>;
                                 }
-                            }
-                            else if (colName === "Открыто" || colName === "Закрыто") {
-                                main_page_sums[colName] += item[field] || 0;
-                            }
-                            else if (colName === "Всего") {
-                                const sum = (data[i]["Открыто"] || 0) + (data[i]["Закрыто"] || 0);
-                                main_page_sums["total"] += sum || 0;
-                                return <td key={i + colName}>{sum}</td>;
                             }
 
                             return <td key={i + colName}>{item[field] || ""}</td>;
@@ -156,7 +165,7 @@ export default function DataTable({
                         );
                     })}
 
-                    {main_page && <MainPageTotal columns main_page_sums />}
+                    {main_page && <MainPageTotal columns={columns} main_page_sums={main_page_sums} />}
 
                 </tbody>
             </table>

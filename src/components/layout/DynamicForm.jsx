@@ -18,8 +18,8 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
             if (itemData[key] !== undefined) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
-                } else if (config[key].type === "datetime-local") {
-                    defaults[key] = itemData[key]?.slice(0, 16);
+                } else if (config[key].type === "date") {
+                    defaults[key] = itemData[key].replace(".", "-").split(" ")[0];
                 } else {
                     defaults[key] = itemData[key];
                 }
@@ -163,6 +163,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         }
     }, []);
 
+
     return (
         <div className="form-container">
             <div>
@@ -212,6 +213,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                                     type="checkbox"
                                                     value={val}
                                                     {...register(fieldName, getValidationRules(field))}
+                                                    defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
                                                 />
                                                 <span>{label["name"]}</span>
                                             </label>

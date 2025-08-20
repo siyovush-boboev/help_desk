@@ -2,6 +2,7 @@
   --primary-color: #069EA1;
   --secondary-color: #1ad3d6;
   --text-color: #333;
+  --text-secondary: #555;
   --background-color: #EDF0F9;
   --white: #fff;
   --black: #000;
@@ -163,8 +164,8 @@ svg {
   margin-top: auto;
 }
 
-.navbar-link:hover,
-.dropdown-link:hover {
+.navbar-link:not(div):hover,
+.dropdown-link:not(div):hover {
   color: var(--secondary-color);
   transition: 0.5s;
 }
@@ -309,7 +310,6 @@ button:active {
   outline: none;
   box-shadow: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  padding-right: 28px;
 }
 
 #search-input:focus {
@@ -317,14 +317,18 @@ button:active {
   box-shadow: 0 0 10px rgba(74, 144, 226, 0.6);
 }
 
+.search-container > input {
+  padding-right: 24px;
+}
+
 #clear-button {
   padding: 0;
   display: inline-flex;
+  box-shadow: none;
   min-width: auto;
   min-height: 20px;
-  margin-left: -30px;
-  box-shadow: none;
-  margin-right: 12px;
+  margin-left: -28px;
+  margin-right: 10px;
 }
 
 .table-wrapper {
@@ -456,9 +460,15 @@ button:active {
 .user-full-size-pic {
   width: 200px;
   height: 250px;
-  object-fit: cover;
   background-color: var(--user-pic-bg);
 }
+
+.user-full-size-pic > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
 .user-info-close-button {
   position: relative;
@@ -488,7 +498,7 @@ button:active {
 .user-info-main-container p:first-child {
   font-size: 16px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid var(--black);
 }
 
 .user-info-main-content {
@@ -507,7 +517,7 @@ button:active {
 
 .user-text-info label {
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .modal-content p {
@@ -781,7 +791,17 @@ button:active {
   font-size: 14px;
 }
 
-.order-history>p {
+.order-history {
+  max-height: 600px;
+  overflow: auto;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-secondary) var(--black);
+}
+
+.order-history-wrapper>p {
   margin-bottom: 20px;
 }
 

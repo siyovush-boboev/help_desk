@@ -40,7 +40,7 @@ export default function DeleteForm({ data, onClose, id = null, url, trigger_tabl
         return (
             <div className="modal-form">
 
-                <p>Вы уверены что хотите удалить элемент с id
+                <p>Вы уверены что хотите удалить элемент с id&nbsp;
                     {prepped_data[0]}{(data.length > 1) && ` и еще ${getCorrectSpelling(data.length - 1)}`}?
                 </p>
 

@@ -8,7 +8,7 @@ export function navbarClickHandler(e) {
     e.stopPropagation();
     const nav = document.querySelector('nav');
     const target = e.target.closest('a');
-    const dropdownToggler = e.target.closest('.dropdown-container');
+    const dropdownToggler = e.target.tagName === "P" ? e.target.closest('.dropdown-container') : null;
 
     // Mark the clicked link as active
     if (target && !target.classList.contains('active')) {
@@ -114,7 +114,7 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 }
 
 
-export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false) {
+export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey) {
     let files_to_upload = {};
     
     // Convert number-like fields properly
@@ -165,6 +165,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 await axios.post("/" + url, new_data);
             }
 
+            setRefreshKey(prev => prev + 1);
+
             console.log("Created successfully");
         } else {
             // EDIT EXISTING
@@ -175,9 +177,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
 
             for (const key in new_data) {
                 if (key === "login") continue;
-                if (key === "duration") {
-                    itemData[key] = itemData[key]?.slice(0, 16);
-                }
+                // if (key === "duration") {
+                //     itemData[key] = itemData[key]?.slice(0, 16);
+                // }
                 const newVal = new_data[key];
                 const oldVal = itemData[key];
 
@@ -225,6 +227,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                     await axios.put(`/${url}/${new_data.id}`, changedFields);
                 }
 
+                setRefreshKey(prev => prev + 1);
+
                 console.log("Updated successfully");
             } else {
                 console.log("No changes detected, not submitting");
@@ -237,16 +241,15 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     }
 }
 
-export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false) {
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null) {
     let has_file_field = false;
     for (const key in FORM_CONFIG) { if (FORM_CONFIG[key].type === "file") { has_file_field = true; break; }}
-    console.log("bitchass form config:", FORM_CONFIG, "bitchass variable:", has_file_field);
 
     setModalContent(
         <DynamicForm
             config={FORM_CONFIG}
             preloadData={preload}
-            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url, has_file_field)}
+            onSubmit={(new_data) => onCreateSubmit(new_data, itemData, closeModal, url, has_file_field, setRefreshKey)}
             onClose={closeModal}
             itemData={itemData}
             show_history={show_history}
@@ -270,6 +273,7 @@ export function hide_credentials(credentials, method) {
     }
     return credentials; // Default case, return as is
 }
+
 
 export function isValidCredsInput(input){
     const trimmed = input.trim();
@@ -296,6 +300,6 @@ export function validate_confirmation(confirmation) {
     // valid token:
     // 1.   4 digit string
     // 2.   a hash string with 32 characters consisting of a-f, A-F, 0-9
-    if (/^\d{4}$/.test(confirmation) || /^[a-f0-9]{32}$/.test(confirmation)) return true;
+    if (/^\d{4}$/.test(confirmation) || /^[a-fA-F0-9]{32}$/.test(confirmation)) return true;
     return false;
 }

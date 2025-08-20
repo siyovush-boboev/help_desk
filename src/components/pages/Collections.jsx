@@ -11,10 +11,12 @@ import FiltersModal from "../layout/FiltersForm";
 
 export default function Collections() {
     let { collectionName } = useParams(); // auto updates on URL change
+    collectionName = collectionName.split("?")[0];
     collectionName = Object.keys(TABLE_PAGES_CONFIG).find(
         key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
     );
     const config = TABLE_PAGES_CONFIG[collectionName];
+    console.log(config);
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -85,8 +87,17 @@ export default function Collections() {
     };
 
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
-    console.log("data", data);
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
+
+    // remove unnecessary statuses, only leave those with name "Активный" and "Неактивный"
+    const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+    if (config.columns && config.columns[status_field_key]) {
+        preload[status_field_key] = Object.fromEntries(
+            Object.entries(preload[status_field_key]).filter(([, item]) =>
+                item.name === "Активный" || item.name === "Неактивный"
+            )
+        );
+    }
 
     return (
         <>
@@ -100,7 +111,7 @@ export default function Collections() {
                 initialSearchValue={searchQuery}
                 onFilter={onFilter}
                 onCreate={() => {
-                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"]);
+                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey);
                     }
                 }
             />
@@ -117,12 +128,12 @@ export default function Collections() {
                         FORM_CONFIG[collectionName],
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
+                        false,
+                        setRefreshKey
                     );
                 }}
                 onDelete={(id) => {
-                    onDelete(setModalContent, closeModal, id, config["resource"], () => {
-                        setRefreshKey(prev => prev + 1); // Refresh data after deletion
-                    });
+                    onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey);
                 }}
             />
 

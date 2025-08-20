@@ -25,6 +25,7 @@ export default function Orders() {
     const currentPage = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -94,10 +95,10 @@ export default function Orders() {
 
     useEffect(() => {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [searchParams, filtersFromUrl]);
+    }, [searchParams, filtersFromUrl, refreshKey]);
 
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
     return (
         <>
@@ -109,9 +110,9 @@ export default function Orders() {
                 showFilters={config.filters && config.filters.length > 0}
                 showShowHide
                 showCreate
-                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"])}
+                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}
                 onFilter={onFilter}
-                onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
+                onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
                 showClosed={showClosed}
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
@@ -130,7 +131,8 @@ export default function Orders() {
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
-                        true    // show_history param
+                        true,
+                        setRefreshKey
                     )
                 }}
                 onShowUser={onShowUser}

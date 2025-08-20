@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "./axiosInstance";
-import { AuthContext } from "./authContext";
+import { AuthContext } from "./authContext.js";
 import { API_BASE_URL } from "../constants";
 import {
     setAccessToken as setTokenManagerAccessToken,
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ accessToken, setAccessToken, loading, authFailed, setAuthFailed, logout }}>
-            {loading ? <div className="loader-wrapper" style={{ width: "100vw", height: "100vh" }}><div className="loader"></div></div> : children}
+            {loading ? <div className="loader-wrapper" style={{ width: "100vw", height: "100vh" }}><div className="loader-black"></div></div> : children}
         </AuthContext.Provider>
     );
 };

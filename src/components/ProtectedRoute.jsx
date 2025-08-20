@@ -6,7 +6,7 @@ const ProtectedRoute = () => {
     const { accessToken, loading, authFailed } = useContext(AuthContext);
     const location = useLocation(); // get current URL
 
-    if (loading) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (loading) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
     if (!accessToken || authFailed) {
         console.log("redirecting to login from ProtectedRoute");

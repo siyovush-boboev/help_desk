@@ -23,6 +23,7 @@ export default function Users() {
     const currentPage = parseInt(searchParams.get("page")) || 1;
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -64,10 +65,10 @@ export default function Users() {
 
     useEffect(() => {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [searchParams, filtersFromUrl]);
+    }, [searchParams, filtersFromUrl, refreshKey]);
 
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
     return (
         <>
@@ -78,7 +79,7 @@ export default function Users() {
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
             />
@@ -95,9 +96,11 @@ export default function Users() {
                         FORM_CONFIG[PAGE_NAME],
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
+                        false,
+                        setRefreshKey
                     )
                 }
-                onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"])}
+                onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey)}
             />
 
             <Pagination

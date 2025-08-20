@@ -6,9 +6,9 @@ export const TABLE_PAGES_CONFIG = {
     preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
     columns: {
       "№": null,
-      "Наименование": "Наименование",
-      "Открыто": "Открыто",
-      "Закрыто": "Закрыто",
+      "Наименование": "name",
+      "Открыто": "open",
+      "Закрыто": "closed",
       "Всего": null
     }
   },
@@ -168,10 +168,7 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Описание": "description",
       "Действия": null
-    },
-    filters: [
-      {id: "permission_id", label: "Привелигия"}
-    ]
+    }
   },
   permission: {
     singular: "Привелигия",
@@ -207,12 +204,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес оборудования": "address",
-      "Тип оборудования": "type_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Тип оборудования"},
+      {id: "equipment_type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -221,7 +218,7 @@ export const TABLE_PAGES_CONFIG = {
   atm: {
     singular: "Банкомат",
     plural: "Банкоматы",
-    resource: "atm",
+    resource: "equipment?filter[equipment_type_id]=1",
     preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
@@ -229,12 +226,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес банкомата": "address",
-      "Тип оборудования": "type_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Тип оборудования"},
+      {id: "equipment_type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -243,7 +240,7 @@ export const TABLE_PAGES_CONFIG = {
   terminal: {
     singular: "Терминал",
     plural: "Терминалы",
-    resource: "terminal",
+    resource: "equipment?filter[equipment_type_id]=2",
     preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
@@ -251,12 +248,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес терминала": "address",
-      "Тип оборудования": "type_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Тип оборудования"},
+      {id: "equipment_type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -265,7 +262,7 @@ export const TABLE_PAGES_CONFIG = {
   pos: {
     singular: "POS-терминал",
     plural: "POS-терминалы",
-    resource: "pos",
+    resource: "equipment?filter[equipment_type_id]=3",
     preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
@@ -273,12 +270,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес POS-терминала": "address",
-      "Тип оборудования": "type_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Тип оборудования"},
+      {id: "equipment_type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -287,7 +284,7 @@ export const TABLE_PAGES_CONFIG = {
   coeo: {
     singular: "ЦО+ЭО",
     plural: "ЦО+ЭО",
-    resource: "coeo",
+    resource: "equipment?filter[equipment_type_id]=4",
     preload: ["branch", "office", "equipment_type", "status"],
     columns: {
       "№": null,
@@ -295,12 +292,12 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Офис ЦБО": "office_id",
       "Адрес банкомата": "address",
-      "Тип оборудования": "type_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Действия": null
     },
     filters: [
-      {id: "type_id", label: "Тип оборудования"},
+      {id: "equipment_type_id", label: "Тип оборудования"},
       {id: "status_id", label: "Статус"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
@@ -353,9 +350,9 @@ export const FORM_CONFIG = {
   user: {
     fio: { label: "Имя", type: "text", required: true },
     department_id: { label: "Департамент", type: "select", required: true },
-    otdel_id: { label: "Отдел", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: false },
     branch_id: { label: "Филиал", type: "select", required: true },
-    office_id: { label: "Офис ЦБО", type: "select", required: true },
+    office_id: { label: "Офис ЦБО", type: "select", required: false },
     login: { label: "Логин", type: "text", required: false },
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
@@ -404,7 +401,7 @@ export const FORM_CONFIG = {
   role: {
     name: { label: "Наименование", type: "text", required: true },
     description: { label: "Описание", type: "textarea", required: false },
-    permission: { label: "Привелигия", type: "multiselect", required: true },
+    permissions: { label: "Привелигия", type: "multiselect", required: true },
   },
   permission: {
     name: { label: "Наименование", type: "text", required: true },
@@ -413,12 +410,20 @@ export const FORM_CONFIG = {
   equipment_type: {
     name: { label: "Наименование", type: "text", required: true },
   },
+  equipment: {
+      name: { label: "Номер оборудования", type: "text", required: true },
+      branch_id: { label: "Филиал", type: "select", required: true },
+      office_id: { label: "Офис ЦБО", type: "select", required: true },
+      address: { label: "Адрес оборудования", type: "text", required: false },
+      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
+      status_id: { label: "Статус", type: "select", required: true },
+  },
   atm: {
       name: { label: "Номер банкомата", type: "text", required: true },
       branch_id: { label: "Филиал", type: "select", required: true },
       office_id: { label: "Офис ЦБО", type: "select", required: true },
       address: { label: "Адрес банкомата", type: "text", required: false },
-      type_id: { label: "Оборудование", type: "select", required: true },
+      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
       status_id: { label: "Статус", type: "select", required: true },
   },
   terminal: {
@@ -426,7 +431,7 @@ export const FORM_CONFIG = {
       branch_id: { label: "Филиал", type: "select", required: true },
       office_id: { label: "Офис ЦБО", type: "select", required: true },
       address: { label: "Адрес терминала", type: "text", required: false },
-      type_id: { label: "Оборудование", type: "select", required: true },
+      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
       status_id: { label: "Статус", type: "select", required: true },
   },
   pos: {
@@ -434,7 +439,7 @@ export const FORM_CONFIG = {
       branch_id: { label: "Филиал", type: "select", required: true },
       office_id: { label: "Офис ЦБО", type: "select", required: true },
       address: { label: "Адрес POS-терминала", type: "text", required: false },
-      type_id: { label: "Оборудование", type: "select", required: true },
+      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
       status_id: { label: "Статус", type: "select", required: true },
     },
   coeo: {
@@ -442,7 +447,7 @@ export const FORM_CONFIG = {
       branch_id: { label: "Филиал", type: "select", required: true },
       office_id: { label: "Офис ЦБО", type: "select", required: true },
       address: { label: "Адрес терминала", type: "text", required: false },
-      type_id: { label: "Оборудование", type: "select", required: true },
+      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
       status_id: { label: "Статус", type: "select", required: true },
   },
 };

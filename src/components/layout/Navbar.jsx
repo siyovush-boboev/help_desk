@@ -40,7 +40,7 @@ const EQUIPMENT_SUBLINKS = ["atm", "terminal", "pos", "coeo", "equipment"]
     .filter((key) => TABLE_PAGES_CONFIG[key])
     .map((key) => ({
         label: TABLE_PAGES_CONFIG[key].plural,
-        href: TABLE_PAGES_CONFIG[key].resource + PAGINATION_URL_PARAMS,
+        href: TABLE_PAGES_CONFIG[key].resource + (key !== "equipment" ? PAGINATION_URL_PARAMS.replace("?", "&") : PAGINATION_URL_PARAMS),
     }));
 
 
@@ -67,8 +67,8 @@ export default function Navbar() {
                 ))}
 
                 {/* Equipment sub-dropdown */}
-                <div className="dropdown-container dropdown-link dropdown-toggler">
-                    <div><p>Оборудования ▼</p></div>
+                <div className="dropdown-container dropdown-link">
+                    <div className='dropdown-toggler'><p>Оборудования ▼</p></div>
                     {EQUIPMENT_SUBLINKS.map(({ label, href }) => (
                         <NavbarLink
                             key={label}

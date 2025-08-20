@@ -28,7 +28,7 @@ export default function Main() {
         loadDataTable(setData, setLoading, setError, config);
     }, []);
 
-    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader"></div></div>;
+    if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
     if (error) return <div className="loader-wrapper"><div className="loader-wrapper"><p>{error}</p></div></div>;
 
     return (
