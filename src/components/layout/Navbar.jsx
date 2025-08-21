@@ -12,7 +12,7 @@ const ICONS = {
     "setting": SettingsIcon,
 };
 
-const PAGINATION_URL_PARAMS = "?withPagination=true&page=1&limit=10";
+const PAGINATION_URL_PARAMS = "withPagination=true&page=1&limit=10";
 
 const NAVBAR_PAGES = ["main", "order", "user", "report", "setting"];
 
@@ -20,7 +20,7 @@ const MAIN_NAVBAR_LINKS = NAVBAR_PAGES.reduce((acc, key) => {
     acc[key] = {
         icon: ICONS[key] || null,
         label: TABLE_PAGES_CONFIG[key]?.plural || key,
-        href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + PAGINATION_URL_PARAMS,
+        href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + `?${PAGINATION_URL_PARAMS}`,
     };
     return acc;
 }, {});
@@ -30,18 +30,18 @@ const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
 );
 
 const COLLECTION_LINKS = collectionPages
-    .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
+    // .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
     .map(([, config]) => ({
         label: config.plural,
-        href: config.resource + PAGINATION_URL_PARAMS,
+        href: config.resource + `?${PAGINATION_URL_PARAMS}`,
     }));
 
-const EQUIPMENT_SUBLINKS = ["atm", "terminal", "pos", "coeo", "equipment"]
-    .filter((key) => TABLE_PAGES_CONFIG[key])
-    .map((key) => ({
-        label: TABLE_PAGES_CONFIG[key].plural,
-        href: TABLE_PAGES_CONFIG[key].resource + (key !== "equipment" ? PAGINATION_URL_PARAMS.replace("?", "&") : PAGINATION_URL_PARAMS),
-    }));
+// const EQUIPMENT_SUBLINKS = ["equipment"]
+//     .filter((key) => TABLE_PAGES_CONFIG[key])
+//     .map((key) => ({
+//         label: TABLE_PAGES_CONFIG[key].plural,
+//         href: TABLE_PAGES_CONFIG[key].resource + (key === "equipment" ? "?" : "&") + PAGINATION_URL_PARAMS,
+//     }));
 
 
 export default function Navbar() {
@@ -67,7 +67,7 @@ export default function Navbar() {
                 ))}
 
                 {/* Equipment sub-dropdown */}
-                <div className="dropdown-container dropdown-link">
+                {/* <div className="dropdown-container dropdown-link">
                     <div className='dropdown-toggler'><p>Оборудования ▼</p></div>
                     {EQUIPMENT_SUBLINKS.map(({ label, href }) => (
                         <NavbarLink
@@ -76,7 +76,7 @@ export default function Navbar() {
                             href={href}
                         />
                     ))}
-                </div>
+                </div> */}
             </div>
 
             <NavbarLink {...MAIN_NAVBAR_LINKS["report"]} key="report" />

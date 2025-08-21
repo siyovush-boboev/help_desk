@@ -19,6 +19,7 @@
   --button-shadow: rgba(0, 0, 0, 0.2);
   --pagination-shadow: rgba(0, 0, 0, 0.1);
   --button-hover: rgb(13, 118, 120);
+  --table-row-hover-bg: rgba(13, 118, 120, 0.1);
 }
 
 * {
@@ -36,7 +37,7 @@ nav,
 .main-content,
 .sandwitch {
   background-color: var(--background-color);
-  font-family: Verdana, sans-serif;
+  font-family: Tahoma, Verdana, sans-serif;
   font-size: 14px;
   color: var(--text-color);
 }
@@ -282,6 +283,11 @@ button:active {
   animation: pressDown 0.3s ease;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .controls button:hover,
 #delete_button:hover,
 #create_button:hover,
@@ -340,6 +346,11 @@ button:active {
   width: 100%;
 }
 
+.custom-table tr:hover {
+  background-color: var(--table-row-hover-bg);
+  transition: background-color 0.3s ease;
+}
+
 .custom-table th,
 .custom-table td {
   border: 1px solid var(--table-border);
@@ -359,11 +370,12 @@ button:active {
   border-left: none;
 }
 
-.custom-table th:last-child,
-.custom-table td:last-child {
+.custom-table th,
+.custom-table td{
   border-right: none;
   padding: 2px;
   text-align: center;
+  padding: 4px;
 }
 
 .custom-table td a {
@@ -414,13 +426,16 @@ button:active {
   border: 1px solid var(--primary-color);
   background-color: var(--white);
   border-radius: 4px;
-  padding: 1px;
   cursor: pointer;
 }
 
 #table-delete-button:active,
 #table-edit-button:active {
   animation: pressDown 0.3s ease;
+}
+
+.table-actions > button:first-child {
+  margin-right: 8px;
 }
 
 #modal {
@@ -965,6 +980,12 @@ button:active {
   gap: 8px;
 }
 
+.status-cell > img {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+}
+
 .loader-black {
   margin: 0 auto;
   width: 19px;
@@ -1031,4 +1052,9 @@ button:active {
 .resend-code {
   color: var(--primary-color);
   cursor: pointer;
+}
+
+.user-avatar > img {
+  object-fit: cover;
+  border-radius: 50%;
 }

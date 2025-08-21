@@ -17,8 +17,8 @@ export default function Main() {
     const [error, setError] = useState("");
     const { setModalContent, closeModal } = useContext(ModalContext);
     const [preloadLoaded, setPreloadLoaded] = useState(false);
+    const [refreshKey, setRefreshKey] = useState(0);
 
-    // load preload data once on mount
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
             .then(() => setPreloadLoaded(true));
@@ -26,17 +26,25 @@ export default function Main() {
 
     useEffect(() => {
         loadDataTable(setData, setLoading, setError, config);
-    }, []);
+    }, [refreshKey]);
 
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
     if (error) return <div className="loader-wrapper"><div className="loader-wrapper"><p>{error}</p></div></div>;
+
+    // remove unnecessary statuses
+    const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+    if (preload[status_field_key]) {
+        preload[status_field_key] = Object.fromEntries(
+            Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 1)
+        );
+    }
 
     return (
         <>
             <Breadcrumbs text={config.plural} />
             <ControlBar
                 showCreate
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"])}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey)}
             />
             <DataTable
                 columns={config.columns}

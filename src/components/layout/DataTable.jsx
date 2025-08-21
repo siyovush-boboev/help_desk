@@ -77,7 +77,7 @@ export default function DataTable({
                                 const status_id = `${item[field]}`;
                                 const status = pageData[colName]?.[status_id];
                                 if (status?.name === "Закрыто") hideRow = !showClosed;
-                                const icon = <img src={BASE_URL + status?.["icon_big"]} alt="" />;
+                                const icon = <img src={BASE_URL + status?.["icon_big"]} alt="" className="status-icon" />;
                                 return <td key={i + colName}><div className="status-cell">{icon} {status?.name || ""}</div></td>;
                             }
                             else if (colName === "Иконка") {
@@ -139,7 +139,6 @@ export default function DataTable({
                             else if (colName === "Всего") {
                                 const sum = (data[i]["open"] || 0) + (data[i]["closed"] || 0);
                                 main_page_sums["total"] += sum;
-                                console.log("data i:", data[i]);
                                 return <td key={i + colName}>{sum}</td>;
                             } else if (field?.includes("_id")) {
                                 if (colName in pageData) {

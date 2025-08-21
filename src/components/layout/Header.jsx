@@ -4,7 +4,10 @@ import { TABLE_PAGES_CONFIG } from "../../lib/pages.js";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import { loadDataPreload } from "../../lib/utils/helpers.jsx";
 import axiosInstance from "../../lib/contexts/axiosInstance.js";
-import { API_BASE_URL } from "../../lib/constants.js";
+import { API_BASE_URL, BASE_URL } from "../../lib/constants.js";
+
+import person_svg from "../../assets/svg/person.svg";
+import header_logo from "../../assets/images/header-logo.png";
 
 export default function Header() {
     const { setModalContent, closeModal } = useContext(ModalContext);
@@ -78,7 +81,7 @@ export default function Header() {
             </div>
 
             <div className="logo">
-                <img src="src/assets/images/header-logo.png" alt="Company Logo" />
+                <img src={header_logo} alt="Company Logo" />
             </div>
 
             <div className="user-info">
@@ -92,11 +95,10 @@ export default function Header() {
                     }
                     <div className="user-avatar">
                         <img
-                            width="30"
-                            height="30"
-                            src="src/assets/svg/person.svg"
-                            alt="User Avatar"
-                            className="rounded-circle user-logo"
+                            src={BASE_URL + userDetails["photo_url"] || person_svg}
+                            alt=""
+                            className="user-logo"
+                            style={!userDetails["photo_url"] ? { width: "30px", height: "30px" } : { width: "100%", height: "100%" }}
                         />
                     </div>
                 </div>

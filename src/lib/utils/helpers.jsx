@@ -73,7 +73,7 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
 
 export const loadDataTable = async (setData, setLoading, setError, config, params = {}) => {
     try {
-        console.log("Loading data with params:", params);
+        // console.log("Loading data with params:", params);
         setLoading(true);
 
         const queryString = Object.entries(params)
@@ -86,7 +86,7 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
 
         const url = `/${config.resource}${queryString ? `?${queryString}` : ""}`;
 
-        console.log("Final url:", url);
+        // console.log("Final url:", url);
 
         const mainRes = await axios.get(url);
         setData(mainRes.data);
@@ -117,21 +117,19 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey) {
     let files_to_upload = {};
     
-    // Convert number-like fields properly
+    // Convert fields properly
     Object.entries(new_data).forEach(([key, val]) => {
-        console.log("key:", key, "value:", val);
-        if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0))
-            delete new_data[key]; // Remove empty fields
-        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
-            new_data[key] = Number(val);
-        } else if (Array.isArray(val)) {
-            new_data[key] = val.map(Number);
-        }
         // check if the value if a file
-        if (val instanceof FileList && val.length > 0) {
-            files_to_upload[key] = val;
+        if (val instanceof FileList) {
+            if (val.length > 0)
+                files_to_upload[key] = val;
             delete new_data[key];
-        }
+        } else if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0))
+            delete new_data[key]; // Remove empty fields
+        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id")
+            new_data[key] = Number(val);
+        else if (Array.isArray(val) && val.length > 0 && /^-?\d+$/.test(val[0]))
+            new_data[key] = val.map(Number);
     });
     if (Object.keys(files_to_upload).length > 0) {
         files_to_upload.data = { ...new_data };

@@ -52,7 +52,7 @@ const getValidationRules = (field) => {
     }
 
     if (field.type === "text") {
-        rules.minLength = { value: field?.min || 3, message: `Слишком мало символов` };
+        rules.minLength = { value: field?.min || 1, message: `Слишком мало символов` };
         rules.maxLength = { value: field?.max || 255, message: `Слишком много символов (255)` };
     }
     else if (field.type === "number") {
@@ -85,13 +85,28 @@ const getValidationRules = (field) => {
 export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false }) {
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const {
         register,
         handleSubmit,
         setValue,
         formState: { errors },
-    } = useForm({ defaultValues: getDefaultValues(itemData, config, preloadData) });
+    } = useForm({
+        defaultValues: getDefaultValues(itemData, config, preloadData),
+        mode: "onChange",
+    });
+
+    const handleFormSubmit = async (data) => {
+        try {
+            setIsSubmitting(true);
+            await onSubmit(data); // call the real submit fn
+        } catch (err) {
+            console.error("Submit error:", err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     function onOptionChange(fieldName) {
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
@@ -170,7 +185,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
                 <p>{itemData ? "Редактирование" : "Создание"}</p>
 
-                <form onSubmit={handleSubmit(onSubmit)} noValidate id="editForm">
+                <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
                     {Object.entries(config).map(([fieldName, field]) => {
                         let preload_title = field.label || fieldName;
                         if (preload_title === "Исполнитель" || preload_title === "Заявитель")
@@ -183,7 +198,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                     <label>{field.label}</label>
                                     <select
                                         {...register(fieldName, getValidationRules(field))}
-                                        onChange={() => onOptionChange(fieldName)}
+                                        onChange={(e) => {onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true });}}
                                     >
                                         <option value="">
                                             Выберите {field.label.toLowerCase()}
@@ -265,7 +280,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     })}
 
                     <div className="modal-buttons">
-                        <button id="confirmBtn" type="submit">Сохранить</button>
+                        <button id="confirmBtn" type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? "Загрузка..." : "Сохранить"}
+                        </button>
                         <button id="cancelBtn" onClick={onClose}>Отмена</button>
                     </div>
 

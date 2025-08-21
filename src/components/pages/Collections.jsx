@@ -16,7 +16,6 @@ export default function Collections() {
         key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
     );
     const config = TABLE_PAGES_CONFIG[collectionName];
-    console.log(config);
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -91,11 +90,9 @@ export default function Collections() {
 
     // remove unnecessary statuses, only leave those with name "Активный" and "Неактивный"
     const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-    if (config.columns && config.columns[status_field_key]) {
+    if (preload[status_field_key]) {
         preload[status_field_key] = Object.fromEntries(
-            Object.entries(preload[status_field_key]).filter(([, item]) =>
-                item.name === "Активный" || item.name === "Неактивный"
-            )
+            Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 2)
         );
     }
 

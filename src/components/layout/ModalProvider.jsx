@@ -4,8 +4,10 @@ import { ModalContext } from "../../lib/contexts/ModalContext.js";
 
 export default function ModalProvider({ children }) {
     const [modalContent, setModalContent] = useState(null);
-
     const closeModal = () => setModalContent(null);
+
+    const modal_root = document.getElementById("modal");
+    modal_root.onclick = (e) => { if(e.target === modal_root) closeModal(); };
 
     return (
         <ModalContext.Provider value={{ setModalContent, closeModal }}>
@@ -19,7 +21,7 @@ export default function ModalProvider({ children }) {
                     >
                         {modalContent}
                     </div>,
-                    document.getElementById("modal")
+                    modal_root
                 )}
         </ModalContext.Provider>
     );
