@@ -43,8 +43,6 @@ export default function OrderHistory({ orderId, data, status_preload }) {
     const attachment_line_suffix = "Прикреплен файл: ";
     const statuses = Object.values(status_preload);
 
-    console.log("history before processing:", history);
-
     history.forEach(entry => {
     // Default icon stays the same or empty if none
     let newIcon = entry.icon || "";
@@ -53,7 +51,6 @@ export default function OrderHistory({ orderId, data, status_preload }) {
     entry.lines = entry.lines.map(line => {
         if (typeof line === "string") {
         if (line.startsWith(attachment_line_suffix)) {
-            console.log("Found attachment line:", line);
             const fileName = line.replace(attachment_line_suffix, "");
             const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
             return (

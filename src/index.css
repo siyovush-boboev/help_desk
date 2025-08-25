@@ -19,7 +19,6 @@
   --button-shadow: rgba(0, 0, 0, 0.2);
   --pagination-shadow: rgba(0, 0, 0, 0.1);
   --button-hover: rgb(13, 118, 120);
-  --table-row-hover-bg: rgba(13, 118, 120, 0.1);
 }
 
 * {
@@ -347,7 +346,7 @@ button:disabled {
 }
 
 .custom-table tr:hover {
-  background-color: var(--table-row-hover-bg);
+  background-color: var(--table-header-bg);
   transition: background-color 0.3s ease;
 }
 
@@ -564,7 +563,7 @@ button:disabled {
   font-weight: 700;
   text-align: center;
   margin: 0 auto;
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 .filters-list {
@@ -612,7 +611,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   padding: 20px 12px;
-  gap: 20px;
+  gap: 16px;
   overflow: auto;
   max-width: 750px;
 }

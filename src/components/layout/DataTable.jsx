@@ -94,8 +94,8 @@ export default function DataTable({
                                 return (
                                     <td key={i + colName}>
                                         <div className="table-actions">
-                                            <button id="table-delete-button" onClick={() => onDelete(item.id)}><DeleteTableRowIcon /></button>
-                                            <button id="table-edit-button" onClick={() => onEdit(item.id)}><EditTableRowIcon /></button>
+                                            <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button"><DeleteTableRowIcon /></button>
+                                            <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button"><EditTableRowIcon /></button>
                                         </div>
                                     </td>
                                 );
@@ -122,7 +122,7 @@ export default function DataTable({
                                     </td>
                                 );
                             }
-                            else if (colName.toLowerCase().includes("дата")) {
+                            else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
                                 const val = item[field];
                                 if (val) {
                                     const date = new Date(val);

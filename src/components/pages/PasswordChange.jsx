@@ -3,10 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
 import axios from "../../lib/contexts/axiosInstance";
-import { validate_confirmation } from "../../lib/utils/helpers";
+import { validate_confirmation, isValidCredsInput } from "../../lib/utils/helpers";
 import { API_BASE_URL } from "../../lib/constants";
-import { isValidCredsInput } from "../../lib/utils/helpers";
-
+import { PasswordShow, PasswordHide } from "../ui/icons";
 
 export default function PasswordChange() {
     const [searchParams] = useSearchParams();
@@ -18,6 +17,7 @@ export default function PasswordChange() {
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const passwordRef = useRef(null);
 
@@ -74,6 +74,17 @@ export default function PasswordChange() {
         }
     };
 
+    const renderToggleBtn = () => (
+        <button
+            type="button"
+            className="toggle-password-btn"
+            onClick={() => setShowPassword(prev => !prev)}
+            tabIndex={-1}
+        >
+            {showPassword ? <PasswordShow /> : <PasswordHide />}
+        </button>
+    );
+
     return (
         <AuthContainer header_text={"Смена пароля"}>
             <form id="auth-form" onSubmit={handleSubmit}>
@@ -83,19 +94,24 @@ export default function PasswordChange() {
                     placeholder={"Введите новый пароль"}
                     value={password}
                     set_func={setPassword}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required={true}
                     inputRef={passwordRef}
-                />
+                >
+                    {(password || passwordConfirm) && renderToggleBtn()}
+                </AuthInput>
+
                 <AuthInput
                     label={"Подтвердите пароль"}
                     name={"passwordConfirm"}
                     placeholder={"Повторите новый пароль"}
                     value={passwordConfirm}
                     set_func={setPasswordConfirm}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required={true}
-                />
+                >
+                    {(password || passwordConfirm) && renderToggleBtn()}
+                </AuthInput>
 
                 <div className="login-error" style={{ marginBottom: 10 }}>{err}&nbsp;</div>
 

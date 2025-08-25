@@ -26,6 +26,15 @@ export default function Orders() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
+    // const permissions = JSON.parse(localStorage.getItem("permissions") || "[]");
+
+    // if (!permissions.includes("orders:create")) {
+    //     FORM_CONFIG[PAGE_NAME] = Object.fromEntries(
+    //         Object.entries(FORM_CONFIG[PAGE_NAME]).filter(
+    //             ([key]) => key !== "department_id" && key !== "otdel_id"
+    //         )
+    //     );
+    // }
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};

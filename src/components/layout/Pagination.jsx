@@ -53,7 +53,7 @@ export default function Pagination({
                 <span>Всего записей: {totalItems}</span>
                 <span>
                     &nbsp;| Показывать по:&nbsp;
-                    <select id="rows-per-page" value={limit} onChange={handleSizeChange}>
+                    <select id="rows-per-page" value={limit} onChange={handleSizeChange} aria-label="Количество строк на странице">
                         {pageSizeOptions.map((opt) => (
                             <option key={opt} value={opt}>
                                 {opt}
@@ -80,6 +80,7 @@ export default function Pagination({
                         onChange={handleInputChange}
                         onBlur={handleInputBlurOrEnter}
                         onKeyDown={handleKeyDown}
+                        aria-label="Номер страницы"
                         style={{
                             width: "40px",
                             textAlign: "center",

@@ -1,43 +1,107 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
+
+
+const admin_roles = [
+    "admin",
+    "administrator",
+    "superadmin",
+    "super admin",
+    "super-admin",
+    "админ",
+    "администратор",
+    "суперадмин",
+    "супер админ",
+    "супер-админ",
+    "суперадминистратор",
+    "супер администратор"
+];
+const executor_roles = [
+    "user",
+    "executor",
+    "исполнитель",
+    "пользователь",
+    "руководитель"
+];
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
     const [filteredOptions, setFilteredOptions] = useState({});
+    const permissions = useMemo(
+        () => JSON.parse(localStorage.getItem("permissions")) || [],
+        []
+    );
 
-    filters.forEach(filter => {
-        if (filter.options) {
-            preload[filter.label] = filter.options.reduce((acc, item, index) => {
-                acc[index] = item;
-                return acc;
-            }, {});
+    // 🔒 freeze filters + preload into stable memos
+    const normalizedPreload = useMemo(() => {
+        const copy = structuredClone(preload); // deep copy → stable reference
+        filters.forEach(filter => {
+            if (filter.options) {
+                copy[filter.label] = filter.options.reduce((acc, item, index) => {
+                    acc[index] = item;
+                    return acc;
+                }, {});
+            }
+        });
+        return copy;
+    }, [preload, filters]);
+
+    const normalizedFilters = useMemo(() => {
+        let f = [...filters];
+        if (!permissions.includes("orders:create")) {  // non-admin user
+            const fieldsToRemove = ["department_id", "otdel_id"];
+            f = f.filter(filter => !fieldsToRemove.includes(filter.id));
         }
-    });
+        return f;
+    }, [filters, permissions]);
 
     useEffect(() => {
+        // console.log("effect running"); // debug if u want
         const newFilteredOptions = {};
 
-        filters.forEach(filter => {
+        normalizedFilters.forEach(filter => {
             const parentField = Object.entries(DEPENDANT_FIELDS.desc).find(([, children]) =>
                 children.includes(filter.id)
             )?.[0];
 
-            const allOptions = preload[filter.label.replace("Заявитель", "Пользователь")] || {};
-            let filtered = Object.entries(allOptions);
+            let allOptions =
+                (filter.label === "Заявитель" || filter.label === "Исполнитель")
+                    ? normalizedPreload["Пользователь"] || {}
+                    : normalizedPreload[filter.label] || {};
 
+            if (filter.label === "Заявитель" || filter.label === "Исполнитель") {
+                const allUsers = normalizedPreload["Пользователь"] || {};
+                console.log("all users:", allUsers);
+
+                const adminIds = Object.values(allUsers)
+                    .filter(u => admin_roles.includes(u.role_name?.toLowerCase()))
+                    .map(u => u.id);
+
+                const executorIds = Object.values(allUsers)
+                    .filter(u => executor_roles.includes(u.role_name?.toLowerCase()))
+                    .map(u => u.id);
+
+                console.log(adminIds, executorIds);
+
+                const limitToAdmins = filter.label === "Заявитель";
+                allOptions = Object.fromEntries(
+                    Object.entries(allUsers).filter(([, user]) =>
+                        limitToAdmins ? adminIds.includes(user.id) : executorIds.includes(user.id)
+                    )
+                );
+            }
+
+            let filtered = Object.entries(allOptions);
             if (parentField && selectedValues[parentField]?.length > 0) {
                 const parentSelected = selectedValues[parentField].map(id => Number(id));
-                // Filter ONLY if option's parent value matches selected ascendants
                 filtered = filtered.filter(([, value]) =>
                     parentSelected.includes(value[parentField])
                 );
 
-                // 🧠 Add back already selected values that got filtered out
                 const selectedInThisField = selectedValues[filter.id] || [];
                 const missingSelected = selectedInThisField.filter(
                     key => !filtered.some(([k]) => k === key) && allOptions[key]
                 );
-
                 const missingEntries = missingSelected.map(key => [key, allOptions[key]]);
                 filtered = [...filtered, ...missingEntries];
             }
@@ -46,34 +110,32 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
         });
 
         setFilteredOptions(newFilteredOptions);
-    }, [selectedValues, filters, preload]);
+    }, [selectedValues, normalizedFilters, normalizedPreload]);
 
-    const handleCheckboxChange = (filterId, val) => {
+    const handleCheckboxChange = useCallback((filterId, val) => {
         setSelectedValues(prev => {
             const prevVals = new Set(prev[filterId] || []);
             if (prevVals.has(val)) prevVals.delete(val);
             else prevVals.add(val);
             return { ...prev, [filterId]: Array.from(prevVals) };
         });
-    };
+    }, []);
 
-    const handleApply = (e) => {
+    const handleApply = useCallback((e) => {
         e.stopPropagation();
         onApply(selectedValues);
         onClose();
-    };
+    }, [onApply, onClose, selectedValues]);
 
-    const resetFilters = () => {
-        setSelectedValues({});
-    };
+    const resetFilters = useCallback(() => setSelectedValues({}), []);
 
     return (
         <div className="modal-form">
             <p>Фильтры</p>
             <div className="filters-list">
-                {filters.map((filter, index) => {
+                {normalizedFilters.map((filter, index) => {
                     const options = filteredOptions[filter.id]
-                        || preload[filter.label.replace("Заявитель", "Пользователь")]
+                        || normalizedPreload[filter.label.replace("Заявитель", "Пользователь").replace("Исполнитель", "Пользователь")]
                         || {};
 
                     return (

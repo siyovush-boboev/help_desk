@@ -32,6 +32,7 @@ export default function ControlBar({
             {showSearch && (
                 <div className="search-container">
                     <input
+                        id="search-input"
                         type="text"
                         placeholder="🔍 Поиск"
                         value={searchValue}

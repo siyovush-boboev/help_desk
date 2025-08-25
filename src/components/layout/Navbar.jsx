@@ -45,6 +45,9 @@ const COLLECTION_LINKS = collectionPages
 
 
 export default function Navbar() {
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    console.log("permission from navbar comp:", permissions);
+
     return (
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />

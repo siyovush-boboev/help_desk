@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import UserInfoModal from "../layout/UserInfoModal";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages.js";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
-import { loadDataPreload } from "../../lib/utils/helpers.jsx";
+import { loadDataPreload, onSandwitchClick } from "../../lib/utils/helpers.jsx";
 import axiosInstance from "../../lib/contexts/axiosInstance.js";
 import { API_BASE_URL, BASE_URL } from "../../lib/constants.js";
 
@@ -69,10 +69,6 @@ export default function Header() {
         );
     };
 
-    const onSandwitchClick = () => {
-        const nav = document.querySelector("nav");
-        nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
-    }
 
     return (
         <header>

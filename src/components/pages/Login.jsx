@@ -8,6 +8,7 @@ import { AuthContext } from "../../lib/contexts/authContext";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
 import CheckBox from "../ui/CheckBox";
+import { permissions_list } from "../../lib/constants";
 
 
 const Login = () => {
@@ -33,8 +34,13 @@ const Login = () => {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
             if (res.status === false) throw new Error("Login failed");
             const data = await res.data.body;
+            if (data.permissions.includes("superuser")){
+                // add all permissions possible from permissions_list
+                data.permissions = [...permissions_list];
+            }
 
             setAccessToken(data.accessToken);
+            localStorage.setItem("permissions", JSON.stringify(data.permissions));
             setAuthFailed(false);
             navigate(next, { replace: true });
         } catch (e) {

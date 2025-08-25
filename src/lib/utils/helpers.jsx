@@ -2,6 +2,7 @@
 import axios from "../contexts/axiosInstance";
 import DeleteForm from "../../components/layout/DeleteForm";
 import DynamicForm from "../../components/layout/DynamicForm";
+import { CACHE_TIME_SECONDS } from "../constants";
 
 
 export function navbarClickHandler(e) {
@@ -38,32 +39,55 @@ export function navbarClickHandler(e) {
 
 export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, config) => {
     try {
-        const preloadResults = await Promise.all(
-            config.preload.map((key) =>
-                axios.get("/" + TABLE_PAGES_CONFIG[key]["resource"])
-            )
+        const preloadData = {};
+
+        // map each key -> either from cache or fresh fetch
+        await Promise.all(
+            config.preload.map(async (key) => {
+                const resource = TABLE_PAGES_CONFIG[key]["resource"];
+                const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
+                const cacheKey = `preload_${resource}`;
+
+                // check localStorage cache for this resource
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) {
+                    const { data, timestamp } = JSON.parse(cached);
+                    if (Date.now() - timestamp < CACHE_TIME_SECONDS) {
+                        // cache still valid
+                        preloadData[singularKey] = data;
+                        return;
+                    }
+                }
+
+                // fetch fresh if no cache or expired
+                const resp = await axios.get("/" + resource);
+                let raw_data = resp.data.body;
+                if ("pagination" in raw_data) raw_data = raw_data["list"];
+
+                const prepped = raw_data.reduce((acc, item) => {
+                    const id = item.id || item._id || item.ID;
+                    const name = item.name || item.title || item.fio || id;
+                    acc[id] = { ...item, name };
+                    Object.entries(item).forEach(([field, value]) => {
+                        if (field.endsWith("_id") && field !== "id" && field !== "_id") {
+                            acc[id][field] = value;
+                        }
+                    });
+                    return acc;
+                }, {});
+
+                // save cache per resource
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    data: prepped,
+                    timestamp: Date.now(),
+                }));
+
+                preloadData[singularKey] = prepped;
+            })
         );
 
-        const preloadData = {};
-        config.preload.forEach((key, i) => {
-            const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
-            let raw_data = preloadResults[i].data.body;
-            if ("pagination" in raw_data)
-                raw_data = raw_data["list"]
-            const prepped = raw_data.reduce((acc, item) => {
-                const id = item.id || item._id || item.ID;
-                const name = item.name || item.title || item.fio || id;
-                acc[id] = { ...item, name };
-                Object.entries(item).forEach(([field, value]) => {
-                    if (field.endsWith("_id") && field !== "id" && field !== "_id")
-                        acc[id][field] = value;
-                });
-                return acc;
-            }, {});
-            preloadData[singularKey] = prepped;
-        });
-
         setPreload(preloadData);
+
     } catch (err) {
         console.error(err);
         setError("Ошибка загрузки данных");
@@ -119,17 +143,37 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     
     // Convert fields properly
     Object.entries(new_data).forEach(([key, val]) => {
-        // check if the value if a file
+        // check if the value is a file
         if (val instanceof FileList) {
             if (val.length > 0)
                 files_to_upload[key] = val;
             delete new_data[key];
-        } else if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0))
+        } 
+        else if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0)) {
             delete new_data[key]; // Remove empty fields
-        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id")
+        } 
+        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
             new_data[key] = Number(val);
-        else if (Array.isArray(val) && val.length > 0 && /^-?\d+$/.test(val[0]))
+        } 
+        else if (Array.isArray(val) && val.length > 0 && /^-?\d+$/.test(val[0])) {
             new_data[key] = val.map(Number);
+        } 
+        else if (key.includes("date") || key.includes("duration")) {
+            const date = new Date(val); // val = "YYYY-MM-DDTHH:MM" local
+
+            const pad = (n) => n.toString().padStart(2, "0");
+
+            // calculate timezone offset
+            const tzOffsetMin = -date.getTimezoneOffset(); // in minutes, reversed sign
+            const sign = tzOffsetMin >= 0 ? "+" : "-";
+            const offsetHours = pad(Math.floor(Math.abs(tzOffsetMin) / 60));
+            const offsetMinutes = pad(Math.abs(tzOffsetMin) % 60);
+
+            // format YYYY-MM-DDTHH:MM:SS+HH:MM
+            const formatted = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${sign}${offsetHours}:${offsetMinutes}`;
+
+            new_data[key] = formatted;
+        }
     });
     if (Object.keys(files_to_upload).length > 0) {
         files_to_upload.data = { ...new_data };
@@ -226,8 +270,6 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 }
 
                 setRefreshKey(prev => prev + 1);
-
-                console.log("Updated successfully");
             } else {
                 console.log("No changes detected, not submitting");
             }
@@ -241,7 +283,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
 
 export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null) {
     let has_file_field = false;
-    for (const key in FORM_CONFIG) { if (FORM_CONFIG[key].type === "file") { has_file_field = true; break; }}
+    for (const key in FORM_CONFIG) { if (FORM_CONFIG[key].type.includes("file")) { has_file_field = true; break; }}
 
     setModalContent(
         <DynamicForm
@@ -300,4 +342,10 @@ export function validate_confirmation(confirmation) {
     // 2.   a hash string with 32 characters consisting of a-f, A-F, 0-9
     if (/^\d{4}$/.test(confirmation) || /^[a-fA-F0-9]{32}$/.test(confirmation)) return true;
     return false;
+}
+
+
+export const onSandwitchClick = () => {
+    const nav = document.querySelector("nav");
+    nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
 }

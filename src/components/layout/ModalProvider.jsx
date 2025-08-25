@@ -7,7 +7,12 @@ export default function ModalProvider({ children }) {
     const closeModal = () => setModalContent(null);
 
     const modal_root = document.getElementById("modal");
-    modal_root.onclick = (e) => { if(e.target === modal_root) closeModal(); };
+
+    // when clicking outside the modal content, close the modal
+    // currently not for all modals
+    modal_root.onclick = (e) => {
+        if(e.target === modal_root && document.querySelector(".user-info-modal-content")) closeModal();
+    };
 
     return (
         <ModalContext.Provider value={{ setModalContent, closeModal }}>

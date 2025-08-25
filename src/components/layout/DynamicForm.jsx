@@ -18,8 +18,11 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
             if (itemData[key] !== undefined) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
-                } else if (config[key].type === "date") {
-                    defaults[key] = itemData[key].replace(".", "-").split(" ")[0];
+                } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
+                    const date = new Date(itemData[key]); // UTC date
+                    const pad = (n) => n.toString().padStart(2, "0");
+                    const localDateTime = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                    defaults[key] = localDateTime;
                 } else {
                     defaults[key] = itemData[key];
                 }
@@ -86,6 +89,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    console.log("perms from dynmc form:", permissions);
 
     const {
         register,
@@ -110,6 +115,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     function onOptionChange(fieldName) {
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
+        if (!origin_select) return;
         const origin_val = origin_select.value;
 
         // If empty string (reset trigger)
@@ -152,13 +158,14 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                 const dependentLabel = config[dependentField]?.label || dependentField;
                 const rawOptions = preloadData[dependentLabel] || {};
+                console.log("raw options for", dependentField, rawOptions);
                 const filtered = Object.fromEntries(
                     Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
                 );
                 setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
-                const firstOptionId = Object.keys(filtered)[0];
-                if (firstOptionId)
-                    setValue(dependentField, Number(firstOptionId));
+                // const firstOptionId = Object.keys(filtered)[0];
+                // if (firstOptionId)
+                //     setValue(dependentField, Number(firstOptionId));
                 if (DEPENDANT_FIELDS.desc[dependentField])
                     desc(dependentField);
             });
@@ -178,115 +185,144 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         }
     }, []);
 
+    const disabled_fields = ["Департамент", "Отдел", "Наименование заявки"];
+    const uneditable_fields = [];
+
+    const form_content = 
+            Object.entries(config).map(([fieldName, field]) => {
+            let hide = false;
+            // don't show these fields for admins (who can create orders)
+            if ((field.label === "Исполнитель" || field.label === "Срок") && permissions.includes("orders:create")) {
+                return;
+            }
+            // users cant edit these fields
+            if ((!permissions.includes("orders:create")) && disabled_fields.includes(field.label)) {
+                hide = true;
+                if (!itemData) return;
+                let value = itemData[fieldName];
+                if (fieldName.endsWith("_id"))
+                    value = preloadData?.[field.label]?.[value]?.name || value;
+                if (value) {
+                    const uneditable_field = 
+                        <div style={{width: "100%"}}>
+                            <p>{field.label}: {value}</p>
+                        </div>;
+                    uneditable_fields.push(uneditable_field);
+                }
+            }
+
+            let preload_title = field.label || fieldName;
+            if (preload_title === "Исполнитель" || preload_title === "Заявитель")
+                preload_title = "Пользователь";
+            const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+
+            if (field.type === "select") {
+                return (
+                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                        <label>{field.label}</label>
+                        <select
+                            {...register(fieldName, getValidationRules(field))}
+                            onChange={(e) => {onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true });}}
+                        >
+                            <option value="">
+                                Выберите {field.label.toLowerCase()}
+                            </option>
+                            {Object.entries(preloadOptions).map(([id, name]) => (
+                                <option key={id} value={id}>
+                                    {name["name"]}
+                                </option>
+                            ))}
+                        </select>
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            }
+
+            if (field.type === "multiselect") {
+                const options = preloadData?.[field.label] || {};
+                return (
+                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                        <label>{field.label}</label>
+                        <div className="checkbox-container">
+                            {Object.entries(options).map(([val, label]) => (
+                                <label key={val} className="checkbox-item">
+                                    <input
+                                        type="checkbox"
+                                        value={val}
+                                        {...register(fieldName, getValidationRules(field))}
+                                        defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
+                                    />
+                                    <span>{label["name"]}</span>
+                                </label>
+                            ))}
+                        </div>
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            }
+
+            if (field.type === "file" || field.type === "file_list") {
+                return (
+                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                        <label>{field.label}</label>
+                        <input
+                            type="file"
+                            {...register(fieldName, getValidationRules(field))}
+                            multiple={field.type === "file_list"}
+                        />
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            }
+
+            return (
+                <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                    <label>{field.label}</label>
+                    {field.type === "textarea" ? (
+                        <textarea
+                            {...register(fieldName, getValidationRules(field))}
+                            rows={4}
+                        />
+                    ) : (
+                        <input
+                            type={field.type || "text"}
+                            {...register(fieldName, getValidationRules(field))}
+                            onChange={(fieldName === "email" || null) && onEmailChange}
+                            disabled={fieldName === "login"}
+                        />
+                    )}
+                    {errors[fieldName] && (
+                        <p>{errors[fieldName].message}</p>
+                    )}
+                </div>
+            );
+        })
+
+    const form_element = 
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
+            {uneditable_fields}
+            {form_content}
+            <div className="modal-buttons">
+                <button id="confirmBtn" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Загрузка..." : "Сохранить"}
+                </button>
+                <button id="cancelBtn" onClick={onClose}>Отмена</button>
+            </div>
+        </form>;
 
     return (
         <div className="form-container">
             <div>
 
                 <p>{itemData ? "Редактирование" : "Создание"}</p>
+                {form_element}
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
-                    {Object.entries(config).map(([fieldName, field]) => {
-                        let preload_title = field.label || fieldName;
-                        if (preload_title === "Исполнитель" || preload_title === "Заявитель")
-                            preload_title = "Пользователь";
-                        const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
-
-                        if (field.type === "select") {
-                            return (
-                                <div key={fieldName} className="edit-form-field">
-                                    <label>{field.label}</label>
-                                    <select
-                                        {...register(fieldName, getValidationRules(field))}
-                                        onChange={(e) => {onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true });}}
-                                    >
-                                        <option value="">
-                                            Выберите {field.label.toLowerCase()}
-                                        </option>
-                                        {Object.entries(preloadOptions).map(([id, name]) => (
-                                            <option key={id} value={id}>
-                                                {name["name"]}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors[fieldName] && (
-                                        <p>{errors[fieldName].message}</p>
-                                    )}
-                                </div>
-                            );
-                        }
-
-                        if (field.type === "multiselect") {
-                            const options = preloadData?.[field.label] || {};
-                            return (
-                                <div key={fieldName} className="edit-form-field">
-                                    <label>{field.label}</label>
-                                    <div className="checkbox-container">
-                                        {Object.entries(options).map(([val, label]) => (
-                                            <label key={val} className="checkbox-item">
-                                                <input
-                                                    type="checkbox"
-                                                    value={val}
-                                                    {...register(fieldName, getValidationRules(field))}
-                                                    defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
-                                                />
-                                                <span>{label["name"]}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                    {errors[fieldName] && (
-                                        <p>{errors[fieldName].message}</p>
-                                    )}
-                                </div>
-                            );
-                        }
-
-                        if (field.type === "file") {
-                            return (
-                                <div key={fieldName} className="edit-form-field">
-                                    <label>{field.label}</label>
-                                    <input
-                                        type="file"
-                                        {...register(fieldName, getValidationRules(field))}
-                                    />
-                                    {errors[fieldName] && (
-                                        <p>{errors[fieldName].message}</p>
-                                    )}
-                                </div>
-                            );
-                        }
-
-                        return (
-                            <div key={fieldName} className="edit-form-field">
-                                <label>{field.label}</label>
-                                {field.type === "textarea" ? (
-                                    <textarea
-                                        {...register(fieldName, getValidationRules(field))}
-                                        rows={4}
-                                    />
-                                ) : (
-                                    <input
-                                        type={field.type || "text"}
-                                        {...register(fieldName, getValidationRules(field))}
-                                        onChange={(fieldName === "email" || null) && onEmailChange}
-                                        disabled={fieldName === "login"}
-                                    />
-                                )}
-                                {errors[fieldName] && (
-                                    <p>{errors[fieldName].message}</p>
-                                )}
-                            </div>
-                        );
-                    })}
-
-                    <div className="modal-buttons">
-                        <button id="confirmBtn" type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? "Загрузка..." : "Сохранить"}
-                        </button>
-                        <button id="cancelBtn" onClick={onClose}>Отмена</button>
-                    </div>
-
-                </form>
             </div>
 
             {show_history && itemData && <OrderHistory orderId={itemData.id} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}

@@ -23,7 +23,7 @@ export const TABLE_PAGES_CONFIG = {
       "Статус": "status_id",
       "Приоритет": "priority_id",
       "Наименование заявки": "name",
-      "Заявитель": "user_id",
+      "Заявитель": null,
       "Дата создания": "created_at",
       "Исполнитель": null,
       "Срок": "duration"
@@ -32,10 +32,11 @@ export const TABLE_PAGES_CONFIG = {
       {id: "status_id", label: "Статус"},
       {id: "priority_id", label: "Приоритет"},
       {id: "user_id", label: "Заявитель"},
+      {id: "executor_id", label: "Исполнитель"},
       {id: "department_id", label: "Департамент"},
       {id: "otdel_id", label: "Отдел"},
       {id: "branch_id", label: "Филиал"},
-      {id: "office_id", label: "Офис ЦБО"}      
+      {id: "office_id", label: "Офис ЦБО"}
     ]
   },
   user: {
@@ -237,12 +238,13 @@ export const FORM_CONFIG = {
     otdel_id: { label: "Отдел", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
     priority_id: { label: "Приоритет", type: "select", required: true },
-    duration: { label: "Срок", type: "text", required: true },
+    duration: { label: "Срок", type: "datetime-local", required: true },
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: true },
     equipment_id: { label: "Оборудование", type: "select", required: true },
     executor_id: { label: "Исполнитель", type: "select", required: true },
     address: { label: "Адрес", type: "text", required: false },
+    file: { label: "Вложение", type: "file_list", required: false },
     comment: { label: "Комментарий", type: "textarea", required: false },
   },
   order: {
@@ -251,12 +253,13 @@ export const FORM_CONFIG = {
     otdel_id: { label: "Отдел", type: "select", required: false },
     status_id: { label: "Статус", type: "select", required: true },
     priority_id: { label: "Приоритет", type: "select", required: false },
-    duration: { label: "Срок", type: "text", required: false },
+    duration: { label: "Срок", type: "datetime-local", required: false },
     branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     equipment_id: { label: "Оборудование", type: "select", required: false },
     executor_id: { label: "Исполнитель", type: "select", required: false },
     address: { label: "Адрес", type: "text", required: true, min: 5 },
+    file: { label: "Вложение", type: "file_list", required: false },
     comment: { label: "Комментарий", type: "textarea", required: false, min: 3 },
   },
   user: {
@@ -335,7 +338,7 @@ export const FORM_CONFIG = {
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id"],
+    department_id: ["otdel_id", "executor_id"],
     branch_id: ["office_id"],
     office_id: ["equipment_id"],
     equipment_type: ["equipment_id"]
