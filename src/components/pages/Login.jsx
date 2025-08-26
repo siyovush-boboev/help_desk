@@ -93,7 +93,8 @@ const Login = () => {
                     Запомнить меня
                 </CheckBox>
 
-                <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div>
+                {/* <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div> */}
+                <div><a href="#" className="auth-page-link">Забыли пароль?</a></div>
 
                 <button
                     type="submit"

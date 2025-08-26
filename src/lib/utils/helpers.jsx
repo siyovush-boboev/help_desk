@@ -140,14 +140,15 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 
 
 export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey) {
-    let files_to_upload = {};
-    
+    if (has_file_field)
+        new_data["_files"] = {};
+
     // Convert fields properly
     Object.entries(new_data).forEach(([key, val]) => {
         // check if the value is a file
         if (val instanceof FileList) {
             if (val.length > 0)
-                files_to_upload[key] = val;
+                new_data["_files"][key] = val;
             delete new_data[key];
         } 
         else if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0)) {
@@ -178,25 +179,22 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             new_data[key] = formatted;
         }
     });
-    if (Object.keys(files_to_upload).length > 0) {
-        files_to_upload.data = { ...new_data };
-        new_data = files_to_upload;
-    }
 
     try {
         if (!itemData) {
             // CREATE NEW
             // check if we have files
-            if (has_file_field || Object.keys(files_to_upload).length > 0) {
-                console.log("Creating new item", files_to_upload);
-                const formData = new FormData();
+            console.log("Creating new item:", new_data);
+            if (has_file_field) {
+                const _files = {...new_data["_files"]};
+                delete new_data["_files"];
 
+                const formData = new FormData();
                 // Append JSON as string under key "data"
-                formData.append("data", JSON.stringify(files_to_upload.data));
+                formData.append("data", JSON.stringify(new_data));
 
                 // Append files
-                Object.entries(files_to_upload).forEach(([key, val]) => {
-                    if (key === "data") return; // skip the JSON object
+                Object.entries(_files).forEach(([key, val]) => {
                     if (val instanceof FileList) {
                         for (let i = 0; i < val.length; i++) {
                             formData.append(key, val[i]);
@@ -215,10 +213,11 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             console.log("Created successfully");
         } else {
             // EDIT EXISTING
-            new_data.id = itemData.id; // Keep id just in case
+            new_data.id = itemData.id;  // for correct update url
 
             const changedFields = {};
-            const changedFiles = {};
+            const changedFiles = {...new_data["_files"]};
+            delete new_data["_files"];
 
             for (const key in new_data) {
                 if (key === "login") continue;
@@ -241,22 +240,17 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                         !(newVal instanceof FileList) &&
                         JSON.stringify(newVal) !== JSON.stringify(oldVal));
 
-                if (isDifferent) {
-                    if (newVal instanceof FileList && newVal.length > 0) {
-                        changedFiles[key] = newVal; // store files separately
-                    } else {
-                        changedFields[key] = newVal;
-                    }
-                }
+                if (isDifferent) changedFields[key] = newVal;
             }
 
             if (Object.keys(changedFields).length > 0 || Object.keys(changedFiles).length > 0) {
                 console.log("Editing existing item with changed fields:", changedFields);
+                console.log("and changed files:", changedFiles);
 
                 // If we have file changes, use multipart/form-data
-                if (has_file_field || Object.keys(changedFiles).length > 0) {
+                if (has_file_field) {
                     const formData = new FormData();
-                    formData.append("data", JSON.stringify({ ...changedFields, id: new_data.id }));
+                    formData.append("data", JSON.stringify(changedFields));
 
                     Object.entries(changedFiles).forEach(([key, val]) => {
                         if (val instanceof FileList) {

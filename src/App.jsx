@@ -16,8 +16,8 @@ import Collections from "./components/pages/Collections";
 import Reports from "./components/pages/Reports";
 import Settings from "./components/pages/Settings";
 import ModalProvider from "./components/layout/ModalProvider";
-import PasswordReset from "./components/pages/PasswordReset";
-import PasswordChange from "./components/pages/PasswordChange";
+// import PasswordReset from "./components/pages/PasswordReset";
+// import PasswordChange from "./components/pages/PasswordChange";
 
 import "./index.css";
 
@@ -27,8 +27,8 @@ function AppRoutes() {
     <>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/password-reset" element={<PasswordReset />} />
-        <Route path="/password-change" element={<PasswordChange />} />
+        {/* <Route path="/password-reset" element={<PasswordReset />} /> */}
+        {/* <Route path="/password-change" element={<PasswordChange />} /> */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />}>
             <Route index element={<Navigate to="main" replace />} />

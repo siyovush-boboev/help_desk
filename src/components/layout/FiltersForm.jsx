@@ -48,7 +48,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
 
     const normalizedFilters = useMemo(() => {
         let f = [...filters];
-        if (!permissions.includes("orders:create")) {  // non-admin user
+        if (!permissions.includes("order:create")) {  // non-admin user
             const fieldsToRemove = ["department_id", "otdel_id"];
             f = f.filter(filter => !fieldsToRemove.includes(filter.id));
         }

@@ -52,35 +52,38 @@ export default function Navbar() {
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
             <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
-            <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />
 
-            {/* 📦 Collection Dropdown */}
-            <div className="navbar-link dropdown-container">
-                <div className="dropdown-toggler">
-                    <CollectionIcon />
-                    &nbsp;&nbsp;<p>Справочник ▼</p>
-                </div>
+            {(permissions.includes("user:update") || permissions.includes("superuser")) &&
+            <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />}
 
-                {COLLECTION_LINKS.map(({ label, href }) => (
-                    <NavbarLink
-                        key={label}
-                        label={label}
-                        href={href}
-                    />
-                ))}
+            {permissions.includes("superuser") && (
+                    <div className="navbar-link dropdown-container">
+                        <div className="dropdown-toggler">
+                            <CollectionIcon />
+                            &nbsp;&nbsp;<p>Справочник ▼</p>
+                        </div>
 
-                {/* Equipment sub-dropdown */}
-                {/* <div className="dropdown-container dropdown-link">
-                    <div className='dropdown-toggler'><p>Оборудования ▼</p></div>
-                    {EQUIPMENT_SUBLINKS.map(({ label, href }) => (
-                        <NavbarLink
-                            key={label}
-                            label={label}
-                            href={href}
-                        />
-                    ))}
-                </div> */}
-            </div>
+                        {COLLECTION_LINKS.map(({ label, href }) => (
+                            <NavbarLink
+                                key={label}
+                                label={label}
+                                href={href}
+                            />
+                        ))}
+
+                        {/* Equipment sub-dropdown */}
+                        {/* <div className="dropdown-container dropdown-link">
+                            <div className='dropdown-toggler'><p>Оборудования ▼</p></div>
+                            {EQUIPMENT_SUBLINKS.map(({ label, href }) => (
+                                <NavbarLink
+                                    key={label}
+                                    label={label}
+                                    href={href}
+                                />
+                            ))}
+                        </div> */}
+                    </div>
+            )}
 
             <NavbarLink {...MAIN_NAVBAR_LINKS["report"]} key="report" />
             <NavbarLink {...MAIN_NAVBAR_LINKS["setting"]} key="setting" />

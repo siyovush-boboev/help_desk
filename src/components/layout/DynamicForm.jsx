@@ -165,9 +165,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
         const desc = (fieldName) => {
             DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
-                const dependentLabel = config[dependentField]?.label || dependentField;
+                let dependentLabel = config[dependentField]?.label || dependentField;
+                if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
+                    dependentLabel = "Пользователь";
                 const rawOptions = preloadData[dependentLabel] || {};
-                console.log("raw options for", dependentField, rawOptions);
                 const filtered = Object.fromEntries(
                     Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
                 );
@@ -194,18 +195,24 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         }
     }, []);
 
-    const disabled_fields = ["Департамент", "Отдел", "Наименование заявки"];
+    let disabled_fields = [];
+    if (!permissions.includes("order:create"))
+        disabled_fields = [...disabled_fields, "Департамент", "Отдел", "Наименование заявки"];
+    if (!permissions.includes("order:delegate")){
+        const allowed_fields = ["Статус", "Вложение", "Комментарий"];
+        disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
+    }
     const uneditable_fields = [];
 
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
             let hide = false;
             // don't show these fields for admins (who can create orders)
-            if ((field.label === "Исполнитель" || field.label === "Срок") && permissions.includes("orders:create")) {
+            if ((field.label === "Исполнитель" || field.label === "Срок") && permissions.includes("order:create")) {
                 return;
             }
             // users cant edit these fields
-            if ((!permissions.includes("orders:create")) && disabled_fields.includes(field.label)) {
+            if (disabled_fields.includes(field.label)) {
                 hide = true;
                 if (!itemData) return;
                 let value = itemData[fieldName];

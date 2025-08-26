@@ -272,7 +272,7 @@ export const FORM_CONFIG = {
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
     role_id: { label: "Роль", type: "select", required: true },
-    photo: { label: "Фото", type: "file", required: false },
+    photoFile: { label: "Фото", type: "file", required: false },
     position: { label: "Должность", type: "text", required: false },
   },
   status: {
@@ -338,7 +338,7 @@ export const FORM_CONFIG = {
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id"],
+    department_id: ["otdel_id", "executor_id"],
     branch_id: ["office_id"],
     office_id: ["equipment_id"],
     equipment_type: ["equipment_id"]
