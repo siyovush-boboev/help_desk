@@ -1,4 +1,5 @@
 // import { fetcher } from "../services/api/fetcher.js";
+import { DateTime } from "luxon";
 import axios from "../contexts/axiosInstance";
 import DeleteForm from "../../components/layout/DeleteForm";
 import DynamicForm from "../../components/layout/DynamicForm";
@@ -158,19 +159,21 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         else if (Array.isArray(val) && val.length > 0 && /^-?\d+$/.test(val[0])) {
             new_data[key] = val.map(Number);
         } 
-        else if (key.includes("date") || key.includes("duration")) {
-            const date = new Date(val); // val = "YYYY-MM-DDTHH:MM" local
+        else if (val && (key.includes("date") || key.includes("duration"))) {
+            console.log("helpers val:", val);
 
-            const pad = (n) => n.toString().padStart(2, "0");
+            // parse local datetime string from input
+            let dt = DateTime.fromISO(val);
 
-            // calculate timezone offset
-            const tzOffsetMin = -date.getTimezoneOffset(); // in minutes, reversed sign
-            const sign = tzOffsetMin >= 0 ? "+" : "-";
-            const offsetHours = pad(Math.floor(Math.abs(tzOffsetMin) / 60));
-            const offsetMinutes = pad(Math.abs(tzOffsetMin) % 60);
+            console.log("helpers DateTime (local):", dt.toString());
 
-            // format YYYY-MM-DDTHH:MM:SS+HH:MM
-            const formatted = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${sign}${offsetHours}:${offsetMinutes}`;
+            // convert to Tajikistan timezone for backend
+            dt = dt.setZone("Asia/Dushanbe");
+
+            // format as YYYY-MM-DDTHH:MM:SS+05:00
+            const formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
+
+            console.log("helpers formatted:", formatted);
 
             new_data[key] = formatted;
         }

@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
@@ -19,10 +20,18 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
-                    const date = new Date(itemData[key]); // UTC date
-                    const pad = (n) => n.toString().padStart(2, "0");
-                    const localDateTime = `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-                    defaults[key] = localDateTime;
+                    console.log("dynmc form itemData[key]:", itemData[key]);
+
+                    // parse ISO string, convert to local timezone
+                    const dt = DateTime.fromISO(itemData[key]).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+                    console.log("dynmc form DateTime (local):", dt.toString());
+
+                    // format as YYYY-MM-DDTHH:MM for datetime-local input
+                    const formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm");
+
+                    console.log("dynmc form formatted:", formatted);
+                    defaults[key] = formatted;
                 } else {
                     defaults[key] = itemData[key];
                 }
