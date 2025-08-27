@@ -28,8 +28,8 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
                     console.log("dynmc form DateTime (local):", dt.toString());
 
                     // format as YYYY-MM-DDTHH:MM for datetime-local input
-                    const formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm");
-
+                    let formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm");
+                    if (!itemData[key].includes("T")) formatted = formatted.slice(0, 10);
                     console.log("dynmc form formatted:", formatted);
                     defaults[key] = formatted;
                 } else {

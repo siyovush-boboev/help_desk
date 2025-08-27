@@ -137,6 +137,7 @@ nav {
   flex-direction: column;
   padding: 4px;
   gap: 4px;
+  z-index: 10;
 }
 
 svg {
@@ -227,7 +228,6 @@ svg {
   display: flex;
   margin: 12px 0;
   flex-wrap: wrap;
-  justify-content: space-between;
 }
 
 .controls button,
@@ -337,7 +337,31 @@ button:disabled {
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: 470px;
+}
+
+/* Target the whole scrollbar */
+::-webkit-scrollbar {
+    width: 6px; /* width of vertical scrollbar */
+    height: 6px; /* height of horizontal scrollbar */
+}
+
+/* Track (background behind the thumb) */
+::-webkit-scrollbar-track {
+    background: #f0f0f0; 
+    border-radius: 6px;
+}
+
+/* Thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background: #75d0d1; 
+    border-radius: 6px;
+}
+
+/* Optional: hover effect for thumb */
+::-webkit-scrollbar-thumb:hover {
+    background: #037f8c;
 }
 
 .custom-table {
@@ -358,10 +382,13 @@ button:disabled {
   text-align: left;
 }
 
-.custom-table th {
+.custom-table >thead th {
   background-color: var(--table-header-bg);
   border-right: 1px solid var(--black);
   border-top: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;       
 }
 
 .custom-table th:first-child,
@@ -810,10 +837,10 @@ button:disabled {
   overflow: auto;
 }
 
-* {
+/* * {
   scrollbar-width: thin;
   scrollbar-color: var(--text-secondary) var(--black);
-}
+} */
 
 .order-history-wrapper>p {
   margin-bottom: 20px;
@@ -853,6 +880,10 @@ button:disabled {
     top: 0;
     left: -1000px;
     transition: left 0.3s ease;
+  }
+
+  .controls {
+    justify-content: space-between;
   }
 
   header * {

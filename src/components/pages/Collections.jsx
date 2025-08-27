@@ -27,7 +27,7 @@ export default function Collections() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
-
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -103,7 +103,7 @@ export default function Collections() {
             <ControlBar
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
-                showCreate
+                showCreate={permissions.includes(config.resource + ":create") || permissions.includes("superuser")}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
                 onFilter={onFilter}
@@ -132,6 +132,8 @@ export default function Collections() {
                 onDelete={(id) => {
                     onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey);
                 }}
+                showEdit={permissions.includes(config.resource + ":edit") || permissions.includes("superuser")}
+                showDelete={permissions.includes(config.resource + ":delete") || permissions.includes("superuser")}
             />
 
             <Pagination

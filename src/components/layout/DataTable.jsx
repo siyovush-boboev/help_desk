@@ -42,7 +42,9 @@ export default function DataTable({
     onDelete = () => { },
     onShowUser = () => { },
     main_page = false,
-    showClosed = false
+    showClosed = false,
+    showEdit=false,
+    showDelete=false,
 }) {
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
@@ -78,7 +80,7 @@ export default function DataTable({
                                 const status_id = `${item[field]}`;
                                 const status = pageData[colName]?.[status_id];
                                 if (status?.name === "Закрыто") hideRow = !showClosed;
-                                const icon = <img src={BASE_URL + status?.["icon_big"]} alt="" className="status-icon" />;
+                                const icon = <img src={BASE_URL + status?.["icon_small"]} alt="" className="status-icon" />;
                                 return <td key={i + colName}><div className="status-cell">{icon} {status?.name || ""}</div></td>;
                             }
                             else if (colName === "Иконка") {
@@ -92,14 +94,16 @@ export default function DataTable({
                                 return <td key={i + colName}>{i + 1}</td>;
                             }
                             else if (colName === "Действия") {
-                                return (
-                                    <td key={i + colName}>
-                                        <div className="table-actions">
-                                            <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button"><DeleteTableRowIcon /></button>
-                                            <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button"><EditTableRowIcon /></button>
-                                        </div>
-                                    </td>
-                                );
+                                if (showEdit || showDelete)
+                                    return (
+                                        <td key={i + colName}>
+                                            <div className="table-actions">
+                                                {showDelete && <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button"><DeleteTableRowIcon /></button>}
+                                                {showEdit && <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button"><EditTableRowIcon /></button>}
+                                            </div>
+                                        </td>
+                                    );
+                                return;
                             }
                             else if (colName === "Наименование заявки") {
                                 return (
@@ -113,12 +117,12 @@ export default function DataTable({
                             else if (colName === "Заявитель" || colName === "Исполнитель") {
                                 const user = item[colName === "Заявитель" ? "creator" : "executor"];
                                 const user_full_name = user["fio"];
-                                const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
+                                // const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
                                 const user_id = user["id"];
                                 return (
                                     <td key={i + colName}>
                                         <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
-                                            {name}
+                                            {user_full_name}
                                         </a>
                                     </td>
                                 );

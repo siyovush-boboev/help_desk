@@ -24,6 +24,8 @@ export default function Users() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -70,6 +72,13 @@ export default function Users() {
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
+    const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+    if (preload[status_field_key]) {
+        preload[status_field_key] = Object.fromEntries(
+            Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 2)
+        );
+    }
+
     return (
         <>
             <Breadcrumbs text={config.plural} />
@@ -77,7 +86,8 @@ export default function Users() {
             <ControlBar
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
-                showCreate
+                showCreate={permissions.includes("user:create") || permissions.includes("superuser")}
+                showDelete={permissions.includes("user:delete") || permissions.includes("superuser")}
                 onFilter={onFilter}
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
                 onSearch={handleSearch}
@@ -101,6 +111,8 @@ export default function Users() {
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey)}
+                showEdit={permissions.includes("user:edit") || permissions.includes("superuser")}
+                showDelete={permissions.includes("user:delete") || permissions.includes("superuser")}
             />
 
             <Pagination

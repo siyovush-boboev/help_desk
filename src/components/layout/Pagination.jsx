@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 export default function Pagination({
     totalItems,
-    pageSizeOptions = [5, 10, 15, 20, 25, 30],
+    pageSizeOptions = [5, 10, 20, 50, 100],
     limit = 10,
     currentPage = 1,
     totalPages = 1,

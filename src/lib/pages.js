@@ -43,7 +43,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Пользователь",
     plural: "Пользователи",
     resource: "user",
-    preload: ["department", "otdel", "branch", "office", "role"],
+    preload: ["department", "otdel", "branch", "office", "role", "status"],
     columns: {
       "Имя": "fio",
       "Департамент": "department_id",
@@ -274,6 +274,7 @@ export const FORM_CONFIG = {
     role_id: { label: "Роль", type: "select", required: true },
     photoFile: { label: "Фото", type: "file", required: false },
     position: { label: "Должность", type: "text", required: false },
+    status_id: { label: "Статус", type: "select", required: false },
   },
   status: {
     name: { label: "Наименование", type: "text", required: true },

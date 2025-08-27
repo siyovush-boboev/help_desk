@@ -172,8 +172,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             dt = dt.setZone("Asia/Dushanbe");
 
             // format as YYYY-MM-DDTHH:MM:SS+05:00
-            const formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
-
+            let formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
+            if (val.length === 10)
+                formatted = formatted.slice(0, 10);
             console.log("helpers formatted:", formatted);
 
             new_data[key] = formatted;

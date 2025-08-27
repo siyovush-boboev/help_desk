@@ -26,7 +26,7 @@ export default function Orders() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
-    // const permissions = JSON.parse(localStorage.getItem("permissions") || "[]");
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
 
     // if (!permissions.includes("order:create")) {
     //     FORM_CONFIG[PAGE_NAME] = Object.fromEntries(
@@ -115,6 +115,9 @@ export default function Orders() {
         preload[status_field_key] = Object.fromEntries(
             Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 1)
         );
+        if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
+            delete preload[status_field_key]["Закрыто"];
+        }
     }
 
 
@@ -124,10 +127,10 @@ export default function Orders() {
 
             <ControlBar
                 showSearch
-                showDelete
+                showDelete={permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser")}
                 showFilters={config.filters && config.filters.length > 0}
                 showShowHide
-                showCreate
+                showCreate={permissions.includes(config["resource"] + ":create") || permissions.includes("superuser")}
                 onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}
                 onFilter={onFilter}
                 onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
@@ -155,6 +158,8 @@ export default function Orders() {
                 }}
                 onShowUser={onShowUser}
                 showClosed={showClosed}
+                showEdit={permissions.includes(config["resource"] + ":edit") || permissions.includes("superuser")}
+                showDelete={permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser")}
             />
 
             <Pagination
