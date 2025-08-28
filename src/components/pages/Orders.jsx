@@ -28,13 +28,13 @@ export default function Orders() {
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
 
-    // if (!permissions.includes("order:create")) {
-    //     FORM_CONFIG[PAGE_NAME] = Object.fromEntries(
-    //         Object.entries(FORM_CONFIG[PAGE_NAME]).filter(
-    //             ([key]) => key !== "department_id" && key !== "otdel_id"
-    //         )
-    //     );
-    // }
+    if (!(permissions.includes("scope:all") || permissions.includes("superuser"))) {
+        // remove some filters from an array of banned ones
+        let bannedFilters = ["department_id", "otdel_id"];
+        if (!permissions.includes("scope:department")) bannedFilters.push("executor_id");
+
+        config.filters = config.filters.filter(filter => !bannedFilters.includes(filter.id));
+    }
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -115,11 +115,15 @@ export default function Orders() {
         preload[status_field_key] = Object.fromEntries(
             Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 1)
         );
-        if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
-            delete preload[status_field_key]["Закрыто"];
-        }
+        // if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
+        //     const closedStatusIndex = Object.keys(preload[status_field_key]).findIndex(key => preload[status_field_key][key].name === "Закрыто");
+        //     if (closedStatusIndex !== -1){
+        //         console.log("deleting ts:", preload[status_field_key][closedStatusIndex]);
+        //         delete preload[status_field_key][closedStatusIndex];
+        //     }
+        //     else console.log("aint found no shii");
+        // }
     }
-
 
     return (
         <>

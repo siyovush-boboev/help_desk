@@ -197,7 +197,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     let disabled_fields = [];
     if (!permissions.includes("order:create"))
-        disabled_fields = [...disabled_fields, "Департамент", "Отдел", "Наименование заявки"];
+        disabled_fields = [...disabled_fields, "Департамент", "Наименование заявки"];
     if (!permissions.includes("order:delegate")){
         const allowed_fields = ["Статус", "Вложение", "Комментарий"];
         disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);

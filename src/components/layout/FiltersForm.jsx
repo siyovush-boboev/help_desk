@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
-
 
 const admin_roles = [
     "admin",
@@ -27,51 +26,22 @@ const executor_roles = [
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
     const [filteredOptions, setFilteredOptions] = useState({});
-    const permissions = useMemo(
-        () => JSON.parse(localStorage.getItem("permissions")) || [],
-        []
-    );
-
-    // 🔒 freeze filters + preload into stable memos
-    const normalizedPreload = useMemo(() => {
-        const copy = structuredClone(preload); // deep copy → stable reference
-        filters.forEach(filter => {
-            if (filter.options) {
-                copy[filter.label] = filter.options.reduce((acc, item, index) => {
-                    acc[index] = item;
-                    return acc;
-                }, {});
-            }
-        });
-        return copy;
-    }, [preload, filters]);
-
-    const normalizedFilters = useMemo(() => {
-        let f = [...filters];
-        if (!permissions.includes("order:create")) {  // non-admin user
-            const fieldsToRemove = ["department_id", "otdel_id"];
-            f = f.filter(filter => !fieldsToRemove.includes(filter.id));
-        }
-        return f;
-    }, [filters, permissions]);
 
     useEffect(() => {
-        // console.log("effect running"); // debug if u want
         const newFilteredOptions = {};
 
-        normalizedFilters.forEach(filter => {
+        filters.forEach(filter => {
             const parentField = Object.entries(DEPENDANT_FIELDS.desc).find(([, children]) =>
                 children.includes(filter.id)
             )?.[0];
 
             let allOptions =
                 (filter.label === "Заявитель" || filter.label === "Исполнитель")
-                    ? normalizedPreload["Пользователь"] || {}
-                    : normalizedPreload[filter.label] || {};
+                    ? preload["Пользователь"] || {}
+                    : preload[filter.label] || {};
 
             if (filter.label === "Заявитель" || filter.label === "Исполнитель") {
-                const allUsers = normalizedPreload["Пользователь"] || {};
-                console.log("all users:", allUsers);
+                const allUsers = preload["Пользователь"] || {};
 
                 const adminIds = Object.values(allUsers)
                     .filter(u => admin_roles.includes(u.role_name?.toLowerCase()))
@@ -80,8 +50,6 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                 const executorIds = Object.values(allUsers)
                     .filter(u => executor_roles.includes(u.role_name?.toLowerCase()))
                     .map(u => u.id);
-
-                console.log(adminIds, executorIds);
 
                 const limitToAdmins = filter.label === "Заявитель";
                 allOptions = Object.fromEntries(
@@ -110,7 +78,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
         });
 
         setFilteredOptions(newFilteredOptions);
-    }, [selectedValues, normalizedFilters, normalizedPreload]);
+    }, [selectedValues, filters, preload]);
 
     const handleCheckboxChange = useCallback((filterId, val) => {
         setSelectedValues(prev => {
@@ -133,9 +101,9 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
         <div className="modal-form">
             <p>Фильтры</p>
             <div className="filters-list">
-                {normalizedFilters.map((filter, index) => {
+                {filters.map((filter, index) => {
                     const options = filteredOptions[filter.id]
-                        || normalizedPreload[filter.label.replace("Заявитель", "Пользователь").replace("Исполнитель", "Пользователь")]
+                        || preload[filter.label.replace("Заявитель", "Пользователь").replace("Исполнитель", "Пользователь")]
                         || {};
 
                     return (

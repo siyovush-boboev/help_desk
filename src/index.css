@@ -36,7 +36,8 @@ nav,
 .main-content,
 .sandwitch {
   background-color: var(--background-color);
-  font-family: Tahoma, Verdana, sans-serif;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
   font-size: 14px;
   color: var(--text-color);
 }
@@ -113,12 +114,15 @@ header {
 .user-text {
   width: 200px;
   text-align: right;
-  font-size: 12px;
   line-height: 1.1;
 }
 
+.user-text > p {
+  font-size:12px;
+}
+
 .user-text * {
-  margin: 0;
+    margin: 0;
 }
 
 .user-avatar {
@@ -284,7 +288,7 @@ button:active {
 
 button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 
 .controls button:hover,
@@ -378,7 +382,7 @@ button:disabled {
 .custom-table td {
   border: 1px solid var(--table-border);
   padding: 6px;
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
 }
 
@@ -399,8 +403,6 @@ button:disabled {
 .custom-table th,
 .custom-table td{
   border-right: none;
-  padding: 2px;
-  text-align: center;
   padding: 4px;
 }
 
@@ -449,7 +451,7 @@ button:disabled {
 
 #table-delete-button,
 #table-edit-button {
-  border: 1px solid var(--primary-color);
+  border: none;
   background-color: var(--white);
   border-radius: 4px;
   cursor: pointer;
@@ -537,7 +539,6 @@ button:disabled {
 }
 
 .user-info-main-container p:first-child {
-  font-size: 16px;
   padding-bottom: 4px;
   border-bottom: 1px solid var(--black);
 }
@@ -698,7 +699,6 @@ button:disabled {
 }
 
 .filter-field label {
-  font-size: 16px;
   margin-bottom: 12px;
 }
 
@@ -727,7 +727,6 @@ button:disabled {
   background-color: var(--white);
   border-radius: 16px;
   box-shadow: 0 0 20px var(--login-shadow);
-  font-size: 16px;
   margin: 8px;
 }
 
@@ -798,7 +797,6 @@ button:disabled {
   padding: 10px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
   width: 100%;
   margin-top: 8px;
 }
@@ -829,7 +827,6 @@ button:disabled {
 .login-error {
   color: red;
   margin-bottom: 8px;
-  font-size: 14px;
 }
 
 .order-history {
@@ -936,9 +933,9 @@ button:disabled {
     width: 100%;
   }
 
-  .user-info {
+  /* .user-info {
     font-size: 14px;
-  }
+  } */
 
   .user-full-size-pic {
     margin-top: 0;
@@ -1013,7 +1010,6 @@ button:disabled {
 .status-cell > img {
   width: 16px;
   height: 16px;
-  object-fit: cover;
 }
 
 .loader-black {
@@ -1051,7 +1047,6 @@ button:disabled {
   padding: 10px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
   margin: auto auto 0 auto;
 }
 

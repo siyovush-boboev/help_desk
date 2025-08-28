@@ -51,6 +51,7 @@ export const TABLE_PAGES_CONFIG = {
       "Роль": "role_id",
       "Телефон": "phone_number",
       "E-mail": "email",
+      "Статус": "status_id",
       "Действия": null
     },
     filters: [
@@ -340,6 +341,7 @@ export const FORM_CONFIG = {
 export const DEPENDANT_FIELDS = {
   desc: {
     department_id: ["otdel_id", "executor_id"],
+    otdel_id: ["executor_id"],
     branch_id: ["office_id"],
     office_id: ["equipment_id"],
     equipment_type: ["equipment_id"]
