@@ -36,7 +36,7 @@ export default function Main() {
     const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
     if (preload[status_field_key]) {
         preload[status_field_key] = Object.fromEntries(
-            Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 1)
+            Object.entries(preload[status_field_key]).filter(([, item]) => [1,3].includes(item.type))
         );
     }
 

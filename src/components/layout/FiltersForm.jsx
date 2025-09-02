@@ -1,27 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
-
-const admin_roles = [
-    "admin",
-    "administrator",
-    "superadmin",
-    "super admin",
-    "super-admin",
-    "админ",
-    "администратор",
-    "суперадмин",
-    "супер админ",
-    "супер-админ",
-    "суперадминистратор",
-    "супер администратор"
-];
-const executor_roles = [
-    "user",
-    "executor",
-    "исполнитель",
-    "пользователь",
-    "руководитель"
-];
+import { admin_roles, executor_roles } from "../../lib/constants";
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});

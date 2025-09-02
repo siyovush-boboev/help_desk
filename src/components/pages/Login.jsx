@@ -8,7 +8,7 @@ import { AuthContext } from "../../lib/contexts/authContext";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
 import CheckBox from "../ui/CheckBox";
-import { permissions_list } from "../../lib/constants";
+// import { permissions_list } from "../../lib/constants";
 
 
 const Login = () => {
@@ -32,12 +32,11 @@ const Login = () => {
 
         try {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
-            if (res.status === false) throw new Error("Login failed");
+            if (res.status === false)
+                throw new Error("Login failed");
+            if (res?.reset_token)
+                navigate(`/password-change?login=${encodeURIComponent(username)}&token=${encodeURIComponent(res.reset_token)}`, { replace: true });
             const data = await res.data.body;
-            if (data.permissions.includes("superuser")){
-                // add all permissions possible from permissions_list
-                data.permissions = [...permissions_list];
-            }
 
             setAccessToken(data.accessToken);
             localStorage.setItem("permissions", JSON.stringify(data.permissions));
@@ -93,8 +92,7 @@ const Login = () => {
                     Запомнить меня
                 </CheckBox>
 
-                {/* <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div> */}
-                <div><a href="#" className="auth-page-link">Забыли пароль?</a></div>
+                <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div>
 
                 <button
                     type="submit"

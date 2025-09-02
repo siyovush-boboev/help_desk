@@ -109,6 +109,14 @@ export default function Orders() {
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
+    const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+    if (preload[status_field_key]) {
+        preload[status_field_key] = Object.fromEntries(
+            Object.entries(preload[status_field_key]).filter(([, item]) => [1, 3].includes(item.type))
+        );
+    }
+
+
     return (
         <>
             <Breadcrumbs text={config.plural} />

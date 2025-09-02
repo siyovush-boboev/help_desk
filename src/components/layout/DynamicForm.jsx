@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import OrderHistory from "./OrderHistory";
+import axios from "../../lib/contexts/axiosInstance";
+import { API_BASE_URL, admin_roles } from "../../lib/constants";
 
 
 const onEmailChange = (e => {
@@ -99,9 +101,33 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [, setTriggeredFields] = useState(new Set());
     const [isSubmitting, setIsSubmitting] = useState(false);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    const [firstComment, setFirstComment] = useState(" ");
+    const [history, setHistory] = useState(["loading msg"]);
+
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
     console.log("perms from dynmc form:", permissions);
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await axios.get(
+                    `${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${itemData.id}/history`
+                );
+                const history = res.data?.body || [];
+                setHistory(history)
+                if (history.length > 0) {
+                    setFirstComment(history[0]?.comment || "");
+                }
+            } catch (err) {
+                console.error("Error loading history:", err);
+            }
+        };
+
+        if (itemData?.id) {
+            fetchHistory();
+        }
+    }, [itemData?.id]);
 
     const {
         register,
@@ -198,13 +224,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }, []);
 
     let disabled_fields = [];
-    if (!permissions.includes("order:create"))
+    if (permissions.includes("order:create") || permissions.includes("superuser")){
+        disabled_fields = [...disabled_fields, "Исполнитель", "Срок"];
+    }
+    if (!(permissions.includes("order:create") || permissions.includes("superuser"))){
         disabled_fields = [...disabled_fields, "Департамент", "Наименование заявки"];
-    if (!permissions.includes("order:delegate")){
+    }
+    if (!(permissions.includes("order:delegate") || permissions.includes("superuser"))){
         const allowed_fields = ["Статус", "Вложение", "Комментарий"];
         disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
     }
-    if ((!permissions.includes("order:reopen") || !permissions.includes("superuser")) && itemData && itemData.status_id) {
+    if (!(permissions.includes("order:reopen") || permissions.includes("superuser")) && itemData && itemData.status_id) {
         const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
         const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
         if (status_name === "Закрыто")
@@ -215,10 +245,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
             let hide = false;
-            // don't show these fields for admins (who can create orders)
-            if ((field.label === "Исполнитель" || field.label === "Срок") && permissions.includes("order:create")) {
-                return;
-            }
             // users cant edit these fields
             if (disabled_fields.includes(field.label)) {
                 hide = true;
@@ -244,32 +270,37 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 // remove unnecessary statuses
                 const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
                 if (preloadData[status_field_key]) {
-                    preloadData[status_field_key] = Object.fromEntries(
-                        Object.entries(preloadData[status_field_key]).filter(([, item]) => item.type === 1)
-                    );
                     const delete_status = (status_name, curr_status_id) => {
                         if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
-                            console.log("status name:", status_name, "curr status id:", curr_status_id);
                             const StatusIndex = Object.keys(preloadData[status_field_key]).find(key => preloadData[status_field_key][key].name === status_name);
-                            console.log("status index:", StatusIndex);
                             if (StatusIndex !== -1 && StatusIndex !== `${curr_status_id}`) {
-                                console.log("deleting:", preloadData[status_field_key][`${StatusIndex}`]);
                                 delete preloadData[status_field_key][`${StatusIndex}`];
                             }
                             else console.log("aint found no shii");
                         }
                     };
-                    if (!itemData || !permissions.includes("order:reopen")) {
-                        delete_status("Закрыто", `${itemData["status_id"]}`);
-                        delete_status("Открыто", `${itemData["status_id"]}`);
+                    if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
+                        delete_status("Закрыто", `${itemData?.["status_id"]}`);
+                        delete_status("Открыто", `${itemData?.["status_id"]}`);
                     }
+
+                    const role = localStorage.getItem("user_role").replace('"', "");
+                    let type_to_remove = admin_roles.includes(role?.toLowerCase()) ? 1 : 3; // Use optional chaining `?.` in case localStorage is empty
+                    preloadData[status_field_key] = Object.fromEntries(
+                        Object.entries(preloadData[status_field_key]).filter(([, item]) => {
+                            if (itemData?.["status_id"] === undefined) {
+                                return item.type !== type_to_remove;
+                            }
+                            return item.type !== type_to_remove || item.id === itemData?.["status_id"];
+                        })
+                    );
                 }
             }
             
             const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if (field.type === "select") {
                 return (
-                    <div key={fieldName} className="edit-form-field">
+                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
                         <label>{field.label}</label>
                         <select
                             disabled={hide}
@@ -295,7 +326,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (field.type === "multiselect") {
                 const options = preloadData?.[field.label] || {};
                 return (
-                    <div key={fieldName} className="edit-form-field">
+                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
                         <label>{field.label}</label>
                         <div className="checkbox-container">
                             {Object.entries(options).map(([val, label]) => (
@@ -320,7 +351,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "file" || field.type === "file_list") {
                 return (
-                    <div key={fieldName} className="edit-form-field">
+                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
                         <label>{field.label}</label>
                         <input
                             disabled={hide}
@@ -336,7 +367,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
 
             return (
-                <div key={fieldName} className="edit-form-field">
+                <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
                     <label>{field.label}</label>
                     {field.type === "textarea" ? (
                         <textarea
@@ -361,7 +392,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     const form_element = 
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
-            {/* {uneditable_fields} */}
             {form_content}
             <div className="modal-buttons">
                 <button id="confirmBtn" type="submit" disabled={isSubmitting}>
@@ -374,14 +404,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     return (
         <div className="form-container">
             <div>
-
                 <p>{itemData ? "Редактирование" : "Создание"}</p>
+                <div className="first-comment"><p>{firstComment}</p></div>
                 {form_element}
-
             </div>
-
-            {show_history && itemData && <OrderHistory orderId={itemData.id} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
-
+            {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
         </div>
     );
 }

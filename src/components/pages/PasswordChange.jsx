@@ -21,7 +21,7 @@ export default function PasswordChange() {
 
     const passwordRef = useRef(null);
 
-    if (!confirmation || !login) {
+    if (!(confirmation || login)) {
         navigate("/login", { replace: true });
     }
 

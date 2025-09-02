@@ -1,4 +1,4 @@
-export const BASE_URL = "https://a4f20fc120c1.ngrok-free.app";
+export const BASE_URL = "https://2cea152915e6.ngrok-free.app";
 export const API_BASE_URL = `${BASE_URL}/api`;
 
 export const CACHE_TIME_SECONDS = 30 * 1000; // 30 seconds
@@ -54,4 +54,27 @@ export const permissions_list = [
     'equipment_type:view',
     'equipment_type:update',
     'equipment_type:delete',
+];
+
+export const admin_roles = [
+    "admin",
+    "administrator",
+    "superuser",
+    "super admin",
+    "super-admin",
+    "админ",
+    "администратор",
+    "суперадмин",
+    "супер админ",
+    "супер-админ",
+    "суперадминистратор",
+    "супер администратор",
+];
+
+export const executor_roles = [
+    "user",
+    "executor",
+    "исполнитель",
+    "пользователь",
+    "руководитель"
 ];

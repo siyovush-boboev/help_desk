@@ -340,32 +340,34 @@ button:disabled {
   margin-right: 10px;
 }
 
-.table-wrapper {
-  overflow: auto;
-  max-height: 470px;
-}
-
 /* Target the whole scrollbar */
 ::-webkit-scrollbar {
-    width: 6px; /* width of vertical scrollbar */
-    height: 6px; /* height of horizontal scrollbar */
+  width: 6px; /* width of vertical scrollbar */
+  height: 6px; /* height of horizontal scrollbar */
 }
 
 /* Track (background behind the thumb) */
 ::-webkit-scrollbar-track {
     background: #f0f0f0; 
     border-radius: 6px;
-}
-
-/* Thumb (the draggable part) */
-::-webkit-scrollbar-thumb {
+  }
+  
+  /* Thumb (the draggable part) */
+  ::-webkit-scrollbar-thumb {
     background: #75d0d1; 
     border-radius: 6px;
+  }
+  
+  /* Optional: hover effect for thumb */
+::-webkit-scrollbar-thumb:hover {
+  background: #037f8c;
 }
 
-/* Optional: hover effect for thumb */
-::-webkit-scrollbar-thumb:hover {
-    background: #037f8c;
+.table-wrapper {
+  overflow: auto;
+  max-height: 470px;
+  border-bottom: 1px solid var(--table-border);
+  border-top: 1px solid var(--table-border);
 }
 
 .custom-table {
@@ -655,9 +657,6 @@ button:disabled {
   color: var(--black);
 }
 
-select, input {
-}
-
 option {
   white-space: nowrap;
   overflow: hidden;
@@ -670,10 +669,12 @@ option {
   max-width: 100%;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
-.edit-form-field:has(textarea) {
-  width: 100%;
+.first-comment {
+  display: flex;
+  justify-content: center;
 }
 
 .edit-form-field textarea {
@@ -848,10 +849,12 @@ option {
 /* * {
   scrollbar-width: thin;
   scrollbar-color: var(--text-secondary) var(--black);
-} */
-
+  } */
+  
 .order-history-wrapper>p {
   margin-bottom: 20px;
+  width: 360px;
+  max-height: 600px;
 }
 
 .history-entry {

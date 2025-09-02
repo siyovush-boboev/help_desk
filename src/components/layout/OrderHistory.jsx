@@ -1,46 +1,22 @@
-import { useEffect, useState } from "react";
-import axios from "../../lib/contexts/axiosInstance";
-import { BASE_URL, API_BASE_URL } from "../../lib/constants";
-import { TABLE_PAGES_CONFIG } from "../../lib/pages";
+import { BASE_URL } from "../../lib/constants";
 
-export default function OrderHistory({ orderId, data, status_preload }) {
-    const [history, setHistory] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [err, setErr] = useState("");
-
-    useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                const res = await axios.get(`${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${orderId}/history`);
-                setHistory(res.data?.body || []);
-            } catch (e) {
-                console.error("❌ Error loading history:", e);
-                setErr("Ошибка загрузки истории заявки");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchHistory();
-    }, [orderId]);
-
-    if (loading)
+export default function OrderHistory({ history, data, status_preload }) {
+    if (history.length === 0)
         return <div className="order-history-wrapper">
+                   <p>Жизненный цикл</p>
                    <div className="order-history">
-                       <p>Жизненный цикл</p>
+                       <p>🤷‍♂️ История пуста</p>
+                   </div>
+               </div>;
+
+    if (history[0] === "loading msg")
+        return <div className="order-history-wrapper">
+                   <p>Жизненный цикл</p>
+                   <div className="order-history">
                        <p>⏳ загрузка истории заявки...</p>
                    </div>
                </div>;
 
-    if (err) { console.error("Ошибка при загрузке истории:", err); return; }
-
-    if (history.length === 0)
-        return <div className="order-history-wrapper">
-                   <div className="order-history">
-                       <p>Жизненный цикл</p>
-                       <p>🤷‍♂️ История пуста</p>
-                   </div>
-               </div>;
 
     // prepare history entries with files
     const attachment_line_suffix = "Прикреплен файл: ";

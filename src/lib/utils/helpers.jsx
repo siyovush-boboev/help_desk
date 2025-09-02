@@ -280,9 +280,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
 }
 
 export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null) {
-    let has_file_field = false;
-    for (const key in FORM_CONFIG) { if (FORM_CONFIG[key].type.includes("file")) { has_file_field = true; break; }}
-
+    let has_file_field = Object.values(FORM_CONFIG).some(field => field.type.toLowerCase().includes("file"));
     setModalContent(
         <DynamicForm
             config={FORM_CONFIG}

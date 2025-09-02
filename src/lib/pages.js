@@ -233,21 +233,6 @@ export const TABLE_PAGES_CONFIG = {
 
 
 export const FORM_CONFIG = {
-  main: {
-    name: { label: "Наименование заявки", type: "text", required: true },
-    department_id: { label: "Департамент", type: "select", required: true },
-    otdel_id: { label: "Отдел", type: "select", required: true },
-    status_id: { label: "Статус", type: "select", required: true },
-    priority_id: { label: "Приоритет", type: "select", required: true },
-    duration: { label: "Срок", type: "datetime-local", required: true },
-    branch_id: { label: "Филиал", type: "select", required: true },
-    office_id: { label: "Офис ЦБО", type: "select", required: true },
-    equipment_id: { label: "Оборудование", type: "select", required: true },
-    executor_id: { label: "Исполнитель", type: "select", required: true },
-    address: { label: "Адрес", type: "text", required: false },
-    file: { label: "Вложение", type: "file_list", required: false },
-    comment: { label: "Комментарий", type: "textarea", required: false },
-  },
   order: {
     name: { label: "Наименование заявки", type: "text", required: true, min: 5 },
     department_id: { label: "Департамент", type: "select", required: true },
@@ -259,12 +244,12 @@ export const FORM_CONFIG = {
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     equipment_id: { label: "Оборудование", type: "select", required: false },
     executor_id: { label: "Исполнитель", type: "select", required: false },
-    address: { label: "Адрес", type: "text", required: true, min: 5 },
+    address: { label: "Адрес", type: "text", required: true, min: 5, full_row: true },
     file: { label: "Вложение", type: "file_list", required: false },
-    comment: { label: "Комментарий", type: "textarea", required: false, min: 3 },
+    comment: { label: "Комментарий", type: "textarea", required: false, min: 3, full_row: true },
   },
   user: {
-    fio: { label: "Имя", type: "text", required: true },
+    fio: { label: "Имя", type: "text", required: true, full_row: true },
     department_id: { label: "Департамент", type: "select", required: true },
     otdel_id: { label: "Отдел", type: "select", required: false },
     branch_id: { label: "Филиал", type: "select", required: true },
@@ -294,13 +279,13 @@ export const FORM_CONFIG = {
     status_id: { label: "Статус", type: "select", required: true },
   },
   otdel: {
-    name: { label: "Наименование", type: "text", required: true },
+    name: { label: "Наименование", type: "text", required: true, full_row: true },
     department_id: { label: "Департамент", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
   },
   branch: {
     name: { label: "Наименование", type: "text", required: true },
-    address: { label: "Адрес", type: "text", required: false },
+    address: { label: "Адрес", type: "text", required: false, full_row: true },
     open_date: { label: "Дата открытия", type: "date", required: false },
     email: { label: "Почтовый адрес", type: "email", required: false },
     phone_number: { label: "Телефон", type: "text", required: false },
@@ -310,10 +295,10 @@ export const FORM_CONFIG = {
   },
   office: {
     name: { label: "Наименование", type: "text", required: true },
-    address: { label: "Адрес", type: "text", required: false },
-    open_date: { label: "Дата открытия", type: "date", required: false },
     branch_id: { label: "Филиал", type: "select", required: true },
+    open_date: { label: "Дата открытия", type: "date", required: false },
     status_id: { label: "Статус", type: "select", required: true },
+    address: { label: "Адрес", type: "text", required: false, full_row: true },
   },
   role: {
     name: { label: "Наименование", type: "text", required: true },
@@ -322,21 +307,21 @@ export const FORM_CONFIG = {
   },
   permission: {
     name: { label: "Наименование", type: "text", required: true },
-    description: { label: "Описание", type: "textarea", required: false },
+    description: { label: "Описание", type: "textarea", required: false, full_row: true },
   },
   equipment_type: {
     name: { label: "Наименование", type: "text", required: true },
   },
   equipment: {
       name: { label: "Номер оборудования", type: "text", required: true },
+      address: { label: "Адрес оборудования", type: "text", required: false },
       branch_id: { label: "Филиал", type: "select", required: true },
       office_id: { label: "Офис ЦБО", type: "select", required: true },
-      address: { label: "Адрес оборудования", type: "text", required: false },
       equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
       status_id: { label: "Статус", type: "select", required: true },
   },
 };
-
+FORM_CONFIG["main"] = FORM_CONFIG["order"];
 
 export const DEPENDANT_FIELDS = {
   desc: {

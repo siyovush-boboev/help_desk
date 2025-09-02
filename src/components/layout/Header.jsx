@@ -37,7 +37,7 @@ export default function Header() {
                     role_name,
                 } = data;
 
-                localStorage.setItem("user_role", JSON.stringify(role_name));
+                localStorage.setItem("user_role", JSON.stringify(role_name).replace('"', ""));
                 setUserDetails({
                     id,
                     fio,
