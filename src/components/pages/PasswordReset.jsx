@@ -2,8 +2,8 @@ import { useState } from "react";
 import AuthContainer from "../layout/AuthContainer";
 import AuthInput from "../ui/AuthInput";
 import { hide_credentials, isValidCredsInput } from "../../lib/utils/helpers";
-// import axios from "../../lib/contexts/axiosInstance";
-// import { API_BASE_URL } from "../../lib/constants";
+import axios from "../../lib/contexts/axiosInstance";
+import { API_BASE_URL } from "../../lib/constants";
 import ConfirmCode from "./ConfirmCode";
 
 
@@ -20,12 +20,16 @@ export default function PasswordReset() {
         if (validationError === "" && credentials.length > 0) {
             const method = credentials.includes('@') ? 'email' : 'phone';
             console.log("valid data:", credentials, "method:", method);
-            // TODO: Call API here
-            if (method === 'email') {
-                setNextStep("email");
+            try {
+                const res = await axios.post(`${API_BASE_URL}/auth/password/request`, { login: credentials });
+                if (res?.status) {
+                    setNextStep(method);
+                } else {
+                    setError(res?.message || "Не удалось отправить код");
+                }
             }
-            else if (method === 'phone') {
-                setNextStep("phone");
+            catch {
+                setError("Ошибка при отправке запроса. Попробуйте позже.");
             }
         }
     };

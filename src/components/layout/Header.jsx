@@ -33,10 +33,11 @@ export default function Header() {
                     department_id,
                     email,
                     phone_number,
-                    photo_url
+                    photo_url,
+                    role_name,
                 } = data;
-                setUserDetails(data);
 
+                localStorage.setItem("user_role", JSON.stringify(role_name));
                 setUserDetails({
                     id,
                     fio,

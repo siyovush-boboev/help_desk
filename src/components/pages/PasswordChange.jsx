@@ -55,10 +55,9 @@ export default function PasswordChange() {
         setLoading(true);
 
         try {
-            const res = await axios.post(`${API_BASE_URL}/auth/change-password`, {
-                login,
-                confirmation,
-                newPassword: password,
+            const res = await axios.post(`${API_BASE_URL}/auth/password/reset`, {
+                token: confirmation,
+                new_password: password,
             });
 
             if (res.status === 200) {

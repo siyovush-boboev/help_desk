@@ -52,15 +52,15 @@ export default function ConfirmCode({ login }) {
 
         setLoading(true);
         try {
-            // const res = await axios.post("/auth/confirm_code", { login, code: codeStr }, { withCredentials: true });
-            const res = { data: { status: true } };
-            if (res.data?.status) {
+            const res = await axios.post("/auth/password/verify_phone", { login, code: codeStr }, { withCredentials: true });
+            // const res = { data: { status: true } };
+            if (res?.status) {
                 navigate(`/password-change?login=${encodeURIComponent(login)}&token=${encodeURIComponent(codeStr)}`, { replace: true });
             } else {
-                setError(res.data?.message || "Ошибка подтверждения кода");
+                setError(res?.message || "Ошибка подтверждения кода");
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Ошибка сети. Попробуйте позже");
+            setError(err.response?.message || "Ошибка сети. Попробуйте позже");
         } finally {
             setLoading(false);
         }
@@ -71,15 +71,15 @@ export default function ConfirmCode({ login }) {
         setError("");
         setLoading(true);
         try {
-            const res = await axios.post("/auth/resend_code", { login }, { withCredentials: true });
-            if (res.data?.success) {
+            const res = await axios.post("/auth/password/request", { login });
+            if (res?.status) {
                 setResendTimer(60);
                 setCanResend(false);
             } else {
-                setError(res.data?.message || "Не удалось отправить код");
+                setError(res?.message || "Не удалось отправить код");
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Ошибка сети. Попробуйте позже");
+            setError(err.response?.message || "Ошибка сети. Попробуйте позже");
         } finally {
             setLoading(false);
         }

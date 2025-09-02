@@ -99,6 +99,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [, setTriggeredFields] = useState(new Set());
     const [isSubmitting, setIsSubmitting] = useState(false);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    // deep copy of preloadData
+    const preloadOG = JSON.parse(JSON.stringify(preloadData));
     console.log("perms from dynmc form:", permissions);
 
     const {
@@ -202,7 +204,13 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         const allowed_fields = ["Статус", "Вложение", "Комментарий"];
         disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
     }
-    const uneditable_fields = [];
+    if ((!permissions.includes("order:reopen") || !permissions.includes("superuser")) && itemData && itemData.status_id) {
+        const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+        const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
+        if (status_name === "Закрыто")
+            disabled_fields = Object.values(config).map(field => field.label);
+    }
+    // const uneditable_fields = [];
 
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
@@ -214,29 +222,57 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             // users cant edit these fields
             if (disabled_fields.includes(field.label)) {
                 hide = true;
-                if (!itemData) return;
-                let value = itemData[fieldName];
-                if (fieldName.endsWith("_id"))
-                    value = preloadData?.[field.label]?.[value]?.name || value;
-                if (value) {
-                    const uneditable_field = 
-                        <div style={{width: "100%"}}>
-                            <p>{field.label}: {value}</p>
-                        </div>;
-                    uneditable_fields.push(uneditable_field);
-                }
+                // if (!itemData) return;
+                // let value = itemData[fieldName];
+                // if (fieldName.endsWith("_id"))
+                //     value = preloadData?.[field.label]?.[value]?.name || value;
+                // if (value) {
+                //     const uneditable_field = 
+                //         <div style={{width: "100%"}}>
+                //             <p>{field.label}: {value}</p>
+                //         </div>;
+                //     uneditable_fields.push(uneditable_field);
+                // }
             }
 
             let preload_title = field.label || fieldName;
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
+            preloadData = {...preloadOG}
+            
+            if (field.type == "select" && fieldName === "status_id") {
+                // remove unnecessary statuses
+                const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+                if (preloadData[status_field_key]) {
+                    preloadData[status_field_key] = Object.fromEntries(
+                        Object.entries(preloadData[status_field_key]).filter(([, item]) => item.type === 1)
+                    );
+                    const delete_status = (status_name, curr_status_id) => {
+                        if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
+                            console.log("status name:", status_name, "curr status id:", curr_status_id);
+                            const StatusIndex = Object.keys(preloadData[status_field_key]).find(key => preloadData[status_field_key][key].name === status_name);
+                            console.log("status index:", StatusIndex);
+                            if (StatusIndex !== -1 && StatusIndex !== `${curr_status_id}`) {
+                                console.log("deleting:", preloadData[status_field_key][`${StatusIndex}`]);
+                                delete preloadData[status_field_key][`${StatusIndex}`];
+                            }
+                            else console.log("aint found no shii");
+                        }
+                    };
+                    if (!itemData || !permissions.includes("order:reopen")) {
+                        delete_status("Закрыто", `${itemData["status_id"]}`);
+                        delete_status("Открыто", `${itemData["status_id"]}`);
+                    }
+                }
+            }
+            
             const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
-
             if (field.type === "select") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                    <div key={fieldName} className="edit-form-field">
                         <label>{field.label}</label>
                         <select
+                            disabled={hide}
                             {...register(fieldName, getValidationRules(field))}
                             onChange={(e) => {onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true });}}
                         >
@@ -259,7 +295,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (field.type === "multiselect") {
                 const options = preloadData?.[field.label] || {};
                 return (
-                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                    <div key={fieldName} className="edit-form-field">
                         <label>{field.label}</label>
                         <div className="checkbox-container">
                             {Object.entries(options).map(([val, label]) => (
@@ -269,6 +305,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                         value={val}
                                         {...register(fieldName, getValidationRules(field))}
                                         defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
+                                        disabled={hide}
                                     />
                                     <span>{label["name"]}</span>
                                 </label>
@@ -283,9 +320,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "file" || field.type === "file_list") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                    <div key={fieldName} className="edit-form-field">
                         <label>{field.label}</label>
                         <input
+                            disabled={hide}
                             type="file"
                             {...register(fieldName, getValidationRules(field))}
                             multiple={field.type === "file_list"}
@@ -298,10 +336,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
 
             return (
-                <div key={fieldName} className="edit-form-field" style={hide ? {display: "none"} : {}}>
+                <div key={fieldName} className="edit-form-field">
                     <label>{field.label}</label>
                     {field.type === "textarea" ? (
                         <textarea
+                            disabled={hide}
                             {...register(fieldName, getValidationRules(field))}
                             rows={4}
                         />
@@ -310,7 +349,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             type={field.type || "text"}
                             {...register(fieldName, getValidationRules(field))}
                             onChange={(fieldName === "email" || null) && onEmailChange}
-                            disabled={fieldName === "login"}
+                            disabled={fieldName === "login" || hide}
                         />
                     )}
                     {errors[fieldName] && (
@@ -322,7 +361,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     const form_element = 
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
-            {uneditable_fields}
+            {/* {uneditable_fields} */}
             {form_content}
             <div className="modal-buttons">
                 <button id="confirmBtn" type="submit" disabled={isSubmitting}>

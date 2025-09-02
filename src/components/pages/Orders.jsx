@@ -109,22 +109,6 @@ export default function Orders() {
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
-    // remove unnecessary statuses
-    const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-    if (preload[status_field_key]) {
-        preload[status_field_key] = Object.fromEntries(
-            Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 1)
-        );
-        // if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
-        //     const closedStatusIndex = Object.keys(preload[status_field_key]).findIndex(key => preload[status_field_key][key].name === "Закрыто");
-        //     if (closedStatusIndex !== -1){
-        //         console.log("deleting ts:", preload[status_field_key][closedStatusIndex]);
-        //         delete preload[status_field_key][closedStatusIndex];
-        //     }
-        //     else console.log("aint found no shii");
-        // }
-    }
-
     return (
         <>
             <Breadcrumbs text={config.plural} />

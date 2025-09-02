@@ -25,61 +25,80 @@ export default function OrderHistory({ orderId, data, status_preload }) {
     }, [orderId]);
 
     if (loading)
-        return <div className="order-history">
-            <p>Жизненный цикл</p>
-            <p>⏳ загрузка истории заявки...</p>
-        </div>;
-    if (err) {
-        console.error("Ошибка при загрузке истории:", err);
-        return;
-    };
+        return <div className="order-history-wrapper">
+                   <div className="order-history">
+                       <p>Жизненный цикл</p>
+                       <p>⏳ загрузка истории заявки...</p>
+                   </div>
+               </div>;
+
+    if (err) { console.error("Ошибка при загрузке истории:", err); return; }
+
     if (history.length === 0)
-        return <div className="order-history">
-            <p>Жизненный цикл</p>
-            <p>🤷‍♂️ История пуста</p>
-        </div>;
+        return <div className="order-history-wrapper">
+                   <div className="order-history">
+                       <p>Жизненный цикл</p>
+                       <p>🤷‍♂️ История пуста</p>
+                   </div>
+               </div>;
 
     // prepare history entries with files
     const attachment_line_suffix = "Прикреплен файл: ";
     const statuses = Object.values(status_preload);
 
-    history.forEach(entry => {
-    // Default icon stays the same or empty if none
-    let newIcon = entry.icon || "";
-
-    // Update lines with links for attachments
-    entry.lines = entry.lines.map(line => {
-        if (typeof line === "string") {
-        if (line.startsWith(attachment_line_suffix)) {
-            const fileName = line.replace(attachment_line_suffix, "");
-            const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
-            return (
-            <>
-                {attachment_line_suffix}
-                <a key={fileName} href={BASE_URL + file_url} target="_blank" rel="noopener noreferrer">
-                {fileName}
-                </a>
-            </>
-            );
+    let prev_icon = "";
+    // find the icon for "Открыто" status and set it by default
+    statuses.forEach(status => {
+        if (status.name === "Открыто") {
+            prev_icon = BASE_URL + status.icon_small;
         }
-
-        // Check for status changed line and update icon here too
-        if (line.startsWith("Статус изменен на:")) {
-            const match = line.match(/«(.+?)»/);
-            if (match) {
-            const statusName = match[1].trim();
-            const statusObj = statuses.find(s => s.name === statusName);
-            if (statusObj) {
-                newIcon = statusObj.icon_big;
-            }
-            }
-        }
-        }
-        return line;
     });
+    history.forEach(entry => {
+        // Default icon stays the same or empty if none
+        let newIcon = "";
+        if (entry.comment && !entry.lines.includes(entry.comment)) {
+            entry.lines.push(entry.comment);
+        }
 
-    // After lines processed, assign new icon (or keep old if none found)
-    entry.icon = newIcon;
+        // Update lines with links for attachments
+        entry.lines = entry.lines.map(line => {
+            if (typeof line === "string") {
+                if (line.startsWith(attachment_line_suffix)) {
+                    const fileName = line.replace(attachment_line_suffix, "");
+                    const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
+                    return (
+                    <>
+                        {attachment_line_suffix}
+                        <a key={fileName} href={BASE_URL + file_url} target="_blank" rel="noopener noreferrer">
+                        {fileName}
+                        </a>
+                    </>
+                    );
+                }
+
+                // Check for status changed line and update icon here too
+                if (line.startsWith("Статус изменен на:")) {
+                    const match = line.match(/«(.+?)»/);
+                    if (match) {
+                        const statusName = match[1].trim();
+                        const statusObj = statuses.find(s => s.name === statusName);
+                        if (statusObj) {
+                            newIcon = BASE_URL + statusObj.icon_small;
+                        }
+                    }
+                }
+            }
+            return line;
+        });
+
+        // After lines processed, assign new icon (or keep old if none found)
+        if (newIcon){
+            entry.icon = newIcon;
+            prev_icon = newIcon;
+        }
+        else {
+            entry.icon = prev_icon;
+        }
     });
 
     return (
@@ -88,7 +107,7 @@ export default function OrderHistory({ orderId, data, status_preload }) {
             <div className="order-history">
                 {history.map((entry, idx) => (
                     <div key={idx} className="history-entry">
-                        <div className="entry-icon"><img src={BASE_URL + entry.icon} alt="icon" /></div>
+                        <div className="entry-icon"><img src={entry.icon || null} alt="icon" /></div>
                         <hr style={{ color: "#fff", borderStyle: "solid" }}></hr>
                         <div className="entry-info">
                             <div className="entry-meta">

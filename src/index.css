@@ -642,6 +642,7 @@ button:disabled {
   gap: 16px;
   overflow: auto;
   max-width: 750px;
+
 }
 
 #editForm input:not([type="checkbox"]),
@@ -654,11 +655,21 @@ button:disabled {
   color: var(--black);
 }
 
+select, input {
+}
+
+option {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .edit-form-field {
+  min-width: 220px;
+  width: calc(50% - 16px);
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  flex-shrink: 1;
 }
 
 .edit-form-field:has(textarea) {
@@ -846,7 +857,6 @@ button:disabled {
 .history-entry {
   margin: 12px 0;
   display: flex;
-  font-size: 10px;
   gap: 6px;
 }
 
@@ -863,8 +873,16 @@ button:disabled {
 }
 
 .entry-icon {
-  max-width: 48px;
+  max-width: 42px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-icon > img {
+  width: 24px;
+  height: 24px;
 }
 
 .entry-meta {
@@ -948,6 +966,9 @@ button:disabled {
 
   .form-container {
     flex-direction: column;
+  }
+  .edit-form-field {
+    width: 100%;
   }
 }
 
