@@ -32,16 +32,21 @@ const Login = () => {
 
         try {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
-            if (res.status === false)
-                throw new Error("Login failed");
-            if (res?.reset_token)
-                navigate(`/password-change?login=${encodeURIComponent(username)}&token=${encodeURIComponent(res.reset_token)}`, { replace: true });
             const data = await res.data.body;
 
-            setAccessToken(data.accessToken);
-            localStorage.setItem("permissions", JSON.stringify(data.permissions));
-            setAuthFailed(false);
-            navigate(next, { replace: true });
+            if (data.reset_token){
+                setErr(data.message);
+                navigate(`/password-change?login=${encodeURIComponent(username)}&token=${encodeURIComponent(data.reset_token)}`);
+            }
+            else if (res.data.status === false){
+                setErr(res.data.message || "Ошибка при входе");
+            }
+            else {
+                setAccessToken(data.accessToken);
+                localStorage.setItem("permissions", JSON.stringify(data.permissions));
+                setAuthFailed(false);
+                navigate(next);
+            }
         } catch (e) {
             setAuthFailed(true);
             passwordRef.current?.focus();

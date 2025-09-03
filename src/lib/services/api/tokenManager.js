@@ -25,6 +25,6 @@ export function clearAccessToken() {
 
 // Checks if token expiring within the next X seconds
 export function willTokenExpireSoon(thresholdMs = 5 * 1000) {
-  if (!tokenExpiry) return true;
+  if (!tokenExpiry) return false;
   return Date.now() + thresholdMs >= tokenExpiry;
 }

@@ -336,7 +336,7 @@ export function validate_confirmation(confirmation) {
     // valid token:
     // 1.   4 digit string
     // 2.   a hash string with 32 characters consisting of a-f, A-F, 0-9
-    if (/^\d{4}$/.test(confirmation) || /^[a-fA-F0-9]{32}$/.test(confirmation)) return true;
+    if (/^\d{4}$/.test(confirmation) || /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(confirmation)) return true;
     return false;
 }
 

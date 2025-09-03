@@ -22,13 +22,14 @@ export default function PasswordChange() {
     const passwordRef = useRef(null);
 
     if (!(confirmation || login)) {
-        navigate("/login", { replace: true });
+        navigate("/login");
     }
 
     if (!validate_confirmation(confirmation) || !login || isValidCredsInput(login)) {
         return (
             <AuthContainer header_text={"Смена пароля"}>
                 <p style={{ textAlign: "center" }}>Неправильный логин, токен или код подтверждения.</p>
+                <a href="/login" className="login-link">Вернуться к входу</a>
             </AuthContainer>
         );
     }
@@ -61,7 +62,7 @@ export default function PasswordChange() {
             });
 
             if (res.status === 200) {
-                navigate("/login", { replace: true });
+                navigate("/login");
             } else {
                 setErr("Ошибка при смене пароля.");
             }

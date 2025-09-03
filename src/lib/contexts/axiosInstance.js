@@ -33,14 +33,21 @@ async function refreshToken() {
 // ✅ Request Interceptor
 instance.interceptors.request.use(
   async (config) => {
-    const isLogin = config.url?.includes("/auth/login");
-    const isRefresh = config.url?.includes("/auth/refresh_token");
-
+    const exclude_paths = [
+      "login",
+      "refresh_token",
+      "password-reset",
+      "password-change",
+      "password/request",
+      "password/verify_phone",
+      "password/reset",
+    ];
     // Не трогаем запросы логина и обновления токена
-    if (isLogin || isRefresh) return config;
+    if (exclude_paths.some((path) => config.url?.includes(path))){
+      return config;
+    }
 
     let token = getAccessToken();
-
     // Обновляем токен, если скоро истечет или отсутствует
     if (willTokenExpireSoon() || !token) {
       try {

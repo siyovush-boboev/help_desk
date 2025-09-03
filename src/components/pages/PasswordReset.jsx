@@ -22,14 +22,16 @@ export default function PasswordReset() {
             console.log("valid data:", credentials, "method:", method);
             try {
                 const res = await axios.post(`${API_BASE_URL}/auth/password/request`, { login: credentials });
+                console.log(res);
                 if (res?.status) {
                     setNextStep(method);
                 } else {
-                    setError(res?.message || "Не удалось отправить код");
+                    setError(res?.data.body.message || "Не удалось отправить код");
                 }
             }
-            catch {
-                setError("Ошибка при отправке запроса. Попробуйте позже.");
+            catch (error) {
+                console.error(error);
+                setError(error?.response?.data?.message || "Ошибка при отправке запроса. Попробуйте позже.");
             }
         }
     };

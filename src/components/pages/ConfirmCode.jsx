@@ -53,14 +53,13 @@ export default function ConfirmCode({ login }) {
         setLoading(true);
         try {
             const res = await axios.post("/auth/password/verify_phone", { login, code: codeStr }, { withCredentials: true });
-            // const res = { data: { status: true } };
-            if (res?.status) {
-                navigate(`/password-change?login=${encodeURIComponent(login)}&token=${encodeURIComponent(codeStr)}`, { replace: true });
+            if (res.data?.status) {
+                navigate(`/password-change?login=${encodeURIComponent(login)}&token=${encodeURIComponent(res.data.body.verification_token)}`);
             } else {
-                setError(res?.message || "Ошибка подтверждения кода");
+                setError("Ошибка подтверждения кода");
             }
         } catch (err) {
-            setError(err.response?.message || "Ошибка сети. Попробуйте позже");
+            setError(err?.response?.data?.message || "Не удалось отправить запрос. Попробуйте позже или проверьте подключение к интернету");
         } finally {
             setLoading(false);
         }
@@ -75,11 +74,13 @@ export default function ConfirmCode({ login }) {
             if (res?.status) {
                 setResendTimer(60);
                 setCanResend(false);
+                setCode(["", "", "", ""]);
+                inputsRef.current[0].focus();
             } else {
-                setError(res?.message || "Не удалось отправить код");
+                setError(res?.response?.data?.message || "Не удалось отправить код");
             }
         } catch (err) {
-            setError(err.response?.message || "Ошибка сети. Попробуйте позже");
+            setError(err.response.data.message || "Не удалось отправить запрос. Попробуйте позже или проверьте подключение к интернету");
         } finally {
             setLoading(false);
         }
@@ -103,7 +104,7 @@ export default function ConfirmCode({ login }) {
                             onChange={(e) => handleChange(e, idx)}
                             onKeyDown={(e) => handleKeyDown(e, idx)}
                             ref={(el) => (inputsRef.current[idx] = el)}
-                            class="input-code"
+                            className="input-code"
                             autoFocus={idx === 0}
                             disabled={loading}
                         />
@@ -136,6 +137,7 @@ export default function ConfirmCode({ login }) {
                     <>Повторно можно будет отправить через {resendTimer}с</>
                 )}
             </p>
+            <a href="/login" className="login-link">Вернуться к входу</a>
         </AuthContainer>
     );
 }
