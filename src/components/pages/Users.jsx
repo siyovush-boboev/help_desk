@@ -111,7 +111,7 @@ export default function Users() {
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey)}
-                showEdit={permissions.includes("user:edit") || permissions.includes("superuser")}
+                showEdit={permissions.includes("user:update") || permissions.includes("superuser")}
                 showDelete={permissions.includes("user:delete") || permissions.includes("superuser")}
             />
 

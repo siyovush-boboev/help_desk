@@ -1,6 +1,5 @@
 import { DeleteTableRowIcon, EditTableRowIcon } from "../ui/icons.jsx";
 import { BASE_URL } from "../../lib/constants.js";
-import { DateTime } from "luxon";
 
 
 const handleSelectAll = (e) => {
@@ -130,18 +129,7 @@ export default function DataTable({
                             else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
                                 const val = item[field];
                                 if (val) {
-                                    let formatted;
-                                    // parse the ISO string in local time
-                                    const dt = DateTime.fromISO(val).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-
-                                    if (val.includes("T")) {
-                                        // datetime-local: show DD.MM.YYYY HH:MM
-                                        formatted = dt.toFormat("dd.MM.yyyy HH:mm");
-                                    } else {
-                                        // just date: show DD.MM.YYYY
-                                        formatted = dt.toFormat("dd.MM.yyyy");
-                                    }
-
+                                    let formatted = val.slice(0, val.indexOf("T") + 6).replace("T", " ").replace(/-/g, ".");
                                     return <td key={i + colName}>{formatted}</td>;
                                 }
                                 return <td key={i + colName}></td>;

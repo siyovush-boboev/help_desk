@@ -1,5 +1,3 @@
-// import { fetcher } from "../services/api/fetcher.js";
-import { DateTime } from "luxon";
 import axios from "../contexts/axiosInstance";
 import DeleteForm from "../../components/layout/DeleteForm";
 import DynamicForm from "../../components/layout/DynamicForm";
@@ -161,22 +159,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             new_data[key] = val.map(Number);
         } 
         else if (val && (key.includes("date") || key.includes("duration"))) {
-            console.log("helpers val:", val);
-
-            // parse local datetime string from input
-            let dt = DateTime.fromISO(val);
-
-            console.log("helpers DateTime (local):", dt.toString());
-
-            // convert to Tajikistan timezone for backend
-            dt = dt.setZone("Asia/Dushanbe");
-
-            // format as YYYY-MM-DDTHH:MM:SS+05:00
-            let formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
-            if (val.length === 10)
-                formatted = formatted.slice(0, 10);
-            console.log("helpers formatted:", formatted);
-
+            let formatted = val;
+            if (formatted.includes("T"))
+                formatted += ":00+05:00";
             new_data[key] = formatted;
         }
     });

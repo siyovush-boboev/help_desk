@@ -1,4 +1,3 @@
-import { DateTime } from "luxon";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
@@ -22,17 +21,7 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
-                    console.log("dynmc form itemData[key]:", itemData[key]);
-
-                    // parse ISO string, convert to local timezone
-                    const dt = DateTime.fromISO(itemData[key]).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-
-                    console.log("dynmc form DateTime (local):", dt.toString());
-
-                    // format as YYYY-MM-DDTHH:MM for datetime-local input
-                    let formatted = dt.toFormat("yyyy-MM-dd'T'HH:mm");
-                    if (!itemData[key].includes("T")) formatted = formatted.slice(0, 10);
-                    console.log("dynmc form formatted:", formatted);
+                    const formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
                     defaults[key] = formatted;
                 } else {
                     defaults[key] = itemData[key];
@@ -264,39 +253,53 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             let preload_title = field.label || fieldName;
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
-            preloadData = {...preloadOG}
-            
-            if (field.type == "select" && fieldName === "status_id") {
-                // remove unnecessary statuses
-                const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-                if (preloadData[status_field_key]) {
-                    const delete_status = (status_name, curr_status_id) => {
-                        if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
-                            const StatusIndex = Object.keys(preloadData[status_field_key]).find(key => preloadData[status_field_key][key].name === status_name);
-                            if (StatusIndex !== -1 && StatusIndex !== `${curr_status_id}`) {
-                                delete preloadData[status_field_key][`${StatusIndex}`];
-                            }
-                            else console.log("aint found no shii");
-                        }
-                    };
-                    if (!(permissions.includes("order:reopen") || permissions.includes("superuser"))) {
-                        delete_status("Закрыто", `${itemData?.["status_id"]}`);
-                        delete_status("Открыто", `${itemData?.["status_id"]}`);
-                    }
+            preloadData = {...preloadOG};
 
-                    const role = localStorage.getItem("user_role").replace('"', "");
-                    let type_to_remove = admin_roles.includes(role?.toLowerCase()) ? 1 : 3; // Use optional chaining `?.` in case localStorage is empty
-                    preloadData[status_field_key] = Object.fromEntries(
-                        Object.entries(preloadData[status_field_key]).filter(([, item]) => {
-                            if (itemData?.["status_id"] === undefined) {
-                                return item.type !== type_to_remove;
-                            }
-                            return item.type !== type_to_remove || item.id === itemData?.["status_id"];
-                        })
-                    );
+            if (field.type === "select" && fieldName === "status_id") {
+                const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+                const statuses = preloadData[status_field_key];
+                if (!statuses) return;
+
+                const role = localStorage.getItem("user_role")?.replace(/"/g, "").toLowerCase();
+                const isAdmin = admin_roles.includes(role);
+                const isSuper = role === "superuser";
+                const currStatusId = `${itemData?.["status_id"] || ""}`;
+                const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
+
+                // divide statuses into these:
+                const openStatuses = {};
+                const closedStatuses = {};
+                const type1Statuses = {};
+                const type3Statuses = {};
+                const currStatuses = {};
+                const otherStatuses = {};
+                currStatuses[currStatusId] = currStatus;
+
+                Object.entries(statuses).forEach(([id, item]) => {
+                    if (item.name === "Открыто") {
+                        openStatuses[id] = item;
+                    } else if (item.name === "Закрыто") {
+                        closedStatuses[id] = item;
+                    } else if (item.type === 1) {
+                        type1Statuses[id] = item;
+                    } else if (item.type === 3) {
+                        type3Statuses[id] = item;
+                    } else {
+                        otherStatuses[id] = item;
+                    }
+                });
+
+                preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
+                if (permissions.includes("order:reopen") || permissions.includes("order:create") || permissions.includes("superuser")) {
+                    preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
+                }
+                if (permissions.includes("order:create") || permissions.includes("superuser")) {
+                    preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
+                }
+                if (!(isAdmin || isSuper)) {
+                    preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
                 }
             }
-            
             const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if (field.type === "select") {
                 return (
