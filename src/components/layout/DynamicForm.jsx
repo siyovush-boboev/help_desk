@@ -72,6 +72,7 @@ const getValidationRules = (field) => {
     else if (field.type === "date" || field.type === "datetime-local") {
         rules.validate = {
             isValidDate: (value) => {
+                if (!value) return true; // allow empty if not required
                 const date = new Date(value);
                 return !isNaN(date.getTime()) || `Некорректная дата`;
             },
@@ -95,7 +96,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
-    console.log("perms from dynmc form:", permissions);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -273,7 +273,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const type3Statuses = {};
                 const currStatuses = {};
                 const otherStatuses = {};
-                currStatuses[currStatusId] = currStatus;
+                if ( Object.keys(currStatus).length !== 0)
+                    currStatuses[currStatusId] = currStatus;
 
                 Object.entries(statuses).forEach(([id, item]) => {
                     if (item.name === "Открыто") {

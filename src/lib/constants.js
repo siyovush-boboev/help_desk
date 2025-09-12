@@ -1,4 +1,4 @@
-export const BASE_URL = "https://2cea152915e6.ngrok-free.app";
+export const BASE_URL = "http://10.98.102.66:8080";
 export const API_BASE_URL = `${BASE_URL}/api`;
 
 export const CACHE_TIME_SECONDS = 30 * 1000; // 30 seconds

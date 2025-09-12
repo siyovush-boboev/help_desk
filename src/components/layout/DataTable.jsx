@@ -129,7 +129,10 @@ export default function DataTable({
                             else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
                                 const val = item[field];
                                 if (val) {
-                                    let formatted = val.slice(0, val.indexOf("T") + 6).replace("T", " ").replace(/-/g, ".");
+                                    let formatted = val;
+                                    if (val.includes("T"))
+                                        formatted = val.slice(0, val.indexOf("T") + 6).replace("T", " ");
+                                    formatted = formatted.replace(/-/g, ".");
                                     return <td key={i + colName}>{formatted}</td>;
                                 }
                                 return <td key={i + colName}></td>;

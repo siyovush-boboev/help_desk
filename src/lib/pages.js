@@ -82,7 +82,6 @@ export const TABLE_PAGES_CONFIG = {
     preload: [],
     columns: {
       "№": null,
-      "Иконка": "icon_small",
       "Наименование": "name",
       "Тип": "rate",
       "Действия": null
@@ -130,8 +129,6 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Адрес": "address",
       "Дата открытия": "open_date",
-      "Почтовый адресс": "email",
-      "Телефон": "phone_number",
       "Почтовый индекс": "email_index",
       "Короткое наименование": "short_name",
       "Статус": "status_id",
@@ -270,8 +267,6 @@ export const FORM_CONFIG = {
   },
   priority: {
     name: { label: "Наименование", type: "text", required: true },
-    icon_big: { label: "Иконка (большая)", type: "file", required: false },
-    icon_small: { label: "Иконка (маленькая)", type: "file", required: false },
     rate: { label: "Тип", type: "number", required: true },
   },
   department: {
@@ -287,8 +282,6 @@ export const FORM_CONFIG = {
     name: { label: "Наименование", type: "text", required: true },
     address: { label: "Адрес", type: "text", required: false, full_row: true },
     open_date: { label: "Дата открытия", type: "date", required: false },
-    email: { label: "Почтовый адрес", type: "email", required: false },
-    phone_number: { label: "Телефон", type: "text", required: false },
     email_index: { label: "Почтовый индекс", type: "text", required: false },
     short_name: { label: "Короткое наименование", type: "text", required: false },
     status_id: { label: "Статус", type: "select", required: true },
