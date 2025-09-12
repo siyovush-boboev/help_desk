@@ -348,8 +348,8 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 4px; /* vertical scrollbar width */
-  height: 4px; /* horizontal scrollbar height */
+  width: 2px; /* vertical scrollbar width */
+  height: 2px; /* horizontal scrollbar height */
 }
 
 ::-webkit-scrollbar-track {
@@ -638,7 +638,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   padding: 20px 12px;
-  gap: 16px;
+  gap: 14px;
   overflow: auto;
   max-width: 750px;
 
@@ -648,10 +648,17 @@ html {
 #editForm select,
 #editForm textarea {
   padding: 8px;
-  margin-top: 6px;
+  margin-top: 4px;
   border: 2px solid var(--input-border);
   border-radius: 4px;
   color: var(--black);
+  background-color: var(--white);
+}
+
+#editForm input:not([type="checkbox"]):disabled,
+#editForm select:disabled,
+#editForm textarea:disabled {
+  background-color: var(--input-border);
 }
 
 option {
@@ -718,9 +725,19 @@ option {
   align-items: center;
 }
 
-.checkbox-container * {
+.checkbox-item {
   margin: 4px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: calc(30% - 6px);
+  max-width: 100%;
+  flex-wrap: wrap;
 }
+/* .checkbox-container * {
+  margin: 4px;
+} */
 
 .main-login-container {
   display: flex;

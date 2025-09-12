@@ -86,7 +86,7 @@ const getValidationRules = (field) => {
 };
 
 
-export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false }) {
+export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false, page_name=null }) {
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -213,21 +213,23 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }, []);
 
     let disabled_fields = [];
-    if (permissions.includes("order:create") || permissions.includes("superuser")){
-        disabled_fields = [...disabled_fields, "Исполнитель", "Срок"];
-    }
-    if (!(permissions.includes("order:create") || permissions.includes("superuser"))){
-        disabled_fields = [...disabled_fields, "Департамент", "Наименование заявки"];
-    }
-    if (!(permissions.includes("order:delegate") || permissions.includes("superuser"))){
-        const allowed_fields = ["Статус", "Вложение", "Комментарий"];
-        disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
-    }
-    if (!(permissions.includes("order:reopen") || permissions.includes("superuser")) && itemData && itemData.status_id) {
-        const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-        const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
-        if (status_name === "Закрыто")
-            disabled_fields = Object.values(config).map(field => field.label);
+    if (page_name === "order"){
+        if ((permissions.includes("order:create") || permissions.includes("superuser")) && (!permissions.includes("order:delegate"))){
+            disabled_fields = [...disabled_fields, "Исполнитель", "Срок", "Приоритет", "Отдел"];
+        }
+        if (!(permissions.includes("order:create") || permissions.includes("superuser"))){
+            disabled_fields = [...disabled_fields, "Департамент", "Наименование заявки"];
+        }
+        if (!(permissions.includes("order:delegate") || permissions.includes("superuser"))){
+            const allowed_fields = ["Статус", "Вложение", "Комментарий"];
+            disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
+        }
+        if (!(permissions.includes("order:reopen") || permissions.includes("superuser")) && itemData && itemData.status_id) {
+            const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+            const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
+            if (status_name === "Закрыто")
+                disabled_fields = Object.values(config).map(field => field.label);
+        }
     }
     // const uneditable_fields = [];
 
@@ -316,7 +318,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </option>
                             {Object.entries(preloadOptions).map(([id, name]) => (
                                 <option key={id} value={id}>
-                                    {name["name"]}
+                                    {field.label === "Роль" ? name["description"] : name["name"]}
                                 </option>
                             ))}
                         </select>
@@ -328,29 +330,65 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
 
             if (field.type === "multiselect") {
-                const options = preloadData?.[field.label] || {};
-                return (
-                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
-                        <label>{field.label}</label>
-                        <div className="checkbox-container">
-                            {Object.entries(options).map(([val, label]) => (
-                                <label key={val} className="checkbox-item">
-                                    <input
-                                        type="checkbox"
-                                        value={val}
-                                        {...register(fieldName, getValidationRules(field))}
-                                        defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
-                                        disabled={hide}
-                                    />
-                                    <span>{label["name"]}</span>
-                                </label>
-                            ))}
+                let options = preloadData?.[field.label] || {};
+                if (field.label === "Привелигия"){
+                    const others = {}, create = {}, read = {}, update = {}, delete_ = {};
+                    Object.entries(options).forEach(([id, item]) => {
+                        if (item.name.endsWith("create")) create[id] = item;
+                        else if (item.name.endsWith("read")) read[id] = item;
+                        else if (item.name.endsWith("update")) update[id] = item;
+                        else if (item.name.endsWith("delete")) delete_[id] = item;
+                        else others[id] = item;
+                    });
+                    const ordered_options = {1: others, 2: create, 3: read, 4: update, 5: delete_};
+                    return (
+                        <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                            <label>{field.label}</label>
+                            <div className="checkbox-container">
+                                {Object.entries(ordered_options).map(([, options]) => (
+                                    Object.entries(options).map(([val, label]) => (
+                                        <label key={val} className="checkbox-item">
+                                            <input
+                                                type="checkbox"
+                                                value={val}
+                                                {...register(fieldName, getValidationRules(field))}
+                                                defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
+                                                disabled={hide}
+                                            />
+                                            <span>{label["name"]}</span>
+                                        </label>
+                                    ))
+                                ))}
+                            </div>
+                            {errors[fieldName] && (
+                                <p>{errors[fieldName].message}</p>
+                            )}
                         </div>
-                        {errors[fieldName] && (
-                            <p>{errors[fieldName].message}</p>
-                        )}
-                    </div>
-                );
+                    );
+                } else {
+                    return (
+                        <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                            <label>{field.label}</label>
+                            <div className="checkbox-container">
+                                {Object.entries(options).map(([val, label]) => (
+                                    <label key={val} className="checkbox-item">
+                                        <input
+                                            type="checkbox"
+                                            value={val}
+                                            {...register(fieldName, getValidationRules(field))}
+                                            defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
+                                            disabled={hide}
+                                        />
+                                        <span>{label["name"]}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            {errors[fieldName] && (
+                                <p>{errors[fieldName].message}</p>
+                            )}
+                        </div>
+                    );
+                }
             }
 
             if (field.type === "file" || field.type === "file_list") {

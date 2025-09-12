@@ -3,7 +3,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Главная",
     plural: "Главная",
     resource: "main",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -16,7 +16,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Заявка",
     plural: "Заявки",
     resource: "order",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -239,6 +239,7 @@ export const FORM_CONFIG = {
     duration: { label: "Срок", type: "datetime-local", required: false },
     branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
+    equipment_type_id: { label: "Тип оборудования", type: "select", required: false },
     equipment_id: { label: "Оборудование", type: "select", required: false },
     executor_id: { label: "Исполнитель", type: "select", required: false },
     address: { label: "Адрес", type: "text", required: true, min: 5, full_row: true },
@@ -296,7 +297,7 @@ export const FORM_CONFIG = {
   role: {
     name: { label: "Наименование", type: "text", required: true },
     description: { label: "Описание", type: "textarea", required: false },
-    permissions: { label: "Привелигия", type: "multiselect", required: true },
+    permissions: { label: "Привелигия", type: "multiselect", required: true, full_row: true },
   },
   permission: {
     name: { label: "Наименование", type: "text", required: true },
@@ -320,9 +321,9 @@ export const DEPENDANT_FIELDS = {
   desc: {
     department_id: ["otdel_id", "executor_id"],
     otdel_id: ["executor_id"],
-    branch_id: ["office_id"],
-    office_id: ["equipment_id"],
-    equipment_type: ["equipment_id"]
+    branch_id: ["office_id", "equipment_id"],
+    office_id: ["equipment_id", "equipment_type_id"],
+    equipment_type_id: ["equipment_id"]
   },
 };
 

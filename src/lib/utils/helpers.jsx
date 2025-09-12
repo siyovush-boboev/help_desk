@@ -264,7 +264,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     }
 }
 
-export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null) {
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null, page_name=null) {
     let has_file_field = Object.values(FORM_CONFIG).some(field => field.type.toLowerCase().includes("file"));
     setModalContent(
         <DynamicForm
@@ -274,6 +274,7 @@ export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url,
             onClose={closeModal}
             itemData={itemData}
             show_history={show_history}
+            page_name={page_name}
         />
     );
 }

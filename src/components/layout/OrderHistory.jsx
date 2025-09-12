@@ -1,21 +1,32 @@
+import React, { useEffect, useRef } from "react";
+
 import { BASE_URL } from "../../lib/constants";
 
+
 export default function OrderHistory({ history, data, status_preload }) {
+    const orderHistoryRef = useRef(null);
+
+    useEffect(() => {
+        if (orderHistoryRef.current) {
+            orderHistoryRef.current.scrollTop = orderHistoryRef.current.scrollHeight;
+        }
+    }, [history]); // Re-run this effect whenever the 'history' prop changes
+
     if (history.length === 0)
         return <div className="order-history-wrapper">
                    <p>Жизненный цикл</p>
-                   <div className="order-history">
+                   <div className="order-history" ref={orderHistoryRef}>
                        <p>🤷‍♂️ История пуста</p>
                    </div>
                </div>;
 
     if (history[0] === "loading msg")
         return <div className="order-history-wrapper">
-                   <p>Жизненный цикл</p>
-                   <div className="order-history">
-                       <p>⏳ загрузка истории заявки...</p>
-                   </div>
-               </div>;
+                    <p>Жизненный цикл</p>
+                    <div className="order-history" ref={orderHistoryRef}>
+                        <p>⏳ загрузка истории заявки...</p>
+                    </div>
+                </div>;
 
 
     // prepare history entries with files
@@ -80,7 +91,7 @@ export default function OrderHistory({ history, data, status_preload }) {
     return (
         <div className="order-history-wrapper">
             <p>Жизненный цикл</p>
-            <div className="order-history">
+            <div className="order-history" ref={orderHistoryRef}>
                 {history.map((entry, idx) => (
                     <div key={idx} className="history-entry">
                         <div className="entry-icon"><img src={entry.icon || null} alt="icon" /></div>

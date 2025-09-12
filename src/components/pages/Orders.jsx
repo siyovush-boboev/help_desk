@@ -149,7 +149,8 @@ export default function Orders() {
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
                         true,
-                        setRefreshKey
+                        setRefreshKey,
+                        PAGE_NAME,
                     )
                 }}
                 onShowUser={onShowUser}
