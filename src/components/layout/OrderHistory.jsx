@@ -28,6 +28,13 @@ export default function OrderHistory({ history, data, status_preload }) {
                     </div>
                 </div>;
 
+    if (history[0] === "error msg")
+        return <div className="order-history-wrapper">
+                    <p>Жизненный цикл</p>
+                    <div className="order-history" ref={orderHistoryRef}>
+                        <p>Ошибка загрузки истории</p>
+                    </div>
+                </div>;
 
     // prepare history entries with files
     const attachment_line_suffix = "Прикреплен файл: ";

@@ -34,7 +34,8 @@ export default function Navbar() {
         acc[key] = {
             icon: ICONS[key] || null,
             label: TABLE_PAGES_CONFIG[key]?.plural || key,
-            href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + `?${PAGINATION_URL_PARAMS}`,
+            href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + 
+                (!["report", "setting"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
         };
         return acc;
     }, {});

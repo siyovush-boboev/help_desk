@@ -37,6 +37,10 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
     const handleLogout = async () => {
         setLogoutLoading(true);
         await logout();
+        localStorage.setItem("user_id", null);
+        localStorage.setItem("user_role", null);
+        localStorage.setItem("permissions", null);
+        localStorage.setItem("user_department_id", null);
         setLogoutLoading(false);
         onClose();
         navigate("/login");
@@ -83,6 +87,9 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
         { id: "position", label: "Должность", value: userData.position },
         { id: "department", label: "Департамент", value: departmentName },
     ];
+    if (data){
+        infoBlocks.push({ id: "role", label: "Роль", value: localStorage.getItem("user_role")?.replace(/"/g, "") || "" });
+    }
 
     return (
         <div className="user-info-modal-content">

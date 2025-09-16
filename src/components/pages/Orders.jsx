@@ -29,7 +29,7 @@ export default function Orders() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
-    console.log("permissions from orders comp:", permissions);
+    // console.log("permissions from orders comp:", permissions);
 
     if (!(permissions.includes("scope:all") || permissions.includes("superuser"))) {
         // remove some filters from an array of banned ones
@@ -118,8 +118,6 @@ export default function Orders() {
             Object.entries(preload[status_field_key]).filter(([, item]) => [1, 3].includes(item.type))
         );
     }
-    // if (!showDelete) delete config.columns["CHECKMARK"];
-    // if (!(showDelete || showEdit)) delete config.columns["Действия"];
 
     return (
         <>

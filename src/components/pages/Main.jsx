@@ -19,7 +19,7 @@ export default function Main() {
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    console.log("Permissions from main comp:", permissions);
+    // console.log("Permissions from main comp:", permissions);
 
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)

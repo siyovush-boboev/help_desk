@@ -27,7 +27,7 @@ export default function Users() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
-    console.log("permissions from users comp:", permissions);
+    // console.log("permissions from users comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};

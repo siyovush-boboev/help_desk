@@ -740,7 +740,7 @@ option {
   display: flex;
   align-items: center;
   gap: 4px;
-  min-width: calc(30% - 6px);
+  min-width: calc(50% - 12px);
   max-width: 100%;
   flex-wrap: wrap;
 }

@@ -30,7 +30,7 @@ export default function Collections() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
-    console.log("permissions from collections comp:", permissions);
+    // console.log("permissions from collections comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
