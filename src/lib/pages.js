@@ -306,8 +306,8 @@ export const FORM_CONFIG = {
   },
   role: {
     name: { label: "Наименование", type: "text", required: true },
-    permissions: { label: "Привелигия", type: "multiselect", required: true, width: "100%" },
-    description: { label: "Описание", type: "textarea", required: false },
+    description: { label: "Описание", type: "textarea", required: false, width: "100%" },
+    permissions: { label: "Привелигия", type: "multiselect", required: true },
   },
   permission: {
     name: { label: "Наименование", type: "text", required: true },

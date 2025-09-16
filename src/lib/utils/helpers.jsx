@@ -264,6 +264,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     } catch (err) {
         console.error("API error:", err.message);
         // Optional: show error message to user here
+        throw err;
     }
 }
 

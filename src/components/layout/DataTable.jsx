@@ -57,6 +57,25 @@ export default function DataTable({
         "Критический": "#dc2626",
     };
 
+    const onHeaderClick = (e) => {
+        const up = "▲", down = "▼";
+        const th = e.target;
+        const colName = th.innerText;
+        if (colName.includes(up) || colName.includes(down)) {
+            const isAsc = colName.includes(up);
+            th.innerText = colName.slice(0, colName.length - 1) + (isAsc ? down : up);
+        } else {
+            // clean up other headers
+            const all_th = th.parentElement.querySelectorAll("th");
+            all_th.forEach(t => {
+                if (t !== th) {
+                    t.innerText = t.innerText.replace(up, "").replace(down, "");
+                }
+            });
+            th.innerText = colName + up;
+        }
+    };
+
     return (
         <div className="table-wrapper">
             <table className="custom-table">
@@ -65,9 +84,17 @@ export default function DataTable({
                     <tr>
                         {main_page && <th>-</th>}
                         {Object.keys(columns).map((col) => {
-                            if (col === "CHECKMARK" && (!showDelete)) return;
-                            if (col === "Действия" && (!showEdit && !showDelete)) return;
-                            return <th key={col}>{col === "CHECKMARK" ? <SelectAllCheckbox /> : col}</th>
+                            if (col === "CHECKMARK"){
+                                if (!showDelete) return;
+                                return <th key={col}><SelectAllCheckbox /></th>
+                            };
+                            if (col === "Действия" && !showEdit && !showDelete){
+                                return;
+                            }
+                            if (main_page){
+                                return <th key={col}>{col}</th>;
+                            }
+                            return <th key={col} onClick={onHeaderClick} style={{cursor: "pointer"}}>{col}</th>
                         })}
                     </tr>
                 </thead>

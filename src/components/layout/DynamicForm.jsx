@@ -97,9 +97,6 @@ function getDisabledFields(itemData, config, preloadData, permissions) {
     }
     else if (role === "admin" || (role === "user" && !itemData)) {
         new_disabled_fields = ["Отдел", "Приоритет"];
-        if (!itemData && role === "admin") {  // creating new order
-            new_disabled_fields = [...new_disabled_fields, "Статус"];
-        }
         if (!permissions.includes("order:delegate") || role === "user") {
             new_disabled_fields = [...new_disabled_fields, "Срок", "Исполнитель"];
         }
@@ -134,7 +131,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [firstComment, setFirstComment] = useState(" ");
     const [history, setHistory] = useState(["loading msg"]);
     const [disabled_fields, setDisabledFields] = useState([]);
-    // const [err, setErr] = useState("");
+    const [err, setErr] = useState("");
 
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
@@ -177,6 +174,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             await onSubmit(data); // call the real submit fn
         } catch (err) {
             console.error("Submit error:", err);
+            setErr(err?.response.data.message || "Ошибка при отправке формы");
         } finally {
             setIsSubmitting(false);
         }
@@ -187,7 +185,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         if (!origin_select) return;
         const origin_val = origin_select.value;
 
-        if (fieldName === "department_id" && page_name === "order") {
+        if (fieldName === "department_id" && page_name === "order" && permissions.includes("scope:department")) {
             const user_department_id = localStorage.getItem("user_department_id");
             if (origin_val === user_department_id) {
                 setDisabledFields(() => []);
@@ -513,9 +511,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     </div>
                 }
                 {form_element}
+                <div className="error-message">{err && <p>{err}</p>}</div>
             </div>
             {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
-            {/* <p className="error-message">123{err}</p> */}
         </div>
     );
 }

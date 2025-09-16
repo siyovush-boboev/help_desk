@@ -695,11 +695,17 @@ option {
   resize: vertical;
 }
 
-.edit-form-field>p {
+.edit-form-field>p,
+.error-message > p {
   color: red;
   background-color: yellow;
   padding: 4px;
   border-radius: 4px;
+}
+
+.error-message {
+  display: flex;
+  justify-content: center;
 }
 
 .form-container {
