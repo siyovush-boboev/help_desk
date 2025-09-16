@@ -34,10 +34,8 @@ export default function Header() {
                     email,
                     phone_number,
                     photo_url,
-                    role_name,
                 } = data;
 
-                localStorage.setItem("user_role", JSON.stringify(role_name).replace('"', ""));
                 setUserDetails({
                     id,
                     fio,

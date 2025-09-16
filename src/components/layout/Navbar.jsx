@@ -16,25 +16,7 @@ const PAGINATION_URL_PARAMS = "withPagination=true&page=1&limit=10";
 
 const NAVBAR_PAGES = ["main", "order", "user", "report", "setting"];
 
-const MAIN_NAVBAR_LINKS = NAVBAR_PAGES.reduce((acc, key) => {
-    acc[key] = {
-        icon: ICONS[key] || null,
-        label: TABLE_PAGES_CONFIG[key]?.plural || key,
-        href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + `?${PAGINATION_URL_PARAMS}`,
-    };
-    return acc;
-}, {});
 
-const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
-    ([key]) => !NAVBAR_PAGES.includes(key)
-);
-
-const COLLECTION_LINKS = collectionPages
-    // .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
-    .map(([, config]) => ({
-        label: config.plural,
-        href: config.resource + `?${PAGINATION_URL_PARAMS}`,
-    }));
 
 // const EQUIPMENT_SUBLINKS = ["equipment"]
 //     .filter((key) => TABLE_PAGES_CONFIG[key])
@@ -48,15 +30,52 @@ export default function Navbar() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     console.log("permission from navbar comp:", permissions);
 
+    const MAIN_NAVBAR_LINKS = NAVBAR_PAGES.reduce((acc, key) => {
+        acc[key] = {
+            icon: ICONS[key] || null,
+            label: TABLE_PAGES_CONFIG[key]?.plural || key,
+            href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + `?${PAGINATION_URL_PARAMS}`,
+        };
+        return acc;
+    }, {});
+    
+    const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
+        ([key]) => !NAVBAR_PAGES.includes(key)
+    );
+    
+    let COLLECTION_LINKS = collectionPages
+        // .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
+        .map(([, config]) => ({
+            label: config.plural,
+            href: config.resource + `?${PAGINATION_URL_PARAMS}`,
+        }));
+    // filter collection_links, check if user has permission to edit/delete/create items in that collection
+    // if not, do not show that link in the navbar
+    const filteredCollectionLinks = COLLECTION_LINKS.filter(({ label,  }) => {
+        const pageKey = Object.keys(TABLE_PAGES_CONFIG).find(
+            key => TABLE_PAGES_CONFIG[key].plural === label
+        );
+        if (!pageKey) return false;
+        const canEdit = permissions.includes(`${pageKey}:update`);
+        const canCreate = permissions.includes(`${pageKey}:create`);
+        const canDelete = permissions.includes(`${pageKey}:delete`);
+        return canEdit || canCreate || canDelete || permissions.includes("superuser");
+    });
+
+    // use filteredCollectionLinks instead of COLLECTION_LINKS
+    COLLECTION_LINKS = filteredCollectionLinks;
+    console.log("collection links in navbar:", COLLECTION_LINKS);
+
     return (
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
             <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
 
-            {(permissions.includes("user:update") || permissions.includes("superuser")) &&
+            {(permissions.includes("user:update") || permissions.includes("user:create") 
+              || permissions.includes("user:delete") || permissions.includes("superuser")) &&
             <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />}
 
-            {permissions.includes("superuser") && (
+            {COLLECTION_LINKS.length > 0 && (
                     <div className="navbar-link dropdown-container">
                         <div className="dropdown-toggler">
                             <CollectionIcon />

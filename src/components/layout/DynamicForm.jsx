@@ -4,6 +4,7 @@ import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import OrderHistory from "./OrderHistory";
 import axios from "../../lib/contexts/axiosInstance";
 import { API_BASE_URL, admin_roles } from "../../lib/constants";
+import { OrderIcon } from "../ui/icons";
 
 
 const onEmailChange = (e => {
@@ -21,7 +22,9 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
-                    const formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
+                    let formatted = itemData[key];
+                    if (itemData[key].includes("T"))
+                        formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
                     defaults[key] = formatted;
                 } else {
                     defaults[key] = itemData[key];
@@ -33,8 +36,8 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
     } else {
         if ("status_id" in config) {
             const default_status_id = Object.keys(preloadData["Статус"]).find(
-                id => preloadData["Статус"][id].name === "Активен"
-                    || preloadData["Статус"][id].name === "Открыто"
+                id => preloadData["Статус"][id].name.startsWith("Актив")
+                    || preloadData["Статус"][id].name.startsWith("Открыт")
             );
             defaults["status_id"] = default_status_id;
         }
@@ -93,6 +96,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const [firstComment, setFirstComment] = useState(" ");
     const [history, setHistory] = useState(["loading msg"]);
+    // const [err, setErr] = useState("");
 
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
@@ -113,10 +117,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
         };
 
-        if (itemData?.id) {
+        if (itemData?.id && page_name === "order") {
             fetchHistory();
         }
-    }, [itemData?.id]);
+    }, [itemData?.id, page_name]);
 
     const {
         register,
@@ -213,25 +217,32 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }, []);
 
     let disabled_fields = [];
-    if (page_name === "order"){
-        if ((permissions.includes("order:create") || permissions.includes("superuser")) && (!permissions.includes("order:delegate"))){
-            disabled_fields = [...disabled_fields, "Исполнитель", "Срок", "Приоритет", "Отдел"];
+    if (page_name === "order" || page_name === "main") {
+        const role = localStorage.getItem("user_role").replace(/"/g, "");
+        if (role === "admin"){
+            disabled_fields = ["Отдел", "Приоритет"];
+            if (!itemData){
+                disabled_fields = [...disabled_fields, "Статус"];
+            }
+            if (!permissions.includes("order:delegate")){
+                disabled_fields = [...disabled_fields, "Срок", "Исполнитель"];
+            }
         }
-        if (!(permissions.includes("order:create") || permissions.includes("superuser"))){
-            disabled_fields = [...disabled_fields, "Департамент", "Наименование заявки"];
+        else if (role === "user"){
+            disabled_fields = ["Наименование заявки", "Филиал", "Офис ЦБО", "Адрес", "Оборудование"];
         }
-        if (!(permissions.includes("order:delegate") || permissions.includes("superuser"))){
-            const allowed_fields = ["Статус", "Вложение", "Комментарий"];
+        else if (role === "executor"){
+            const allowed_fields = ["Статус", "Вложение", "Описание"];
             disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
         }
-        if (!(permissions.includes("order:reopen") || permissions.includes("superuser")) && itemData && itemData.status_id) {
+
+        if (itemData && itemData.status_id) {
             const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
             const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
             if (status_name === "Закрыто")
                 disabled_fields = Object.values(config).map(field => field.label);
         }
     }
-    // const uneditable_fields = [];
 
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
@@ -239,17 +250,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             // users cant edit these fields
             if (disabled_fields.includes(field.label)) {
                 hide = true;
-                // if (!itemData) return;
-                // let value = itemData[fieldName];
-                // if (fieldName.endsWith("_id"))
-                //     value = preloadData?.[field.label]?.[value]?.name || value;
-                // if (value) {
-                //     const uneditable_field = 
-                //         <div style={{width: "100%"}}>
-                //             <p>{field.label}: {value}</p>
-                //         </div>;
-                //     uneditable_fields.push(uneditable_field);
-                // }
             }
 
             let preload_title = field.label || fieldName;
@@ -293,7 +293,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 });
 
                 preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
-                if (permissions.includes("order:reopen") || permissions.includes("order:create") || permissions.includes("superuser")) {
+                if (permissions.includes("order:create") || permissions.includes("superuser")) {
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
                 }
                 if (permissions.includes("order:create") || permissions.includes("superuser")) {
@@ -306,7 +306,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if (field.type === "select") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                         <label>{field.label}</label>
                         <select
                             disabled={hide}
@@ -318,7 +318,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </option>
                             {Object.entries(preloadOptions).map(([id, name]) => (
                                 <option key={id} value={id}>
-                                    {field.label === "Роль" ? name["description"] : name["name"]}
+                                    {["Роль", "Привелигия"].includes(field.label) ? name["description"] : name["name"]}
                                 </option>
                             ))}
                         </select>
@@ -342,7 +342,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     });
                     const ordered_options = {1: others, 2: create, 3: read, 4: update, 5: delete_};
                     return (
-                        <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                        <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                             <label>{field.label}</label>
                             <div className="checkbox-container">
                                 {Object.entries(ordered_options).map(([, options]) => (
@@ -367,7 +367,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     );
                 } else {
                     return (
-                        <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                        <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                             <label>{field.label}</label>
                             <div className="checkbox-container">
                                 {Object.entries(options).map(([val, label]) => (
@@ -393,7 +393,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "file" || field.type === "file_list") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                         <label>{field.label}</label>
                         <input
                             disabled={hide}
@@ -409,7 +409,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
 
             return (
-                <div key={fieldName} className="edit-form-field" style={field?.full_row ? {width: "100%"} : {}}>
+                <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                     <label>{field.label}</label>
                     {field.type === "textarea" ? (
                         <textarea
@@ -446,11 +446,18 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     return (
         <div className="form-container">
             <div>
-                <p>{itemData ? "Редактирование" : "Создание"}</p>
-                <div className="first-comment"><p>{firstComment}</p></div>
+                <p><OrderIcon />{TABLE_PAGES_CONFIG[page_name]["singular"]}</p>
+                {firstComment !== " " &&
+                    <div className="first-comment">
+                        <p>Описание:</p>
+                        <p>{firstComment}</p>
+                        <hr style={{color: "white"}}></hr>
+                    </div>
+                }
                 {form_element}
             </div>
             {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
+            {/* <p className="error-message">123{err}</p> */}
         </div>
     );
 }

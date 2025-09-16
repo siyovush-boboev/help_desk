@@ -28,6 +28,9 @@ export default function Collections() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    console.log("permissions from collections comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -95,6 +98,8 @@ export default function Collections() {
             Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 2)
         );
     }
+    // if (!showDelete) delete config.columns["CHECKMARK"];
+    // if (!(showDelete || showEdit)) delete config.columns["Действия"];
 
     return (
         <>
@@ -104,11 +109,13 @@ export default function Collections() {
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate={permissions.includes(config.resource + ":create") || permissions.includes("superuser")}
+                showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 onSearch={handleSearch}
+                onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}
                 initialSearchValue={searchQuery}
                 onFilter={onFilter}
                 onCreate={() => {
-                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey);
+                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey, collectionName);
                     }
                 }
             />
@@ -126,14 +133,15 @@ export default function Collections() {
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
                         false,
-                        setRefreshKey
+                        setRefreshKey,
+                        collectionName,
                     );
                 }}
                 onDelete={(id) => {
                     onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey);
                 }}
-                showEdit={permissions.includes(config.resource + ":edit") || permissions.includes("superuser")}
-                showDelete={permissions.includes(config.resource + ":delete") || permissions.includes("superuser")}
+                showEdit={showEdit}
+                showDelete={showDelete}
             />
 
             <Pagination

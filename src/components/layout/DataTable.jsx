@@ -64,9 +64,11 @@ export default function DataTable({
                 <thead>
                     <tr>
                         {main_page && <th>-</th>}
-                        {Object.keys(columns).map((col) => (
-                            <th key={col}>{col === "CHECKMARK" ? <SelectAllCheckbox /> : col}</th>
-                        ))}
+                        {Object.keys(columns).map((col) => {
+                            if (col === "CHECKMARK" && (!showDelete)) return;
+                            if (col === "Действия" && (!showEdit && !showDelete)) return;
+                            return <th key={col}>{col === "CHECKMARK" ? <SelectAllCheckbox /> : col}</th>
+                        })}
                     </tr>
                 </thead>
 
@@ -87,6 +89,7 @@ export default function DataTable({
                                 return <td key={i + colName}><div className="status-cell">{icon}</div></td>;
                             }
                             else if (colName === "CHECKMARK") {
+                                if (!showDelete) return;
                                 return <td key={i + colName}><input type="checkbox" /></td>;
                             }
                             else if (colName === "№") {

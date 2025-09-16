@@ -7,8 +7,8 @@ import axios from "../../lib/contexts/axiosInstance";
 import { AuthContext } from "../../lib/contexts/authContext";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
-import CheckBox from "../ui/CheckBox";
-// import { permissions_list } from "../../lib/constants";
+// import CheckBox from "../ui/CheckBox";
+import { get_normalized_role_name } from "../../lib/utils/helpers";
 
 
 const Login = () => {
@@ -21,7 +21,7 @@ const Login = () => {
     const [err, setErr] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
+    // const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password, rememberMe }, { withCredentials: true });
+            const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password }, { withCredentials: true });
             const data = await res.data.body;
 
             if (data.reset_token){
@@ -43,6 +43,8 @@ const Login = () => {
             }
             else {
                 setAccessToken(data.accessToken);
+                const user_role = get_normalized_role_name(data.role_name);
+                localStorage.setItem("user_role", JSON.stringify(user_role));
                 localStorage.setItem("permissions", JSON.stringify(data.permissions));
                 setAuthFailed(false);
                 navigate(next);
@@ -93,9 +95,9 @@ const Login = () => {
 
                 <div className="login-error">{err}&nbsp;</div>
 
-                <CheckBox id="rememberMe" checked={rememberMe} onChangeFunc={setRememberMe}>
+                {/* <CheckBox id="rememberMe" checked={rememberMe} onChangeFunc={setRememberMe}>
                     Запомнить меня
-                </CheckBox>
+                </CheckBox> */}
 
                 <div><a href="/password-reset" className="auth-page-link">Забыли пароль?</a></div>
 

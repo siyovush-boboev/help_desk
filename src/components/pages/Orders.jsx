@@ -27,6 +27,9 @@ export default function Orders() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    console.log("permissions from orders comp:", permissions);
 
     if (!(permissions.includes("scope:all") || permissions.includes("superuser"))) {
         // remove some filters from an array of banned ones
@@ -115,7 +118,8 @@ export default function Orders() {
             Object.entries(preload[status_field_key]).filter(([, item]) => [1, 3].includes(item.type))
         );
     }
-
+    // if (!showDelete) delete config.columns["CHECKMARK"];
+    // if (!(showDelete || showEdit)) delete config.columns["Действия"];
 
     return (
         <>
@@ -123,13 +127,13 @@ export default function Orders() {
 
             <ControlBar
                 showSearch
-                showDelete={permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser")}
+                showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 showFilters={config.filters && config.filters.length > 0}
                 showShowHide
                 showCreate={permissions.includes(config["resource"] + ":create") || permissions.includes("superuser")}
                 onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}
                 onFilter={onFilter}
-                onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
+                onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}
                 showClosed={showClosed}
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
@@ -155,8 +159,8 @@ export default function Orders() {
                 }}
                 onShowUser={onShowUser}
                 showClosed={showClosed}
-                showEdit={permissions.includes(config["resource"] + ":edit") || permissions.includes("superuser")}
-                showDelete={permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser")}
+                showEdit={showEdit}
+                showDelete={showDelete}
             />
 
             <Pagination

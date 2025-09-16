@@ -25,7 +25,9 @@ export default function Users() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-
+    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    console.log("permissions from users comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -78,6 +80,8 @@ export default function Users() {
             Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 2)
         );
     }
+    // if (!showDelete) delete config.columns["CHECKMARK"];
+    // if (!(showDelete || showEdit)) delete config.columns["Действия"];
 
     return (
         <>
@@ -87,9 +91,9 @@ export default function Users() {
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
                 showCreate={permissions.includes("user:create") || permissions.includes("superuser")}
-                showDelete={permissions.includes("user:delete") || permissions.includes("superuser")}
+                showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 onFilter={onFilter}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey)}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
             />
@@ -107,12 +111,13 @@ export default function Users() {
                         config["resource"],
                         (data.body?.list || data.body).find((item) => item.id === id),
                         false,
-                        setRefreshKey
+                        setRefreshKey,
+                        PAGE_NAME,
                     )
                 }
                 onDelete={(id) => onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey)}
-                showEdit={permissions.includes("user:update") || permissions.includes("superuser")}
-                showDelete={permissions.includes("user:delete") || permissions.includes("superuser")}
+                showEdit={showEdit}
+                showDelete={showDelete}
             />
 
             <Pagination

@@ -19,6 +19,7 @@ export default function Main() {
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    console.log("Permissions from main comp:", permissions);
 
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
@@ -45,7 +46,7 @@ export default function Main() {
             <Breadcrumbs text={config.plural} />
             <ControlBar
                 showCreate={permissions.includes("order:create") || permissions.includes("superuser")}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey)}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey, PAGE_NAME)}
             />
             <DataTable
                 columns={config.columns}

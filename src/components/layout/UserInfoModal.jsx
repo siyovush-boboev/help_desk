@@ -109,8 +109,8 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
                     </div>
                 </div>
 
-                {logoutLoading ? <div className="loader-black" style={{margin: "auto auto 0 auto"}}></div>
-                               : <button className="btn-logout" onClick={handleLogout}>Выйти</button>}
+                {data && (logoutLoading ? <div className="loader-black" style={{margin: "auto auto 0 auto"}}></div>
+                               : <button className="btn-logout" onClick={handleLogout}>Выйти</button>)}
             </div>
         </div>
     );

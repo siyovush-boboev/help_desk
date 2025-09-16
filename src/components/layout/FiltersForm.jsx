@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
 import { admin_roles, executor_roles } from "../../lib/constants";
+import { OrderIcon } from "../ui/icons";
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
@@ -78,7 +79,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
 
     return (
         <div className="modal-form">
-            <p>Фильтры</p>
+            <p><OrderIcon />Фильтры</p>
             <div className="filters-list">
                 {filters.map((filter, index) => {
                     const options = filteredOptions[filter.id]

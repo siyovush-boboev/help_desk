@@ -164,6 +164,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 formatted += ":00+05:00";
             new_data[key] = formatted;
         }
+        else if (typeof val === "string") {
+            new_data[key] = val.trim();
+        }
     });
 
     try {
@@ -330,4 +333,19 @@ export function validate_confirmation(confirmation) {
 export const onSandwitchClick = () => {
     const nav = document.querySelector("nav");
     nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
+}
+
+export function get_normalized_role_name(role) {
+    role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
+    if (role.includes("super") || role.includes("супер"))
+        return "superuser";
+    if (role.includes("admin") || role.includes("админ"))
+        return "admin";
+    if (role.includes("user") || role.includes("пользователь") || role.includes("руководитель"))
+        return "user";
+    if (role.includes("executor") || role.includes("исполнитель"))
+        return "executor";
+    if (role.includes("view") || role.includes("ревизор"))
+        return "viewer";
+    return "unknown";
 }
