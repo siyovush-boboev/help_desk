@@ -20,6 +20,8 @@ export const TABLE_PAGES_CONFIG = {
     columns: {
       "CHECKMARK": null,
       "№": null,
+      "Оборудование": "equipment_id",
+      "Тип оборудования": "equipment_type_id",
       "Статус": "status_id",
       "Приоритет": "priority_id",
       "Наименование заявки": "name",
@@ -27,7 +29,6 @@ export const TABLE_PAGES_CONFIG = {
       "Дата создания": "created_at",
       "Исполнитель": null,
       "Срок": "duration",
-      "Оборудование": "equipment_id",
     },
     filters: [
       {id: "status_id", label: "Статус"},
@@ -249,10 +250,10 @@ export const FORM_CONFIG = {
     status_id: { label: "Статус", type: "select", required: true, width: "33%" },
     priority_id: { label: "Приоритет", type: "select", required: false, width: "33%" },
     duration: { label: "Срок", type: "datetime-local", required: false, width: "33%" },
-    equipment_type_id: { label: "Тип оборудования", type: "select", required: false },
-    equipment_id: { label: "Оборудование", type: "select", required: false },
     branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
+    equipment_type_id: { label: "Тип оборудования", type: "select", required: false },
+    equipment_id: { label: "Оборудование", type: "select", required: false },
     address: { label: "Адрес", type: "text", required: true, min: 5, width: "100%" },
     file: { label: "Вложение", type: "file_list", required: false },
   },
@@ -332,7 +333,7 @@ export const DEPENDANT_FIELDS = {
     department_id: ["otdel_id", "executor_id"],
     otdel_id: ["executor_id"],
     branch_id: ["office_id", "equipment_id"],
-    office_id: ["equipment_id", "equipment_type_id"],
+    office_id: ["equipment_id"],
     equipment_type_id: ["equipment_id"]
   },
 };

@@ -15,10 +15,11 @@ const onEmailChange = (e => {
 
 function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
     const defaults = {};
+    // console.log("itemData in getDefaultValues:", itemData);
 
     if (itemData) {
-        for (const key in config) {
-            if (itemData[key] !== undefined) {
+        for (let key in config) {
+            if (itemData[key] !== undefined || itemData[key.replace("executor_id", "executor")] !== undefined) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
@@ -26,6 +27,8 @@ function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
                     if (itemData[key].includes("T"))
                         formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
                     defaults[key] = formatted;
+                } else if (key === "executor_id"){
+                    defaults[key] = itemData[key.replace("_id", "")]?.id;
                 } else {
                     defaults[key] = itemData[key];
                 }
@@ -95,6 +98,18 @@ function getDisabledFields(itemData, config, preloadData, permissions) {
     if (role === "superuser") {
         return [];
     }
+    else if (itemData){
+        const allowed_fields = ["Статус", "Вложение", "Описание"];
+        if (Object.keys(itemData["executor"]).length === 0 || role === "user")
+            allowed_fields.push("Исполнитель");
+        if (itemData["duration"] === null)
+            allowed_fields.push("Срок");
+        if(!itemData["otdel_id"])
+            allowed_fields.push("Отдел");
+        if(!itemData["priority_id"])
+            allowed_fields.push("Приоритет");
+        new_disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
+    }
     else if (role === "admin" || (role === "user" && !itemData)) {
         new_disabled_fields = ["Отдел", "Приоритет"];
         if (!permissions.includes("order:delegate") || role === "user") {
@@ -109,10 +124,10 @@ function getDisabledFields(itemData, config, preloadData, permissions) {
             new_disabled_fields = [...new_disabled_fields, "Статус"];
         }
     }
-    else if (role === "executor") {
-        const allowed_fields = ["Статус", "Вложение", "Описание"];
-        new_disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
-    }
+    // else if (role === "executor") {
+    //     const allowed_fields = ["Статус", "Вложение", "Описание"];
+    //     new_disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
+    // }
 
     if (itemData && itemData.status_id) {
         const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
@@ -184,6 +199,16 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
         if (!origin_select) return;
         const origin_val = origin_select.value;
+
+        if (fieldName === "equipment_id" && page_name === "order") {
+            // find a field with label "Адрес" and fill it with the address of the selected equipment
+            const addressFieldName = Object.entries(config).find(([, field]) => field.label === "Адрес")?.[0];
+            if (addressFieldName) {
+                const origin_id = Number(origin_val);
+                const address = preloadData["Оборудование"]?.[origin_id]?.address || "";
+                setValue(addressFieldName, address);
+            }
+        }
 
         if (fieldName === "department_id" && page_name === "order" && permissions.includes("scope:department")) {
             const user_department_id = localStorage.getItem("user_department_id");

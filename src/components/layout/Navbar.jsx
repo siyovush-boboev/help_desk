@@ -65,7 +65,6 @@ export default function Navbar() {
 
     // use filteredCollectionLinks instead of COLLECTION_LINKS
     COLLECTION_LINKS = filteredCollectionLinks;
-    console.log("collection links in navbar:", COLLECTION_LINKS);
 
     return (
         <nav onClick={navbarClickHandler}>

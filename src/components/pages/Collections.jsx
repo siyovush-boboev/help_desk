@@ -48,6 +48,25 @@ export default function Collections() {
         setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
     };
 
+    const handleSort = (column, direction) => {
+        console.log("Sorting by:", column, direction);
+        const currentParams = Object.fromEntries(searchParams);
+
+        // Remove any keys like "sort[...]" from current params
+        const filteredParams = Object.fromEntries(
+            Object.entries(currentParams).filter(([key]) => !key.startsWith("sort["))
+        );
+
+        // Add the new sort param and other required params
+        setSearchParams({
+            ...filteredParams,
+            [`sort[${column}]`]: direction.toUpperCase(),
+            withPagination: true,
+            page: 1,
+            limit,
+        });
+    };
+
     useEffect(() => {
         if (!config) {
             setError("Такой страницы не существует");
@@ -98,8 +117,6 @@ export default function Collections() {
             Object.entries(preload[status_field_key]).filter(([, item]) => item.type === 2)
         );
     }
-    // if (!showDelete) delete config.columns["CHECKMARK"];
-    // if (!(showDelete || showEdit)) delete config.columns["Действия"];
 
     return (
         <>
@@ -140,6 +157,7 @@ export default function Collections() {
                 onDelete={(id) => {
                     onDelete(setModalContent, closeModal, id, config["resource"], setRefreshKey);
                 }}
+                onSort={handleSort}
                 showEdit={showEdit}
                 showDelete={showDelete}
             />

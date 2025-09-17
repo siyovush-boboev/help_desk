@@ -55,6 +55,25 @@ export default function Orders() {
         setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
     };
 
+    const handleSort = (column, direction) => {
+        console.log("Sorting by:", column, direction);
+        const currentParams = Object.fromEntries(searchParams);
+
+        // Remove any keys like "sort[...]" from current params
+        const filteredParams = Object.fromEntries(
+            Object.entries(currentParams).filter(([key]) => !key.startsWith("sort["))
+        );
+
+        // Add the new sort param and other required params
+        setSearchParams({
+            ...filteredParams,
+            [`sort[${column}]`]: direction.toUpperCase(),
+            withPagination: true,
+            page: 1,
+            limit,
+        });
+    };
+
     const onShowUser = (userId) => {
         setModalContent(
             <UserInfoModal
@@ -156,6 +175,7 @@ export default function Orders() {
                     )
                 }}
                 onShowUser={onShowUser}
+                onSort={handleSort}
                 showClosed={showClosed}
                 showEdit={showEdit}
                 showDelete={showDelete}

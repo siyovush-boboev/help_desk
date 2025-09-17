@@ -40,6 +40,7 @@ export default function DataTable({
     onEdit = () => { },
     onDelete = () => { },
     onShowUser = () => { },
+    onSort = () => { },
     main_page = false,
     showClosed = false,
     showEdit=false,
@@ -56,25 +57,24 @@ export default function DataTable({
         "Высокий": "#f97316",
         "Критический": "#dc2626",
     };
+    const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка"];
 
     const onHeaderClick = (e) => {
         const up = "▲", down = "▼";
         const th = e.target;
         const colName = th.innerText;
+        if (!colName || banned_cols_for_sorting.includes(colName)) return;
         if (colName.includes(up) || colName.includes(down)) {
             const isAsc = colName.includes(up);
             th.innerText = colName.slice(0, colName.length - 1) + (isAsc ? down : up);
+            onSort(columns[colName.slice(0, colName.length - 1)], isAsc ? "desc" : "asc");
         } else {
-            // clean up other headers
-            const all_th = th.parentElement.querySelectorAll("th");
-            all_th.forEach(t => {
-                if (t !== th) {
-                    t.innerText = t.innerText.replace(up, "").replace(down, "");
-                }
-            });
             th.innerText = colName + up;
+            onSort(columns[colName], "asc");
         }
     };
+    // for handling sorting arrows properly
+    const searchParams = Object.fromEntries(new URLSearchParams(window.location.search));
 
     return (
         <div className="table-wrapper">
@@ -94,7 +94,12 @@ export default function DataTable({
                             if (main_page){
                                 return <th key={col}>{col}</th>;
                             }
-                            return <th key={col} onClick={onHeaderClick} style={{cursor: "pointer"}}>{col}</th>
+                            // find the column that is currently being sorted
+                            let direction = null;
+                            if (searchParams[`sort[${columns[col]}]`]) {
+                                direction = searchParams[`sort[${columns[col]}]`];
+                            }
+                            return <th key={col} onClick={onHeaderClick} style={banned_cols_for_sorting.includes(col) ? {} : {cursor: "pointer"}}>{col}{direction && (direction === "ASC" ? "▲" : "▼")}</th>
                         })}
                     </tr>
                 </thead>
