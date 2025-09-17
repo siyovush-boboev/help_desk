@@ -227,24 +227,46 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
         }
 
+        const get_all_field_names = (fieldName, dependentField, rawOptions) => {
+            const allFieldnames = [fieldName];
+            for (const field_name in DEPENDANT_FIELDS.desc){
+                if (DEPENDANT_FIELDS.desc[field_name].includes(dependentField) && !allFieldnames.includes(field_name))
+                    allFieldnames.push(field_name);
+            }
+            const filtered = Object.fromEntries(
+                Object.entries(rawOptions).filter(([, val]) => {
+                    return allFieldnames.every(fname => {
+                        // find the select element for this fname and get its current value if its selected
+                        const selectElem = document.querySelector(`select[name="${fname}"]`);
+                        if (!selectElem) return true;
+                        const curr_val = selectElem.value;
+                        if (curr_val === "") return true; // if not selected, dont filter by this field                            
+                        return val[fname] === Number(curr_val);
+                    });
+                })
+            );
+            return filtered;
+        };
+
         // If empty string (reset trigger)
         if (origin_val === "") {
             if (DEPENDANT_FIELDS.desc[fieldName]) {
                 DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                     const dependentLabel = config[dependentField]?.label || dependentField;
                     const rawOptions = preloadData[dependentLabel] || {};
+                    const filtered = get_all_field_names(fieldName, dependentField, rawOptions);
 
-                    // restore full options
-                    setDynamicOptions(prev => ({ ...prev, [dependentField]: rawOptions }));
+                    // set filtered options
+                    setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
 
-                    // also clear value if u want
+                    // also clear value
                     setValue(dependentField, "");
 
                     // recursively reset all downstream deps too
                     if (DEPENDANT_FIELDS.desc[dependentField]) onOptionChange(dependentField);
                 });
             }
-            return; // exit early, don’t do the filtering stuff
+            return;
         }
 
         const origin_id = Number(origin_val);
@@ -269,13 +291,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
                     dependentLabel = "Пользователь";
                 const rawOptions = preloadData[dependentLabel] || {};
-                const filtered = Object.fromEntries(
-                    Object.entries(rawOptions).filter(([, val]) => val[fieldName] === origin_id)
-                );
+                const filtered = get_all_field_names(fieldName, dependentField, rawOptions);
                 setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
-                // const firstOptionId = Object.keys(filtered)[0];
-                // if (firstOptionId)
-                //     setValue(dependentField, Number(firstOptionId));
                 if (DEPENDANT_FIELDS.desc[dependentField])
                     desc(dependentField);
             });

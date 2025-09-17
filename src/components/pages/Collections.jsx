@@ -89,6 +89,13 @@ export default function Collections() {
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [collectionName, searchParams, filtersFromUrl, config, refreshKey]);
 
+    const onFilterApply = (newFilters) => {
+        const flat = {};
+        Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
+        setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
+        closeModal();
+    };
+
     const onFilter = () => {
         if (!config.filters || config.filters.length === 0) return;
         setModalContent(
@@ -96,12 +103,7 @@ export default function Collections() {
                 filters={config.filters}
                 preload={preload}
                 defaultFilters={filtersFromUrl}
-                onApply={(newFilters) => {
-                    const flat = {};
-                    Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
-                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
-                    closeModal();
-                }}
+                onApply={onFilterApply}
                 onClose={closeModal}
             />
         );
@@ -134,6 +136,10 @@ export default function Collections() {
                 onCreate={() => {
                         onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey, collectionName);
                     }
+                }
+                equipmentProps={collectionName === "equipment" && preload["Тип оборудования"]
+                     ? [preload["Тип оборудования"], filtersFromUrl, onFilterApply]
+                     : [{}, {}, () => {}]
                 }
             />
 

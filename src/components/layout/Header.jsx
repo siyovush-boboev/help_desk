@@ -92,7 +92,7 @@ export default function Header() {
                     }
                     <div className="user-avatar">
                         <img
-                            src={BASE_URL + userDetails["photo_url"] || person_svg}
+                            src={userDetails["photo_url"] ? (BASE_URL + userDetails["photo_url"]) : person_svg}
                             alt=""
                             className="user-logo"
                             style={!userDetails["photo_url"] ? { width: "30px", height: "30px" } : { width: "100%", height: "100%" }}

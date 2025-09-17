@@ -14,9 +14,11 @@ export default function ControlBar({
     onFilter,
     onCreate,
     onSearch,
+    equipmentProps = [{}, {}, () => {}],
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
+    const [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
 
     useEffect(() => {
         setSearchValue(initialSearchValue);
@@ -53,6 +55,26 @@ export default function ControlBar({
                 <button onClick={onFilter}>
                     <span><FiltersIcon /></span>&nbsp;Фильтры
                 </button>
+            )}
+
+            {Object.keys(equipmentTypes).length > 0 && (
+                <select
+                    id="equipment-type-filter"
+                    onChange={(e) => {
+                        const new_val = e.target.value;
+                        const new_filters = { ...filtersFromUrl };
+                        if (new_val) new_filters["equipment_type_id"] = [new_val];
+                        else delete new_filters["equipment_type_id"];
+                        onFilterApply(new_filters);
+                    }}
+                    defaultValue=""
+                    value={filtersFromUrl["equipment_type_id"] ? filtersFromUrl["equipment_type_id"][0] : ""}
+                >
+                    <option value="">Все типы оборудования</option>
+                    {Object.entries(equipmentTypes).map(([key, type]) => (
+                        <option key={key} value={key}>{type.name}</option>
+                    ))}
+                </select>
             )}
 
             {showShowHide && (

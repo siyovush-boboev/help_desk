@@ -254,7 +254,7 @@ export const FORM_CONFIG = {
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     equipment_type_id: { label: "Тип оборудования", type: "select", required: false },
     equipment_id: { label: "Оборудование", type: "select", required: false },
-    address: { label: "Адрес", type: "text", required: true, min: 5, width: "100%" },
+    address: { label: "Адрес", type: "text", required: false, min: 5, width: "100%" },
     file: { label: "Вложение", type: "file_list", required: false },
   },
   user: {

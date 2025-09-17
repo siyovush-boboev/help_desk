@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Inter";
+  src: url("assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --primary-color: #069EA1;
   --secondary-color: #1ad3d6;
@@ -118,11 +126,11 @@ header {
 }
 
 .user-text > p {
-  font-size:12px;
+  font-size: 12px;
 }
 
 .user-text * {
-    margin: 0;
+  margin: 2px;
 }
 
 .user-avatar {
@@ -235,7 +243,8 @@ svg {
 }
 
 .controls button,
-.controls input {
+.controls input,
+.controls select {
   background-color: var(--white);
   color: var(--black);
   border: none;
@@ -248,6 +257,10 @@ svg {
   justify-content: center;
   min-width: 140px;
   min-height: 32px;
+}
+
+#equipment-type-filter:hover {
+  cursor: pointer;
 }
 
 input[type="checkbox"] {
@@ -343,21 +356,13 @@ button:disabled {
 }
 
 html {
-  scrollbar-width: thin; /* 'auto', 'thin', 'none' */
-  scrollbar-color: #7c7c7c #555; /* Thumb color and track color */
+  scrollbar-width: thin;
+  /* scrollbar-color: ; */
 }
 
 ::-webkit-scrollbar {
-  width: 2px; /* vertical scrollbar width */
-  height: 2px; /* horizontal scrollbar height */
-}
-
-::-webkit-scrollbar-track {
-  border-radius: 4px;
-}
-
-::-moz-scrollbar-track {
-  border-radius: 4px;
+  width: 4px;
+  height: 4px;
 }
 
 .table-wrapper {
@@ -394,7 +399,6 @@ html {
 
 .custom-table >thead th {
   background-color: var(--table-header-bg);
-  border-right: 1px solid var(--black);
   border-top: none;
   position: sticky;
   top: 0;
@@ -688,6 +692,8 @@ option {
   min-width: 220px;
   width: calc(50% - 16px);
   max-width: 100%;
+  max-height: 250px;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
