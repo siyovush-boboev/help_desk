@@ -25,8 +25,8 @@ export default function Users() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
-    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    const showDelete = permissions.includes(config["resource"] + ":delete");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
     // console.log("permissions from users comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
@@ -107,7 +107,7 @@ export default function Users() {
             <ControlBar
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
-                showCreate={permissions.includes("user:create") || permissions.includes("superuser")}
+                showCreate={permissions.includes("user:create")}
                 showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 onFilter={onFilter}
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}

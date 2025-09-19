@@ -1,6 +1,6 @@
 import { DeleteTableRowIcon, EditTableRowIcon } from "../ui/icons.jsx";
 import { BASE_URL } from "../../lib/constants.js";
-
+import { priority_colors } from "../../lib/constants.js";
 
 const handleSelectAll = (e) => {
     const checkboxes = document.querySelectorAll(".custom-table tbody input[type='checkbox']");
@@ -51,12 +51,6 @@ export default function DataTable({
     if ("pagination" in data)
         data = data["list"]
 
-    const priority_colors = {
-        "Низкий": "#22c55e",
-        "Средний": "#eab308",
-        "Высокий": "#f97316",
-        "Критический": "#dc2626",
-    };
     const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка"];
 
     const onHeaderClick = (e) => {

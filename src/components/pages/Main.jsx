@@ -45,7 +45,7 @@ export default function Main() {
         <>
             <Breadcrumbs text={config.plural} />
             <ControlBar
-                showCreate={permissions.includes("order:create") || permissions.includes("superuser")}
+                showCreate={permissions.includes("order:create")}
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey, PAGE_NAME)}
             />
             <DataTable

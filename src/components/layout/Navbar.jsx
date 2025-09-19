@@ -60,7 +60,7 @@ export default function Navbar() {
         const canEdit = permissions.includes(`${pageKey}:update`);
         const canCreate = permissions.includes(`${pageKey}:create`);
         const canDelete = permissions.includes(`${pageKey}:delete`);
-        return canEdit || canCreate || canDelete || permissions.includes("superuser");
+        return canEdit || canCreate || canDelete;
     });
 
     // use filteredCollectionLinks instead of COLLECTION_LINKS
@@ -72,7 +72,7 @@ export default function Navbar() {
             <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
 
             {(permissions.includes("user:update") || permissions.includes("user:create") 
-              || permissions.includes("user:delete") || permissions.includes("superuser")) &&
+              || permissions.includes("user:delete")) &&
             <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />}
 
             {COLLECTION_LINKS.length > 0 && (

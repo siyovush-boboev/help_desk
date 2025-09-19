@@ -338,7 +338,7 @@ export const onSandwitchClick = () => {
 
 export function get_normalized_role_name(role) {
     const keywords = {
-        superuser: ["super", "супер"],
+        // superuser: ["super", "супер"],
         admin: ["admin", "админ"],
         user: ["user", "пользователь", "руководитель"],
         executor: ["executor", "исполнитель"],

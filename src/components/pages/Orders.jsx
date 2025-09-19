@@ -27,11 +27,11 @@ export default function Orders() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
-    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    const showDelete = permissions.includes(config["resource"] + ":delete");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
     // console.log("permissions from orders comp:", permissions);
 
-    if (!(permissions.includes("scope:all") || permissions.includes("superuser"))) {
+    if (!(permissions.includes("scope:all"))) {
         // remove some filters from an array of banned ones
         let bannedFilters = ["department_id", "otdel_id"];
         if (!permissions.includes("scope:department")) bannedFilters.push("executor_id");
@@ -147,7 +147,7 @@ export default function Orders() {
                 showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 showFilters={config.filters && config.filters.length > 0}
                 showShowHide
-                showCreate={permissions.includes(config["resource"] + ":create") || permissions.includes("superuser")}
+                showCreate={permissions.includes(config["resource"] + ":create")}
                 onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}
                 onFilter={onFilter}
                 onCreate={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}

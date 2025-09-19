@@ -95,10 +95,10 @@ function getDisabledFields(itemData, config, preloadData, permissions) {
     const role = localStorage.getItem("user_role")?.replace(/"/g, "");
     let new_disabled_fields = [];
 
-    if (role === "superuser") {
-        return [];
-    }
-    else if (itemData){
+    // if (role === "superuser") {
+    //     return [];
+    // }
+    if (itemData){
         const allowed_fields = ["Статус", "Вложение", "Описание"];
         if (Object.keys(itemData["executor"]).length === 0 || role === "user")
             allowed_fields.push("Исполнитель");
@@ -337,9 +337,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const statuses = preloadData[status_field_key];
                 if (!statuses) return;
 
-                const role = localStorage.getItem("user_role")?.replace(/"/g, "").toLowerCase();
-                // const isAdmin = admin_roles.includes(role);
-                const isSuper = role === "superuser";
+                // const role = localStorage.getItem("user_role")?.replace(/"/g, "").toLowerCase();
+                // // const isAdmin = admin_roles.includes(role);
+                // const isSuper = role === "superuser";
                 const currStatusId = `${itemData?.["status_id"] || ""}`;
                 const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
 
@@ -368,13 +368,13 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 });
 
                 preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
-                if (isSuper){
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
-                    if (itemData)
-                        preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, ...closedStatuses, ...type3Statuses, };
-                }
+                // if (isSuper){
+                //     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
+                //     if (itemData)
+                //         preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, ...closedStatuses, ...type3Statuses, };
+                // }
                 // if user is creator of the order
-                else if ((!itemData) || (itemData && itemData["creator"]["id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
+                if ((!itemData) || (itemData && itemData["creator"]["id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
                     if (itemData)
                         preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
@@ -391,10 +391,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
                 }
 
-                // if (permissions.includes("order:create") || permissions.includes("superuser")) {
+                // if (permissions.includes("order:create")) {
                 //     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
                 // }
-                // if (permissions.includes("order:create") || permissions.includes("superuser")) {
+                // if (permissions.includes("order:create")) {
                 //     preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
                 // }
                 // if (!(isAdmin || isSuper)) {

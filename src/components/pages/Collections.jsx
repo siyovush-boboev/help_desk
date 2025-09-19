@@ -28,8 +28,8 @@ export default function Collections() {
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    const showDelete = permissions.includes(config["resource"] + ":delete") || permissions.includes("superuser");
-    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия")) || permissions.includes("superuser");
+    const showDelete = permissions.includes(config["resource"] + ":delete");
+    const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
     // console.log("permissions from collections comp:", permissions);
 
     const filtersFromUrl = useMemo(() => {
@@ -127,7 +127,7 @@ export default function Collections() {
             <ControlBar
                 showSearch
                 showFilters={config.filters && config.filters.length > 0}
-                showCreate={permissions.includes(config.resource + ":create") || permissions.includes("superuser")}
+                showCreate={permissions.includes(config.resource + ":create")}
                 showDelete={showDelete && (config.columns["CHECKMARK"] === null)}
                 onSearch={handleSearch}
                 onDelete={() => onDelete(setModalContent, closeModal, null, config["resource"], setRefreshKey)}

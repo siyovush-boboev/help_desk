@@ -338,7 +338,7 @@ button:disabled {
 #login:focus,
 #password:focus {
   border-color: var(--input-focus) !important;
-  box-shadow: 0 0 10px rgba(74, 144, 226, 0.6);
+  box-shadow: 0 0 10px rgba(6, 158, 161, 0.6);
 }
 
 .search-container > input {
@@ -377,7 +377,9 @@ html {
   width: 100%;
 }
 
-.custom-table tr:hover {
+.custom-table tr:hover,
+#table-delete-button:hover,
+#table-edit-button:hover {
   background-color: var(--table-header-bg);
   transition: background-color 0.3s ease;
 }
@@ -674,6 +676,7 @@ html {
   border-radius: 4px;
   color: var(--black);
   background-color: var(--white);
+  width: 100%;
 }
 
 #editForm input:not([type="checkbox"]):disabled,
@@ -723,6 +726,7 @@ option {
   padding: 20px;
   overflow: auto;
   max-width: 1200px;
+  min-height: 100vh;
 }
 
 .filters-form {
@@ -1012,7 +1016,8 @@ option {
 
   .form-container {
     flex-direction: column;
-  }
+    align-items: flex-start;
+    }
   .edit-form-field {
     width: 100%;
   }
@@ -1149,4 +1154,81 @@ option {
 .user-avatar > img {
   object-fit: cover;
   border-radius: 50%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.filters-list {
+  display: flex;
+  gap: 1rem;
+  color: var(--text-color);
+  flex-wrap: wrap;
+  max-width: 750px;
+  position: relative;
+  overflow: visible;
+}
+
+.form-container > div:first-child {
+  margin: auto 0;
+}
+
+.filter-dropdown {
+  position: relative; /* Makes dropdown-options position relative to this */
+  min-width: 250px;
+  width: max(250px, calc(50% - 16px));
+  max-width: 100%;
+  flex-grow: 1;
+}
+
+.dropdown-header {
+  padding: 8px 12px;
+  background: #f9f9f9;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dropdown-options {
+  position: absolute; /* <-- key change */
+  top: 100%;           /* render below the header */
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* optional for floating look */
+  z-index: 1000;       /* ensures it appears above everything */
+  padding: 8px 12px;
+  border-radius: 0 0 4px 4px;
+}
+
+.dropdown-option {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 4px;
+  height: 20px;
+  line-height: 20px;
+}
+
+.dropdown-option > span {
+  vertical-align: text-bottom;
+}
+
+.dropdown-option > input[type="checkbox"],
+.dropdown-option .status-icon {
+  margin-right: 6px;
 }
