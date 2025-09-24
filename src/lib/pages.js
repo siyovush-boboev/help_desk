@@ -270,6 +270,7 @@ export const FORM_CONFIG = {
     photoFile: { label: "Фото", type: "file", required: false },
     position: { label: "Должность", type: "text", required: false },
     status_id: { label: "Статус", type: "select", required: false },
+    is_head: { label: "Руководитель?", type: "checkbox", required: false },
   },
   status: {
     name: { label: "Наименование", type: "text", required: true },

@@ -233,7 +233,13 @@ svg {
   overflow: auto;
 }
 
-.breadcrumb-item:last-child {
+.breadcrumbs {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.breadcrumb-text {
   color: var(--primary-color);
 }
 
@@ -679,10 +685,14 @@ html {
   width: 100%;
 }
 
-#editForm input:not([type="checkbox"]):disabled,
+#editForm input:disabled,
 #editForm select:disabled,
 #editForm textarea:disabled {
   background-color: var(--input-border);
+}
+
+#editForm input[type="checkbox"] {
+  margin-top: 8px;
 }
 
 option {
@@ -758,7 +768,7 @@ option {
   margin: 4px;
   padding: 4px;
   display: flex;
-  align-items: center;
+  align-items: self-end;
   gap: 4px;
   min-width: calc(50% - 12px);
   max-width: 100%;

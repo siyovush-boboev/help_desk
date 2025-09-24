@@ -141,6 +141,7 @@ export default function Collections() {
                      ? [preload["Тип оборудования"], filtersFromUrl, onFilterApply]
                      : [{}, {}, () => {}]
                 }
+                refk={setRefreshKey}
             />
 
             <DataTable

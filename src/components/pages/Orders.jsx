@@ -155,6 +155,7 @@ export default function Orders() {
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
+                refk={setRefreshKey}
             />
 
             <DataTable

@@ -113,6 +113,7 @@ export default function Users() {
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
+                refk={setRefreshKey}
             />
 
             <DataTable

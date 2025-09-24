@@ -173,17 +173,20 @@ export default function DataTable({
                                 const sum = (data[i]["open"] || 0) + (data[i]["closed"] || 0);
                                 main_page_sums["total"] += sum;
                                 return <td key={i + colName}>{sum}</td>;
-                            } else if (field?.includes("_id")) {
-                                if (colName in pageData) {
-                                    let field_content = ""
-                                    if (item[field])
+                            } else if (field?.includes("_id") && (colName in pageData)) {
+                                let field_content = ""
+                                if (item[field]){
+                                    if (colName === "Роль")
+                                        field_content = pageData[colName][item[field]]?.description;
+                                    else
                                         field_content = pageData[colName][item[field]]?.name;
-                                    else if (field in item || field.replace("_id", "") in item)
-                                        field_content = item[field.replace("_id", "")]?.["name"]
-                                    return  <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
-                                                {field_content || ""}
-                                            </td>;
                                 }
+                                else if (field in item || field.replace("_id", "") in item){
+                                    field_content = item[field.replace("_id", "")]?.["name"]
+                                }
+                                return  <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
+                                            {field_content || ""}
+                                        </td>;
                             }
 
                             return <td key={i + colName}>{item[field] || ""}</td>;

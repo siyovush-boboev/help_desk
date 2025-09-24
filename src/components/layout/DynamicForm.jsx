@@ -378,6 +378,25 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 );
             }
 
+            if (field.type === "checkbox") {
+                return (
+                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                        <label className="checkbox-item">
+                            <input
+                                type="checkbox"
+                                {...register(fieldName, getValidationRules(field))}
+                                defaultChecked={itemData?.[fieldName] || false}
+                                disabled={disabled_fields.includes(field.label)}
+                            />
+                            <span>{field.label}</span>
+                            </label>
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            }
+
             return (
                 <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                     <label>{field.label}</label>

@@ -15,6 +15,7 @@ export default function ControlBar({
     onCreate,
     onSearch,
     equipmentProps = [{}, {}, () => {}],
+    refk = () => {},
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
@@ -56,6 +57,8 @@ export default function ControlBar({
                     <span><FiltersIcon /></span>&nbsp;Фильтры
                 </button>
             )}
+
+            <button onClick={() => refk(prev => prev + 1)}>Обновить таблицу</button>
 
             {Object.keys(equipmentTypes).length > 0 && (
                 <select
