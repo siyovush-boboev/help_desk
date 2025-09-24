@@ -350,3 +350,91 @@ export function get_normalized_role_name(role) {
     }
     return "unknown";
 }
+
+
+export const onEmailChange = (e => {
+    const email = e.target.value;
+    const loginField = document.querySelector('input[name="login"]');
+    loginField.value = email.split("@")[0];
+})
+
+
+export function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
+    const defaults = {};
+
+    if (itemData) {
+        for (let key in config) {
+            if (itemData[key] !== undefined || itemData[key.replace("executor_id", "executor")] !== undefined) {
+                if (config[key].type === "multiselect") {
+                    defaults[key] = itemData[key].map(String);
+                } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
+                    let formatted = itemData[key];
+                    if (itemData[key].includes("T"))
+                        formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
+                    defaults[key] = formatted;
+                } else if (key === "executor_id"){
+                    defaults[key] = itemData[key.replace("_id", "")]?.id;
+                } else {
+                    defaults[key] = itemData[key];
+                }
+                if (key === "email")
+                    defaults["login"] = itemData[key].split("@")[0];
+            }
+        }
+    } else {
+        if ("status_id" in config) {
+            const default_status_id = Object.keys(preloadData["Статус"]).find(
+                id => preloadData["Статус"][id].name.startsWith("Актив")
+                    || preloadData["Статус"][id].name.startsWith("Открыт")
+            );
+            defaults["status_id"] = default_status_id;
+        }
+    }
+
+    return defaults;
+}
+
+
+export const getValidationRules = (field) => {
+    const rules = {};
+    if (field.required) rules.required = `"${field.label}" обязательно для заполнения`;
+
+    if (field.label === "Телефон") {
+        rules.pattern = {
+            value: /^\+?[0-9\s()-]{5,18}$/,
+            message: "Неправильный формат телефона",
+        };
+    }
+
+    if (field.type === "text") {
+        rules.minLength = { value: field?.min || 1, message: `Слишком мало символов` };
+        rules.maxLength = { value: field?.max || 255, message: `Слишком много символов (255)` };
+    }
+    else if (field.type === "number") {
+        rules.min = { value: 0, message: `Это число не может быть отрицательным` };
+        rules.max = { value: 2 ** 32 - 1, message: `Слишком большое  число` };
+        rules.valueAsNumber = true;
+    }
+    else if (field.type === "email") {
+        rules.pattern = {
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            message: "Неправильный формат email",
+        };
+    }
+    else if (field.type === "date" || field.type === "datetime-local") {
+        rules.validate = {
+            isValidDate: (value) => {
+                if (!value) return true; // allow empty if not required
+                const date = new Date(value);
+                return !isNaN(date.getTime()) || `Некорректная дата`;
+            },
+        };
+    }
+    else if (field.type === "multiselect") {
+        rules.validate = { notEmpty: (val) => val?.length > 0 || `Выберите хотя бы один вариант для ${field.label.toLowerCase()}`, };
+    }
+
+    return rules;
+};
+
+

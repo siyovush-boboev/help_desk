@@ -17,15 +17,6 @@ const PAGINATION_URL_PARAMS = "withPagination=true&page=1&limit=10";
 const NAVBAR_PAGES = ["main", "order", "user", "report", "setting"];
 
 
-
-// const EQUIPMENT_SUBLINKS = ["equipment"]
-//     .filter((key) => TABLE_PAGES_CONFIG[key])
-//     .map((key) => ({
-//         label: TABLE_PAGES_CONFIG[key].plural,
-//         href: TABLE_PAGES_CONFIG[key].resource + (key === "equipment" ? "?" : "&") + PAGINATION_URL_PARAMS,
-//     }));
-
-
 export default function Navbar() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     console.log("permission from navbar comp:", permissions);
@@ -45,11 +36,11 @@ export default function Navbar() {
     );
     
     let COLLECTION_LINKS = collectionPages
-        // .filter(([key]) => key !== "atm" && key !== "terminal" && key !== "pos" && key !== "coeo" && key !== "equipment")
         .map(([, config]) => ({
             label: config.plural,
             href: config.resource + `?${PAGINATION_URL_PARAMS}`,
         }));
+
     // filter collection_links, check if user has permission to edit/delete/create items in that collection
     // if not, do not show that link in the navbar
     const filteredCollectionLinks = COLLECTION_LINKS.filter(({ label,  }) => {
@@ -69,7 +60,9 @@ export default function Navbar() {
     return (
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
-            <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
+
+            {permissions.includes("order:view") &&
+            <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />}
 
             {(permissions.includes("user:update") || permissions.includes("user:create") 
               || permissions.includes("user:delete")) &&
@@ -90,17 +83,6 @@ export default function Navbar() {
                             />
                         ))}
 
-                        {/* Equipment sub-dropdown */}
-                        {/* <div className="dropdown-container dropdown-link">
-                            <div className='dropdown-toggler'><p>Оборудования ▼</p></div>
-                            {EQUIPMENT_SUBLINKS.map(({ label, href }) => (
-                                <NavbarLink
-                                    key={label}
-                                    label={label}
-                                    href={href}
-                                />
-                            ))}
-                        </div> */}
                     </div>
             )}
 

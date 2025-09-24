@@ -101,10 +101,12 @@ export default function UserInfoModal({ userId, onClose, departments, data = nul
 
                 <div className="user-info-main-content">
                     <div className="user-full-size-pic">
+                        {userData.photo_url && 
                         <img
-                            src={BASE_URL + userData.photo_url || ""}
+                            src={BASE_URL + userData.photo_url}
                             alt=""
                         />
+                        }
                     </div>
                     <div className="user-text-info">
                         {infoBlocks.map((b) => (

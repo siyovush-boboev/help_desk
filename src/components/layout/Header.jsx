@@ -83,7 +83,7 @@ export default function Header() {
 
             <div className="user-info">
                 <div className="user-info-clickable" onClick={onUserClick}>
-                    {loading && <div className="loader-black"></div>}
+                    {loading && <div className="loader-black user-text"></div>}
                     {!loading &&
                         <div className="user-text">
                             <h4>{userDetails.fio}</h4>

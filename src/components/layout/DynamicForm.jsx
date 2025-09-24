@@ -1,133 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
-import OrderHistory from "./OrderHistory";
-import axios from "../../lib/contexts/axiosInstance";
+import { onEmailChange, getDefaultValues, getValidationRules } from "../../lib/utils/helpers";
 import { API_BASE_URL } from "../../lib/constants";
+import axios from "../../lib/contexts/axiosInstance";
+import OrderHistory from "./OrderHistory";
 import { OrderIcon } from "../ui/icons";
 
 
-const onEmailChange = (e => {
-    const email = e.target.value;
-    const loginField = document.querySelector('input[name="login"]');
-    loginField.value = email.split("@")[0];
-})
-
-function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
-    const defaults = {};
-    // console.log("itemData in getDefaultValues:", itemData);
-
-    if (itemData) {
-        for (let key in config) {
-            if (itemData[key] !== undefined || itemData[key.replace("executor_id", "executor")] !== undefined) {
-                if (config[key].type === "multiselect") {
-                    defaults[key] = itemData[key].map(String);
-                } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
-                    let formatted = itemData[key];
-                    if (itemData[key].includes("T"))
-                        formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
-                    defaults[key] = formatted;
-                } else if (key === "executor_id"){
-                    defaults[key] = itemData[key.replace("_id", "")]?.id;
-                } else {
-                    defaults[key] = itemData[key];
-                }
-                if (key === "email")
-                    defaults["login"] = itemData[key].split("@")[0];
-            }
-        }
-    } else {
-        if ("status_id" in config) {
-            const default_status_id = Object.keys(preloadData["Статус"]).find(
-                id => preloadData["Статус"][id].name.startsWith("Актив")
-                    || preloadData["Статус"][id].name.startsWith("Открыт")
-            );
-            defaults["status_id"] = default_status_id;
-        }
-    }
-
-    return defaults;
-}
-
-const getValidationRules = (field) => {
-    const rules = {};
-    if (field.required) rules.required = `"${field.label}" обязательно для заполнения`;
-
-    if (field.label === "Телефон") {
-        rules.pattern = {
-            value: /^\+?[0-9\s()-]{5,18}$/,
-            message: "Неправильный формат телефона",
-        };
-    }
-
-    if (field.type === "text") {
-        rules.minLength = { value: field?.min || 1, message: `Слишком мало символов` };
-        rules.maxLength = { value: field?.max || 255, message: `Слишком много символов (255)` };
-    }
-    else if (field.type === "number") {
-        rules.min = { value: 0, message: `Это число не может быть отрицательным` };
-        rules.max = { value: 2 ** 32 - 1, message: `Слишком большое  число` };
-        rules.valueAsNumber = true;
-    }
-    else if (field.type === "email") {
-        rules.pattern = {
-            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            message: "Неправильный формат email",
-        };
-    }
-    else if (field.type === "date" || field.type === "datetime-local") {
-        rules.validate = {
-            isValidDate: (value) => {
-                if (!value) return true; // allow empty if not required
-                const date = new Date(value);
-                return !isNaN(date.getTime()) || `Некорректная дата`;
-            },
-        };
-    }
-    else if (field.type === "multiselect") {
-        rules.validate = { notEmpty: (val) => val?.length > 0 || `Выберите хотя бы один вариант для ${field.label.toLowerCase()}`, };
-    }
-
-    return rules;
-};
-
 function getDisabledFields(itemData, config, preloadData, permissions) {
-    const role = localStorage.getItem("user_role")?.replace(/"/g, "");
     let new_disabled_fields = [];
+    const mode = itemData ? "update" : "create";
 
-    // if (role === "superuser") {
-    //     return [];
-    // }
-    if (itemData){
-        const allowed_fields = ["Статус", "Вложение", "Описание"];
-        if (Object.keys(itemData["executor"]).length === 0 || role === "user")
-            allowed_fields.push("Исполнитель");
-        if (itemData["duration"] === null)
-            allowed_fields.push("Срок");
-        if(!itemData["otdel_id"])
-            allowed_fields.push("Отдел");
-        if(!itemData["priority_id"])
-            allowed_fields.push("Приоритет");
-        new_disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
-    }
-    else if (role === "admin" || (role === "user" && !itemData)) {
-        new_disabled_fields = ["Отдел", "Приоритет"];
-        if (!permissions.includes("order:delegate") || role === "user") {
-            new_disabled_fields = [...new_disabled_fields, "Срок", "Исполнитель"];
+    Object.entries(config).forEach(([fieldName, field]) => {
+        const label = field.label || fieldName;
+        if (!permissions.includes(`order:${mode}:${fieldName}`)){
+            new_disabled_fields.push(label);
         }
-    }
-    else if (role === "user") {
-        if (itemData["creator"]["id"] !== Number(localStorage.getItem("user_id").replace(/"/g, ""))) {
-            new_disabled_fields = ["Наименование заявки", "Департамент", "Филиал", "Офис ЦБО", "Адрес", "Оборудование"];
-        }
-        if (!itemData["executor"]) {
-            new_disabled_fields = [...new_disabled_fields, "Статус"];
-        }
-    }
-    // else if (role === "executor") {
-    //     const allowed_fields = ["Статус", "Вложение", "Описание"];
-    //     new_disabled_fields = Object.values(config).filter(field => !allowed_fields.includes(field.label)).map(field => field.label);
-    // }
+    });
 
     if (itemData && itemData.status_id) {
         const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
@@ -227,7 +117,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
         }
 
-        const get_all_field_names = (fieldName, dependentField, rawOptions) => {
+        const filter_with_all_field_names = (fieldName, dependentField, rawOptions) => {
             const allFieldnames = [fieldName];
             for (const field_name in DEPENDANT_FIELDS.desc){
                 if (DEPENDANT_FIELDS.desc[field_name].includes(dependentField) && !allFieldnames.includes(field_name))
@@ -252,9 +142,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         if (origin_val === "") {
             if (DEPENDANT_FIELDS.desc[fieldName]) {
                 DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
-                    const dependentLabel = config[dependentField]?.label || dependentField;
+                    let dependentLabel = config[dependentField]?.label || dependentField;
+                    if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
+                        dependentLabel = "Пользователь";
                     const rawOptions = preloadData[dependentLabel] || {};
-                    const filtered = get_all_field_names(fieldName, dependentField, rawOptions);
+                    const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);
 
                     // set filtered options
                     setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
@@ -291,7 +183,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
                     dependentLabel = "Пользователь";
                 const rawOptions = preloadData[dependentLabel] || {};
-                const filtered = get_all_field_names(fieldName, dependentField, rawOptions);
+                const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);
                 setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
                 if (DEPENDANT_FIELDS.desc[dependentField])
                     desc(dependentField);
@@ -321,11 +213,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
-            // let hide = false;
-            // // users cant edit these fields
-            // if (disabled_fields.includes(field.label)) {
-            //     hide = true;
-            // }
 
             let preload_title = field.label || fieldName;
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
@@ -337,9 +224,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const statuses = preloadData[status_field_key];
                 if (!statuses) return;
 
-                // const role = localStorage.getItem("user_role")?.replace(/"/g, "").toLowerCase();
-                // // const isAdmin = admin_roles.includes(role);
-                // const isSuper = role === "superuser";
                 const currStatusId = `${itemData?.["status_id"] || ""}`;
                 const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
 
@@ -368,12 +252,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 });
 
                 preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
-                // if (isSuper){
-                //     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
-                //     if (itemData)
-                //         preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, ...closedStatuses, ...type3Statuses, };
-                // }
-                // if user is creator of the order
                 if ((!itemData) || (itemData && itemData["creator"]["id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
                     if (itemData)
@@ -390,16 +268,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 else if (permissions.includes("order:update")) {
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
                 }
-
-                // if (permissions.includes("order:create")) {
-                //     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
-                // }
-                // if (permissions.includes("order:create")) {
-                //     preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
-                // }
-                // if (!(isAdmin || isSuper)) {
-                //     preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
-                // }
             }
             const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if (field.type === "select") {
@@ -430,15 +298,19 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (field.type === "multiselect") {
                 let options = preloadData?.[field.label] || {};
                 if (field.label === "Привелигия"){
-                    const others = {}, create = {}, read = {}, update = {}, delete_ = {};
+                    const others = {}, create = {}, read = {}, update = {}, delete_ = {},
+                          scope = {}, order_create = {}, order_update = {};
                     Object.entries(options).forEach(([id, item]) => {
                         if (item.name.endsWith(":create")) create[id] = item;
                         else if (item.name.endsWith(":read")) read[id] = item;
                         else if (item.name.endsWith(":update")) update[id] = item;
                         else if (item.name.endsWith(":delete")) delete_[id] = item;
+                        else if (item.name.startsWith("scope:")) scope[id] = item;
+                        else if (item.name.startsWith("order:create")) order_create[id] = item;
+                        else if (item.name.startsWith("order:update")) order_update[id] = item;
                         else others[id] = item;
                     });
-                    const ordered_options = {1: others, 2: create, 3: read, 4: update, 5: delete_};
+                    const ordered_options = {1: others, 2: create, 3: read, 4: update, 5: delete_, 6: scope, 7: order_create, 8: order_update};
                     return (
                         <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
                             <label>{field.label}</label>
