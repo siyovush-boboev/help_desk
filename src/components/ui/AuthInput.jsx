@@ -23,6 +23,7 @@ export default function AuthInput({
                     onChange={(e) => set_func(e.target.value)}
                     required={required}
                     ref={inputRef}
+                    autoComplete={type === "password" ? "current-password" : "off"}
                 />
                 {children}
             </div>

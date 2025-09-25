@@ -7,7 +7,7 @@ import axiosInstance from "../../lib/contexts/axiosInstance.js";
 import { API_BASE_URL, BASE_URL } from "../../lib/constants.js";
 
 import person_svg from "../../assets/svg/person.svg";
-import header_logo from "../../assets/images/header-logo.png";
+import header_logo from "../../assets/images/header-logo.webp";
 
 export default function Header() {
     const { setModalContent, closeModal } = useContext(ModalContext);

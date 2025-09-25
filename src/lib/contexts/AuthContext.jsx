@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+// import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "./axiosInstance";
 import { AuthContext } from "./authContext.js";
-import { API_BASE_URL } from "../constants";
+// import { API_BASE_URL } from "../constants";
 import {
     setAccessToken as setTokenManagerAccessToken,
     clearAccessToken as clearTokenManagerAccessToken,
@@ -10,27 +11,28 @@ import {
 
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessTokenState] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(false);
+    const [loading, ] = useState(false);
     const [authFailed, setAuthFailed] = useState(false);
 
-    useEffect(() => {
-        const fetchInitialToken = async () => {
-            try {
-                const res = await axios.post(`${API_BASE_URL}/auth/refresh_token`, {}, { withCredentials: true });
-                const token = res.data.body.accessToken;
-                setAccessTokenState(token);
-                setTokenManagerAccessToken(token);
-                setAuthFailed(false);
-            } catch (err) {
-                console.error("Failed to fetch initial token:", err);
-                clearTokenManagerAccessToken();
-                setAuthFailed(true);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchInitialToken();
-    }, []);
+    // useEffect(() => {
+    //     const fetchInitialToken = async () => {
+    //         try {
+    //             const res = await axios.post(`${API_BASE_URL}/auth/refresh_token`, {}, { withCredentials: true });
+    //             const token = res.data.body.accessToken;
+    //             setAccessTokenState(token);
+    //             setTokenManagerAccessToken(token);
+    //             setAuthFailed(false);
+    //         } catch (err) {
+    //             console.error("Failed to fetch initial token:", err);
+    //             clearTokenManagerAccessToken();
+    //             setAuthFailed(true);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     fetchInitialToken();
+    // }, []);
 
     const setAccessToken = (token) => {
         setAccessTokenState(token);

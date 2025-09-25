@@ -1,4 +1,4 @@
-import login_logo from '../../assets/images/login-logo.png';
+import login_logo from '../../assets/images/login-logo.webp';
 
 
 export default function Login({ children, header_text }) {
