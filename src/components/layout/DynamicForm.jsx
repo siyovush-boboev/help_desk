@@ -166,7 +166,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
         const asc = (fieldName) => {
             DEPENDANT_FIELDS.asc[fieldName].forEach(dependentField => {
-                const origin_label = origin_select.previousSibling.textContent.trim();
+                let origin_label = origin_select.previousSibling.textContent.trim();
+                if (origin_label === "Заявитель" || origin_label === "Исполнитель")
+                    origin_label = "Пользователь";
                 const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
@@ -218,6 +220,30 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
             preloadData = {...preloadOG};
+
+            // go thru all objects in preloadData and if it has status_id and
+            // its status name in lowercase starts with "неактив" then remove it
+            // Step 1: Get the status group
+            const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
+            const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
+
+            // Step 2: Find all status IDs that are "неактив"
+            const inactiveStatusIds = Object.entries(statusGroup)
+                .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
+                .map(([id]) => id); // IDs are strings
+
+            // Step 3: Loop through preloadData and remove items with those statuses
+            Object.entries(preloadData).forEach(([key, items]) => {
+                if (key === statusKey) return; // Skip the status group itself
+
+                Object.entries(items).forEach(([id, item]) => {
+                    const itemStatusId = String(item.status_id); // Ensure string for comparison
+
+                    if (inactiveStatusIds.includes(itemStatusId)) {
+                        delete preloadData[key][id];
+                    }
+                });
+            });
 
             if (field.type === "select" && fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
                 const status_field_key = TABLE_PAGES_CONFIG["status"].singular;

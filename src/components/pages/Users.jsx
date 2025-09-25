@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import ControlBar from "../layout/ControlBar";
 import DataTable from "../layout/DataTable";
@@ -13,6 +13,11 @@ const PAGE_NAME = "user";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
 export default function Users() {
+    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
+    const navigate = useNavigate();
+    if (!(permissions.includes(`${PAGE_NAME}:update`) || permissions.includes(`${PAGE_NAME}:create`) || permissions.includes(`${PAGE_NAME}:delete`))) {
+        navigate("/main");
+    }
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
     const [loading, setLoading] = useState(true);
@@ -24,7 +29,6 @@ export default function Users() {
     const limit = parseInt(searchParams.get("limit")) || 10;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
-    const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
     // console.log("permissions from users comp:", permissions);

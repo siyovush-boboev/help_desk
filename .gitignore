@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-dummy_server
+dummy_server/
 
 # Editor directories and files
 .vscode/*

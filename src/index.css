@@ -1176,7 +1176,6 @@ option {
   gap: 1rem;
   color: var(--text-color);
   flex-wrap: wrap;
-  max-width: 750px;
   position: relative;
   overflow: visible;
 }

@@ -336,18 +336,19 @@ export const onSandwitchClick = () => {
 }
 
 export function get_normalized_role_name(role) {
-    const keywords = {
-        // superuser: ["super", "супер"],
-        admin: ["admin", "админ"],
-        user: ["user", "пользователь", "руководитель"],
-        executor: ["executor", "исполнитель"],
-        viewer: ["view", "ревизор", "наблюдатель", "revisor", "viewer", "observer"],
-    }
-    role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
-    for (const [normalized, keys] of Object.entries(keywords)) {
-        if (keys.some(k => role.includes(k))) return normalized;
-    }
-    return "unknown";
+    return role;
+    // const keywords = {
+    //     // superuser: ["super", "супер"],
+    //     admin: ["admin", "админ"],
+    //     user: ["user", "пользователь", "руководитель"],
+    //     executor: ["executor", "исполнитель"],
+    //     viewer: ["view", "ревизор", "наблюдатель", "revisor", "viewer", "observer"],
+    // }
+    // role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
+    // for (const [normalized, keys] of Object.entries(keywords)) {
+    //     if (keys.some(k => role.includes(k))) return normalized;
+    // }
+    // return "unknown";
 }
 
 
