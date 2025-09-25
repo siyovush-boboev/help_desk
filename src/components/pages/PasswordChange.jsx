@@ -1,13 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
+import { AuthContext } from "../../lib/contexts/authContext";
 import axios from "../../lib/contexts/axiosInstance";
-import { validate_confirmation, isValidCredsInput } from "../../lib/utils/helpers";
+import { validate_confirmation, isValidCredsInput, get_normalized_role_name } from "../../lib/utils/helpers";
 import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
 
+
 export default function PasswordChange() {
+    const { setAccessToken, setAuthFailed } = useContext(AuthContext);
     const [searchParams] = useSearchParams();
     const login = searchParams.get("login");
     const confirmation = searchParams.get("token");
@@ -62,7 +65,30 @@ export default function PasswordChange() {
             });
 
             if (res.status === 200) {
-                navigate("/login");
+                setErr("Пароль успешно изменен");
+                try {
+                    const res = await axios.post(API_BASE_URL + "/auth/login", { login, password }, { withCredentials: true });
+                    const data = await res.data.body;
+
+                    if (res.data.status === false){
+                        setErr(res.data.message || "Ошибка при входе");
+                    }
+                    else {
+                        setAccessToken(data.accessToken);
+                        const user_role = get_normalized_role_name(data.role_name);
+                        localStorage.setItem("user_role", JSON.stringify(user_role));
+                        localStorage.setItem("permissions", JSON.stringify(data.permissions));
+                        setAuthFailed(false);
+                        navigate("/main");
+                    }
+                } catch (e) {
+                    setAuthFailed(true);
+                    passwordRef.current?.focus();
+                    setErr(e?.response?.data?.message || "Произошла ошибка при входе");
+                    console.error(e);
+                } finally {
+                    setLoading(false);
+                }
             } else {
                 setErr("Ошибка при смене пароля.");
             }

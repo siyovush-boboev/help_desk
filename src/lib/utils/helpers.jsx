@@ -96,7 +96,6 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
 
 export const loadDataTable = async (setData, setLoading, setError, config, params = {}) => {
     try {
-        // console.log("Loading data with params:", params);
         setLoading(true);
 
         const queryString = Object.entries(params)

@@ -1,8 +1,8 @@
 import axios from "axios";
 import {
   getAccessToken,
-  setAccessToken,
-  clearAccessToken,
+  // setAccessToken,
+  // clearAccessToken,
   willTokenExpireSoon,
 } from "../services/api/tokenManager";
 import { API_BASE_URL } from "../constants";
@@ -15,20 +15,20 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-async function refreshToken() {
-  try {
-    const res = await instance.post("/auth/refresh_token");
-    const newToken = res.data.body.accessToken;
-    setAccessToken(newToken);
-    console.log("New access token set in axios:", newToken);
-    return newToken;
-  } catch (err) {    
-    clearAccessToken();
-    console.log("Failed to refresh token, redirecting to login...");
-    window.location.href = "/login";
-    throw err;
-  }
-}
+// async function refreshToken() {
+//   try {
+//     const res = await instance.post("/auth/refresh_token");
+//     const newToken = res.data.body.accessToken;
+//     setAccessToken(newToken);
+//     console.log("New access token set in axios:", newToken);
+//     return newToken;
+//   } catch (err) {    
+//     clearAccessToken();
+//     console.log("Failed to refresh token, redirecting to login...");
+//     window.location.href = "/login";
+//     throw err;
+//   }
+// }
 
 // ✅ Request Interceptor
 instance.interceptors.request.use(
@@ -50,13 +50,14 @@ instance.interceptors.request.use(
     let token = getAccessToken();
     // Обновляем токен, если скоро истечет или отсутствует
     if (willTokenExpireSoon() || !token) {
-      try {
-        console.log("Token is expiring soon or not present, refreshing...");
-        token = await refreshToken();
-      } catch (err) {
-        console.error("Failed to refresh token:", err);
-        return Promise.reject(err);
-      }
+      console.log("Access token is missing or expiring soon");
+      // try {
+      //   console.log("Token is expiring soon or not present, refreshing...");
+      //   token = await refreshToken();
+      // } catch (err) {
+      //   console.error("Failed to refresh token:", err);
+      //   return Promise.reject(err);
+      // }
     }
 
     if (token){
@@ -69,7 +70,7 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response Interceptor (повторяет запрос при 401 один раз)
+// Response Interceptor (повторяет запрос при 401 один раз)
 // instance.interceptors.response.use(
 //   (res) => res,
 //   async (err) => {
