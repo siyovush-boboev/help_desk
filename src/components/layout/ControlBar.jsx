@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiltersIcon, PlusIcon, TrashIcon } from "../ui/icons";
+import { FiltersIcon, PlusIcon, TrashIcon, ClearIcon } from "../ui/icons";
 
 export default function ControlBar({
     showSearch = false,
@@ -37,12 +37,15 @@ export default function ControlBar({
                     <input
                         id="search-input"
                         type="text"
-                        placeholder="🔍 Поиск"
+                        placeholder="Поиск"
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
                     />
-                    {showClear && <button id="clear-button" onClick={onClearSearch}>❌</button>}
+                    {showClear &&
+                    <button id="clear-button" onClick={onClearSearch}>
+                        <ClearIcon />
+                    </button>}
                 </div>
             )}
 

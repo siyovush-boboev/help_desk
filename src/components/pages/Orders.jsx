@@ -60,6 +60,7 @@ export default function Orders() {
     };
 
     const handleSort = (column, direction) => {
+        if (!column || !direction) return;
         console.log("Sorting by:", column, direction);
         const currentParams = Object.fromEntries(searchParams);
 

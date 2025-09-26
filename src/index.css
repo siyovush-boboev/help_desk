@@ -339,6 +339,12 @@ button:disabled {
   outline: none;
   box-shadow: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M17.5%2017.5L14.5834%2014.5833M16.6667%209.58333C16.6667%2013.4954%2013.4954%2016.6667%209.58333%2016.6667C5.67132%2016.6667%202.5%2013.4954%202.5%209.58333C2.5%205.67132%205.67132%202.5%209.58333%202.5C13.4954%202.5%2016.6667%205.67132%2016.6667%209.58333Z%22%20stroke%3D%22%23667085%22%20stroke-width%3D%221.66667%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  background-size: 20px 20px;
+  padding-left: 36px;
+  padding-right: 24px;
 }
 
 #search-input:focus,
@@ -348,17 +354,13 @@ button:disabled {
   box-shadow: 0 0 10px rgba(6, 158, 161, 0.6);
 }
 
-.search-container > input {
-  padding-right: 24px;
-}
-
 #clear-button {
   padding: 0;
   display: inline-flex;
   box-shadow: none;
   min-width: auto;
   min-height: 20px;
-  margin-left: -28px;
+  margin-left: -34px;
   margin-right: 10px;
 }
 
@@ -394,7 +396,7 @@ html {
 .custom-table th,
 .custom-table td {
   border: 1px solid var(--table-border);
-  padding: 6px;
+  padding: 10px;
   font-size: 14px;
   text-align: left;
 }
@@ -422,7 +424,6 @@ html {
 .custom-table th,
 .custom-table td{
   border-right: none;
-  padding: 4px;
 }
 
 .custom-table td a {
@@ -926,7 +927,6 @@ option {
 
 .entry-icon {
   max-width: 42px;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

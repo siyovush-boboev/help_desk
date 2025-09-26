@@ -57,14 +57,16 @@ export default function DataTable({
         const up = "▲", down = "▼";
         const th = e.target;
         const colName = th.innerText;
+
         if (!colName || banned_cols_for_sorting.includes(colName)) return;
+
         if (colName.includes(up) || colName.includes(down)) {
             const isAsc = colName.includes(up);
             th.innerText = colName.slice(0, colName.length - 1) + (isAsc ? down : up);
             onSort(columns[colName.slice(0, colName.length - 1)], isAsc ? "desc" : "asc");
         } else {
-            th.innerText = colName + up;
             onSort(columns[colName], "asc");
+            th.innerText = colName + up;
         }
     };
     // for handling sorting arrows properly
@@ -101,6 +103,7 @@ export default function DataTable({
                 <tbody>
                     {data.map((item, i) => {
                         let hideRow = false;
+                        let make_red = false;
 
                         const tds = Object.entries(columns).map(([colName, field]) => {
                             if (colName === "Статус") {
@@ -156,6 +159,12 @@ export default function DataTable({
                                 );
                             }
                             else if (colName.toLowerCase().includes("дата") || colName.toLowerCase().includes("срок")) {
+                                if (colName.toLowerCase().includes("срок") && item["duration"]) {
+                                    const due_date = new Date(item["duration"]);
+                                    const now = new Date();
+                                    if (due_date < now)
+                                        make_red = true;
+                                }
                                 const val = item[field];
                                 if (val) {
                                     let formatted = val;
@@ -193,7 +202,7 @@ export default function DataTable({
                         });
 
                         return (
-                            <tr key={i} style={{ display: hideRow ? "none" : "table-row" }} row-id={item.id}>
+                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_red ? "rgba(255, 184, 184, 1)" : "inherit"}} row-id={item.id}>
                                 {main_page && <td></td>}
                                 {tds}
                             </tr>

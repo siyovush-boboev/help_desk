@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { onEmailChange, getDefaultValues, getValidationRules } from "../../lib/utils/helpers";
-import { API_BASE_URL } from "../../lib/constants";
+import { BASE_URL, API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
 import { OrderIcon } from "../ui/icons";
+import Select from 'react-select';
 
 
 function getDisabledFields(itemData, config, preloadData, permissions) {
@@ -34,6 +35,15 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [isSubmitting, setIsSubmitting] = useState(false);
     const permissions = useMemo(() => JSON.parse(localStorage.getItem("permissions")) || [], []);
     const [firstComment, setFirstComment] = useState(" ");
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+    } = useForm({
+        defaultValues: getDefaultValues(itemData, config, preloadData),
+        mode: "onChange",
+    });
     const [history, setHistory] = useState(["loading msg"]);
     const [disabled_fields, setDisabledFields] = useState([]);
     const [err, setErr] = useState("");
@@ -62,16 +72,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             fetchHistory();
         }
     }, [itemData?.id, page_name]);
-
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors },
-    } = useForm({
-        defaultValues: getDefaultValues(itemData, config, preloadData),
-        mode: "onChange",
-    });
 
     const handleFormSubmit = async (data) => {
         try {
@@ -309,7 +309,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 Выберите {field.label.toLowerCase()}
                             </option>
                             {Object.entries(preloadOptions).map(([id, name]) => (
-                                <option key={id} value={id}>
+                                <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[name["name"]] || 'inherit' } : {}}>
                                     {["Роль", "Привелигия"].includes(field.label) ? name["description"] : name["name"]}
                                 </option>
                             ))}
