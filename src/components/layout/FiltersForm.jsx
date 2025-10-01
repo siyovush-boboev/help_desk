@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
-import { admin_roles, executor_roles, priority_colors, BASE_URL } from "../../lib/constants";
+// import { admin_roles, executor_roles, priority_colors, BASE_URL } from "../../lib/constants";
+import { priority_colors, BASE_URL } from "../../lib/constants";
 import { OrderIcon } from "../ui/icons";
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
@@ -21,24 +22,24 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                     ? preload["Пользователь"] || {}
                     : preload[filter.label] || {};
 
-            if (filter.label === "Заявитель" || filter.label === "Исполнитель") {
-                const allUsers = preload["Пользователь"] || {};
+            // if (filter.label === "Заявитель" || filter.label === "Исполнитель") {
+            //     const allUsers = preload["Пользователь"] || {};
 
-                const adminIds = Object.values(allUsers)
-                    .filter(u => admin_roles.includes(u.role_name?.toLowerCase()))
-                    .map(u => u.id);
+            //     const adminIds = Object.values(allUsers)
+            //         .filter(u => admin_roles.includes(u.role_name?.toLowerCase()))
+            //         .map(u => u.id);
 
-                const executorIds = Object.values(allUsers)
-                    .filter(u => executor_roles.includes(u.role_name?.toLowerCase()))
-                    .map(u => u.id);
+            //     const executorIds = Object.values(allUsers)
+            //         .filter(u => executor_roles.includes(u.role_name?.toLowerCase()))
+            //         .map(u => u.id);
 
-                const limitToAdmins = filter.label === "Заявитель";
-                allOptions = Object.fromEntries(
-                    Object.entries(allUsers).filter(([, user]) =>
-                        limitToAdmins ? adminIds.includes(user.id) : executorIds.includes(user.id)
-                    )
-                );
-            }
+            //     const limitToAdmins = filter.label === "Заявитель";
+            //     allOptions = Object.fromEntries(
+            //         Object.entries(allUsers).filter(([, user]) =>
+            //             limitToAdmins ? adminIds.includes(user.id) : executorIds.includes(user.id)
+            //         )
+            //     );
+            // }
 
             let filtered = Object.entries(allOptions);
             if (parentField && selectedValues[parentField]?.length > 0) {

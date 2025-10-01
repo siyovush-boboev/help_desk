@@ -692,7 +692,7 @@ html {
   background-color: var(--input-border);
 }
 
-#editForm input[type="checkbox"] {
+#editForm input[name="is_head"] {
   margin-top: 8px;
 }
 
@@ -716,6 +716,10 @@ option {
 .edit-form-field textarea {
   min-height: 80px;
   resize: vertical;
+}
+
+.edit-form-field > label {
+  margin-bottom: 4px;
 }
 
 .edit-form-field>p,
@@ -1235,4 +1239,46 @@ option {
 .dropdown-option > input[type="checkbox"],
 .dropdown-option .status-icon {
   margin-right: 6px;
+}
+
+.privilege-container {
+    display: flex;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    padding: 12px;
+    position: relative;
+    gap: 2rem;
+}
+
+.privilege-column {
+    flex: 1;
+}
+
+.privilege-separator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+.privilege-button {
+    padding: 6px 10px;
+    cursor: pointer;
+    margin: 5px 0;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 6px;
+}
+
+.checkbox-disabled {
+    cursor: not-allowed;
+}
+
+.privilege-search {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }

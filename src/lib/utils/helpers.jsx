@@ -111,6 +111,25 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
         // console.log("Final url:", url);
 
         const mainRes = await axios.get(url);
+        // go thru objects in mainRes.data.body.list
+        // if the object has executor field, replace it with executor_id and executor_name fields
+        let main_data = mainRes.data.body;
+        if ("pagination" in main_data) main_data = main_data["list"];
+        main_data = main_data.map(item => {
+            if ("executor" in item && item.executor && typeof item.executor === "object") {
+                item.executor_id = item.executor.id;
+                item.executor_name = item.executor.name || item.executor.fio || item.executor.login || item.executor_id;
+                delete item.executor;
+            }
+            // same with creator
+            if ("creator" in item && item.creator && typeof item.creator === "object") {
+                item.creator_id = item.creator.id;
+                item.creator_name = item.creator.name || item.creator.fio || item.creator.login || item.creator_id;
+                delete item.creator;
+            }
+            return item;
+        });
+        mainRes.data.body = main_data;
         setData(mainRes.data);
     } catch (err) {
         console.error(err);
@@ -139,6 +158,8 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey) {
     if (has_file_field)
         new_data["_files"] = {};
+
+    console.log("Form submitted with data:", new_data);
 
     // Convert fields properly
     Object.entries(new_data).forEach(([key, val]) => {
@@ -171,8 +192,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     try {
         if (!itemData) {
             // CREATE NEW
-            // check if we have files
             console.log("Creating new item:", new_data);
+            // check if we have files
             if (has_file_field) {
                 const _files = {...new_data["_files"]};
                 delete new_data["_files"];
@@ -335,21 +356,20 @@ export const onSandwitchClick = () => {
     nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
 }
 
-export function get_normalized_role_name(role) {
-    return role;
-    // const keywords = {
-    //     // superuser: ["super", "супер"],
-    //     admin: ["admin", "админ"],
-    //     user: ["user", "пользователь", "руководитель"],
-    //     executor: ["executor", "исполнитель"],
-    //     viewer: ["view", "ревизор", "наблюдатель", "revisor", "viewer", "observer"],
-    // }
-    // role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
-    // for (const [normalized, keys] of Object.entries(keywords)) {
-    //     if (keys.some(k => role.includes(k))) return normalized;
-    // }
-    // return "unknown";
-}
+// export function get_normalized_role_name(role) {
+//     const keywords = {
+//         // superuser: ["super", "супер"],
+//         admin: ["admin", "админ"],
+//         user: ["user", "пользователь", "руководитель"],
+//         executor: ["executor", "исполнитель"],
+//         viewer: ["view", "ревизор", "наблюдатель", "revisor", "viewer", "observer"],
+//     }
+//     role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
+//     for (const [normalized, keys] of Object.entries(keywords)) {
+//         if (keys.some(k => role.includes(k))) return normalized;
+//     }
+//     return "unknown";
+// }
 
 
 export const onEmailChange = (e => {
@@ -364,7 +384,7 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
 
     if (itemData) {
         for (let key in config) {
-            if (itemData[key] !== undefined || itemData[key.replace("executor_id", "executor")] !== undefined) {
+            if (itemData[key] !== undefined) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {
@@ -372,8 +392,6 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
                     if (itemData[key].includes("T"))
                         formatted = itemData[key].slice(0, itemData[key].indexOf("T") + 6);
                     defaults[key] = formatted;
-                } else if (key === "executor_id"){
-                    defaults[key] = itemData[key.replace("_id", "")]?.id;
                 } else {
                     defaults[key] = itemData[key];
                 }

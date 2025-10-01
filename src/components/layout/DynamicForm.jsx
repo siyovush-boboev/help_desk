@@ -1,12 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { onEmailChange, getDefaultValues, getValidationRules } from "../../lib/utils/helpers";
-import { BASE_URL, API_BASE_URL, priority_colors } from "../../lib/constants";
+import { API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
-import { OrderIcon } from "../ui/icons";
-import Select from 'react-select';
+import { OrderIcon, PaperClipIcon } from "../ui/icons";
 
 
 function getDisabledFields(itemData, config, preloadData, permissions) {
@@ -35,6 +34,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [isSubmitting, setIsSubmitting] = useState(false);
     const permissions = useMemo(() => JSON.parse(localStorage.getItem("permissions")) || [], []);
     const [firstComment, setFirstComment] = useState(" ");
+    const fileInputRefs = useRef({});
+        // === 1. State for searches in permissions ===
+    const [availableSearch, setAvailableSearch] = useState("");
+    const [assignedSearch, setAssignedSearch] = useState("");
+
     const {
         register,
         handleSubmit,
@@ -47,10 +51,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [history, setHistory] = useState(["loading msg"]);
     const [disabled_fields, setDisabledFields] = useState([]);
     const [err, setErr] = useState("");
+    const initialSelected = itemData?.["permissions"]?.map(String) || [];
+    const [selected, setSelected] = useState(new Set(initialSelected));
+    useEffect(() => {
+        setValue("permissions", Array.from(selected).map(Number), { shouldValidate: true });
+    }, [selected, setValue]);
+
 
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
 
+    // Fetch order history if needed
     useEffect(() => {
         const fetchHistory = async () => {
             try {
@@ -79,7 +90,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             await onSubmit(data); // call the real submit fn
         } catch (err) {
             console.error("Submit error:", err);
-            setErr(err?.response.data.message || "Ошибка при отправке формы");
+            setErr(err?.response?.data?.message || "Ошибка при отправке формы");
         } finally {
             setIsSubmitting(false);
         }
@@ -213,6 +224,34 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         }
     }, [page_name, itemData, permissions, config, preloadData]);
 
+    function getOptionsWithoutInactive(preload, editing_obj) {
+        // go thru all objects in preload and if it has status_id and
+        // its status name in lowercase starts with "неактив" then remove it
+        // Step 1: Get the status group
+        const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
+        const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
+
+        // Step 2: Find all status IDs that are "неактив"
+        const inactiveStatusIds = Object.entries(statusGroup)
+            .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
+            .map(([id]) => id); // IDs are strings
+
+        // Step 3: Loop through preload and remove items with those statuses
+        Object.entries(preload).forEach(([key, items]) => {
+            if (key === statusKey) return; // Skip the status group itself
+
+            Object.entries(items).forEach(([id, item]) => {
+                const itemStatusId = String(item.status_id); // Ensure string for comparison
+                // if status is inactive and we are not editing this very item, remove it
+                if (inactiveStatusIds.includes(itemStatusId)
+                && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
+                    delete preload[key][id];
+                }
+            });
+        });
+        return preload;
+    }
+
     const form_content = 
             Object.entries(config).map(([fieldName, field]) => {
 
@@ -220,30 +259,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
             preloadData = {...preloadOG};
-
-            // go thru all objects in preloadData and if it has status_id and
-            // its status name in lowercase starts with "неактив" then remove it
-            // Step 1: Get the status group
-            const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
-            const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
-
-            // Step 2: Find all status IDs that are "неактив"
-            const inactiveStatusIds = Object.entries(statusGroup)
-                .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
-                .map(([id]) => id); // IDs are strings
-
-            // Step 3: Loop through preloadData and remove items with those statuses
-            Object.entries(preloadData).forEach(([key, items]) => {
-                if (key === statusKey) return; // Skip the status group itself
-
-                Object.entries(items).forEach(([id, item]) => {
-                    const itemStatusId = String(item.status_id); // Ensure string for comparison
-
-                    if (inactiveStatusIds.includes(itemStatusId)) {
-                        delete preloadData[key][id];
-                    }
-                });
-            });
+            preloadData = getOptionsWithoutInactive(preloadData, itemData);
 
             if (field.type === "select" && fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
                 const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
@@ -278,7 +294,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 });
 
                 preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
-                if ((!itemData) || (itemData && itemData["creator"]["id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
+                if ((!itemData) || (itemData && itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
                     if (itemData)
                         preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
@@ -323,42 +339,167 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "multiselect") {
                 let options = preloadData?.[field.label] || {};
-                if (field.label === "Привелигия"){
-                    const others = {}, create = {}, read = {}, update = {}, delete_ = {},
-                          scope = {}, order_create = {}, order_update = {};
+
+                if (field.label === "Привелигия") {
+                    // === 2. Group privileges into categories ===
+                    const groups = {
+                        others: {},
+                        create: {},
+                        read: {},
+                        update: {},
+                        delete_: {},
+                        scope: {},
+                        order_create: {},
+                        order_update: {},
+                    };
+
                     Object.entries(options).forEach(([id, item]) => {
-                        if (item.name.endsWith(":create")) create[id] = item;
-                        else if (item.name.endsWith(":read")) read[id] = item;
-                        else if (item.name.endsWith(":update")) update[id] = item;
-                        else if (item.name.endsWith(":delete")) delete_[id] = item;
-                        else if (item.name.startsWith("scope:")) scope[id] = item;
-                        else if (item.name.startsWith("order:create")) order_create[id] = item;
-                        else if (item.name.startsWith("order:update")) order_update[id] = item;
-                        else others[id] = item;
+                        if (item.name.endsWith(":create")) groups.create[id] = item;
+                        else if (item.name.endsWith(":read")) groups.read[id] = item;
+                        else if (item.name.endsWith(":update")) groups.update[id] = item;
+                        else if (item.name.endsWith(":delete")) groups.delete_[id] = item;
+                        else if (item.name.startsWith("scope:")) groups.scope[id] = item;
+                        else if (item.name.startsWith("order:create")) groups.order_create[id] = item;
+                        else if (item.name.startsWith("order:update")) groups.order_update[id] = item;
+                        else groups.others[id] = item;
                     });
-                    const ordered_options = {1: others, 2: create, 3: read, 4: update, 5: delete_, 6: scope, 7: order_create, 8: order_update};
+
+                    const ordered_groups = {
+                        1: groups.others,
+                        2: groups.create,
+                        3: groups.read,
+                        4: groups.update,
+                        5: groups.delete_,
+                        6: groups.scope,
+                        7: groups.order_create,
+                        8: groups.order_update,
+                    };
+
+                    const togglePermission = (id) => {
+                        if (disabled_fields.includes(field.label)) return;
+
+                        setSelected((prev) => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(id)) newSet.delete(id);
+                            else newSet.add(id);
+                            return newSet;
+                        });
+                    };
+
+                    const moveAllToSelected = () => {
+                        const allIds = Object.keys(options);
+                        setSelected(new Set(allIds));
+                    };
+
+                    const moveAllToAvailable = () => {
+                        setSelected(new Set());
+                    };
+
+                    const isChecked = (id) => selected.has(id);
+
+                    const renderCheckbox = (id, item) => (
+                        <label
+                            key={id}
+                            className={`checkbox-item ${disabled_fields.includes(field.label) ? "checkbox-disabled" : ""}`}
+                        >
+                            <input
+                                type="checkbox"
+                                value={id}
+                                checked={selected.has(id)}
+                                disabled={disabled_fields.includes(field.label)}
+                                onChange={() => togglePermission(id)}
+                            />
+                            <span className="checkbox-label">{item.description}</span>
+                        </label>
+                    );
+
+                    // === 3. Helper to filter items by search ===
+                    const matchesSearch = (item, search) =>
+                        item.description.toLowerCase().includes(search.toLowerCase().trim());
+
                     return (
-                        <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                        <div
+                            key={fieldName}
+                            className="edit-form-field"
+                            style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}
+                        >
                             <label>{field.label}</label>
-                            <div className="checkbox-container">
-                                {Object.entries(ordered_options).map(([, options_list]) => (
-                                    Object.entries(options_list).map(([val, label]) => (
-                                        <label key={val} className="checkbox-item">
-                                            <input
-                                                type="checkbox"
-                                                value={val}
-                                                {...register(fieldName, getValidationRules(field))}
-                                                defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
-                                                disabled={disabled_fields.includes(field.label)}
-                                            />
-                                            <span>{label["description"]}</span>
-                                        </label>
-                                    ))
-                                ))}
+
+                            <div className="privilege-container">
+                                {/* Left: Available */}
+                                <div className="privilege-column">
+                                    <p>Доступные</p>
+                                    <input
+                                        type="text"
+                                        placeholder="Поиск..."
+                                        value={availableSearch}
+                                        onChange={(e) => setAvailableSearch(e.target.value)}
+                                        className="privilege-search"
+                                    />
+
+                                    {Object.entries(ordered_groups).map(([, group]) =>
+                                        Object.entries(group)
+                                            .filter(([id, item]) => {
+                                                return (
+                                                    !isChecked(id) &&
+                                                    matchesSearch(item, availableSearch)
+                                                );
+                                            })
+                                            .map(([id, item]) => renderCheckbox(id, item))
+                                    )}
+                                </div>
+
+                                {/* Middle: Buttons */}
+                                <div className="privilege-separator">
+                                    <button
+                                        type="button"
+                                        onClick={moveAllToSelected}
+                                        disabled={disabled_fields.includes(field.label)}
+                                        className="privilege-button"
+                                    >
+                                        {">>>"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={moveAllToAvailable}
+                                        disabled={disabled_fields.includes(field.label)}
+                                        className="privilege-button"
+                                    >
+                                        {"<<<"}
+                                    </button>
+                                </div>
+
+                                {/* Right: Assigned */}
+                                <div className="privilege-column">
+                                    <p>Назначенные</p>
+                                    <input
+                                        type="text"
+                                        placeholder="Поиск..."
+                                        value={assignedSearch}
+                                        onChange={(e) => setAssignedSearch(e.target.value)}
+                                        className="privilege-search"
+                                    />
+
+                                    {Object.entries(ordered_groups).map(([, group]) =>
+                                        Object.entries(group)
+                                            .filter(([id, item]) => {
+                                                return (
+                                                    isChecked(id) &&
+                                                    matchesSearch(item, assignedSearch)
+                                                );
+                                            })
+                                            .map(([id, item]) => renderCheckbox(id, item))
+                                    )}
+                                </div>
                             </div>
-                            {errors[fieldName] && (
-                                <p>{errors[fieldName].message}</p>
-                            )}
+
+                            <input
+                                type="hidden"
+                                {...register(fieldName, getValidationRules(field))}
+                                value={Array.from(selected).join(",")}
+                            />
+
+                            {errors[fieldName] && <p>{errors[fieldName].message}</p>}
                         </div>
                     );
                 } else {
@@ -375,7 +516,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                             defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
                                             disabled={disabled_fields.includes(field.label)}
                                         />
-                                        <span>{label["name"]}</span>
+                                        <span>{["Роль", "Привелигия"].includes(field.label) ? label["description"] : label["name"]}</span>
                                     </label>
                                 ))}
                             </div>
@@ -385,6 +526,62 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         </div>
                     );
                 }
+            }
+            if (field.type === "textarea" && fieldName === "comment") {
+                const handleFileInputClick = () => {
+                    const fileInput = fileInputRefs.current[`${fieldName}_attachment`];
+                    if (fileInput) {
+                        fileInput.click();
+                    }
+                };
+                return (
+                    <div
+                        key={fieldName}
+                        className="edit-form-field"
+                        style={{
+                            position: "relative",
+                            width: field.width ? `calc(${field.width} - 14px)` : undefined,
+                        }}
+                    >
+                        <label>{field.label}</label>
+
+                        <textarea
+                            disabled={disabled_fields.includes(field.label)}
+                            {...register(fieldName, getValidationRules(field))}
+                            style={{ width: "100%", paddingRight: "40px" }} // padding right for icon space
+                        />
+
+                        <input
+                            type="file"
+                            style={{ display: "none" }}
+                            {...register(`${fieldName}_attachment`)} // separate field name for attachment
+                            ref={(el) => {
+                                register(`${fieldName}_attachment`).ref(el);
+                                fileInputRefs.current[`${fieldName}_attachment`] = el;
+                            }}
+                        />
+
+                        <div
+                            onClick={handleFileInputClick}
+                            style={{
+                                position: "absolute",
+                                bottom: "8px",
+                                right: "8px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <PaperClipIcon />
+                        </div>
+
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            }
+            
+            if ((field.type === "file" || field.type === "file_list") && fieldName === "file") {
+                return null; // skip rendering this field cuz its inside the comment textarea
             }
 
             if (field.type === "file" || field.type === "file_list") {

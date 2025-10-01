@@ -16,11 +16,6 @@ export default function Collections() {
         key => TABLE_PAGES_CONFIG[key].resource.toLowerCase() === collectionName.toLowerCase()
     );
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    // redirect to /main if user should not see this page
-    const navigate = useNavigate();
-    if (!(permissions.includes(`${collectionName}:update`) || permissions.includes(`${collectionName}:create`) || permissions.includes(`${collectionName}:delete`))) {
-        navigate("/main");
-    }
     const config = TABLE_PAGES_CONFIG[collectionName];
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});
@@ -35,8 +30,7 @@ export default function Collections() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
-    // console.log("permissions from collections comp:", permissions);
-
+    
     const filtersFromUrl = useMemo(() => {
         const filters = {};
         for (const [key, value] of searchParams.entries()) {
@@ -49,14 +43,37 @@ export default function Collections() {
         return filters;
     }, [searchParams]);
 
+    // redirect to /main if user should not see this page
+    useEffect(() => {
+        if (!config) {
+            setError("Такой страницы не существует");
+            setLoading(false);
+            return;
+        }
+        
+        setData([]); setPreload({}); setError(""); setPreloadLoaded(false); setLoading(true);
+        
+        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
+        .then(() => setPreloadLoaded(true));
+    }, [collectionName, config]);
+
+    useEffect(() => {
+        if (!config) {
+            setError("Такой страницы не существует");
+            setLoading(false);
+            return;
+        }
+        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
+    }, [collectionName, searchParams, filtersFromUrl, config, refreshKey]);
+    
     const handleSearch = (term) => {
         setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
     };
-
+    
     const handleSort = (column, direction) => {
         console.log("Sorting by:", column, direction);
         const currentParams = Object.fromEntries(searchParams);
-
+        
         // Remove any keys like "sort[...]" from current params
         const filteredParams = Object.fromEntries(
             Object.entries(currentParams).filter(([key]) => !key.startsWith("sort["))
@@ -71,28 +88,7 @@ export default function Collections() {
             limit,
         });
     };
-
-    useEffect(() => {
-        if (!config) {
-            setError("Такой страницы не существует");
-            setLoading(false);
-            return;
-        }
-
-        setData([]); setPreload({}); setError(""); setPreloadLoaded(false); setLoading(true);
-
-        loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
-            .then(() => setPreloadLoaded(true));
-    }, [collectionName, config]);
-
-    useEffect(() => {
-        if (!config) {
-            setError("Такой страницы не существует");
-            setLoading(false);
-            return;
-        }
-        loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
-    }, [collectionName, searchParams, filtersFromUrl, config, refreshKey]);
+    
 
     const onFilterApply = (newFilters) => {
         const flat = {};
@@ -114,6 +110,12 @@ export default function Collections() {
         );
     };
 
+    const navigate = useNavigate();
+    if (!(permissions.includes(`${collectionName}:update`) || permissions.includes(`${collectionName}:create`) || permissions.includes(`${collectionName}:delete`))) {
+        navigate("/main");
+        return;
+    }
+    
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 

@@ -8,7 +8,6 @@ import { AuthContext } from "../../lib/contexts/authContext";
 import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
 // import CheckBox from "../ui/CheckBox";
-import { get_normalized_role_name } from "../../lib/utils/helpers";
 
 
 const Login = () => {
@@ -43,8 +42,6 @@ const Login = () => {
             }
             else {
                 setAccessToken(data.accessToken);
-                const user_role = get_normalized_role_name(data.role_name);
-                localStorage.setItem("user_role", JSON.stringify(user_role));
                 localStorage.setItem("permissions", JSON.stringify(data.permissions));
                 setAuthFailed(false);
                 navigate(next);

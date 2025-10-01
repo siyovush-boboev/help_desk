@@ -146,10 +146,9 @@ export default function DataTable({
                                 );
                             }
                             else if (colName === "Заявитель" || colName === "Исполнитель") {
-                                const user = item[colName === "Заявитель" ? "creator" : "executor"];
-                                const user_full_name = user["fio"];
+                                const user_full_name = item[colName === "Заявитель" ? "creator_name" : "executor_name"];
                                 // const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
-                                const user_id = user["id"];
+                                const user_id = item[colName === "Заявитель" ? "creator_id" : "executor_id"];
                                 return (
                                     <td key={i + colName}>
                                         <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
@@ -184,11 +183,18 @@ export default function DataTable({
                                 return <td key={i + colName}>{sum}</td>;
                             } else if (field?.includes("_id") && (colName in pageData)) {
                                 let field_content = ""
-                                if (item[field]){
-                                    if (colName === "Роль")
-                                        field_content = pageData[colName][item[field]]?.description;
-                                    else
-                                        field_content = pageData[colName][item[field]]?.name;
+                                if (Array.isArray(item[field]) && item[field].length > 0){
+                                    const role_strings = [];
+                                    item[field].forEach(id => {
+                                        if (colName.toLowerCase().includes("рол"))
+                                            role_strings.push(pageData[colName][id]?.description || "");
+                                        else
+                                            role_strings.push(pageData[colName][id]?.name || "");
+                                    });
+                                    field_content = role_strings.join(", ");
+                                }
+                                else if (item[field]){
+                                    field_content = pageData[colName][item[field]]?.name;
                                 }
                                 else if (field in item || field.replace("_id", "") in item){
                                     field_content = item[field.replace("_id", "")]?.["name"]

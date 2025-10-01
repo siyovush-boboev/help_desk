@@ -33,15 +33,6 @@ export default function Orders() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
-    // console.log("permissions from orders comp:", permissions);
-
-    if (!(permissions.includes("scope:all"))) {
-        // remove some filters from an array of banned ones
-        let bannedFilters = ["department_id", "otdel_id"];
-        if (!permissions.includes("scope:department")) bannedFilters.push("executor_id");
-
-        config.filters = config.filters.filter(filter => !bannedFilters.includes(filter.id));
-    }
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};

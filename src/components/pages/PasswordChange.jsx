@@ -4,7 +4,7 @@ import AuthInput from "../ui/AuthInput";
 import AuthContainer from "../layout/AuthContainer";
 import { AuthContext } from "../../lib/contexts/authContext";
 import axios from "../../lib/contexts/axiosInstance";
-import { validate_confirmation, isValidCredsInput, get_normalized_role_name } from "../../lib/utils/helpers";
+import { validate_confirmation, isValidCredsInput } from "../../lib/utils/helpers";
 import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
 
@@ -75,8 +75,6 @@ export default function PasswordChange() {
                     }
                     else {
                         setAccessToken(data.accessToken);
-                        const user_role = get_normalized_role_name(data.role_name);
-                        localStorage.setItem("user_role", JSON.stringify(user_role));
                         localStorage.setItem("permissions", JSON.stringify(data.permissions));
                         setAuthFailed(false);
                         navigate("/main");
