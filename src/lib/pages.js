@@ -266,10 +266,10 @@ export const FORM_CONFIG = {
     login: { label: "Логин", type: "text", required: false },
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
-    role_ids: { label: "Роль", type: "multiselect", required: true },
     photoFile: { label: "Фото", type: "file", required: false },
     position: { label: "Должность", type: "text", required: false },
     status_id: { label: "Статус", type: "select", required: false },
+    role_ids: { label: "Роль", type: "multiselect", required: true },
     is_head: { label: "Руководитель?", type: "checkbox", required: false },
   },
   status: {

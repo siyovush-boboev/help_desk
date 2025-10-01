@@ -208,13 +208,14 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }
 
     useEffect(() => {
-        if (itemData) {
-            // go thru all fields that got dependants in DESC and manually trigger the filters
-            Object.keys(DEPENDANT_FIELDS.desc).forEach(fieldName => {
-                if (itemData[fieldName] !== undefined)
-                    onOptionChange(fieldName);
-            });
+        if (!itemData) {
+            return;
         }
+        // go thru all fields that got dependants in DESC and manually trigger the filters
+        Object.keys(DEPENDANT_FIELDS.desc).forEach(fieldName => {
+            if (itemData[fieldName] !== undefined)
+                onOptionChange(fieldName);
+        });
     }, []);
 
     useEffect(() => {
@@ -315,7 +316,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (field.type === "select") {
                 return (
                     <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
-                        <label>{field.label}</label>
+                        <label>
+                            {field.label}
+                            {field.required && <span style={{ color: 'red' }}> *</span>}
+                        </label>
                         <select
                             disabled={disabled_fields.includes(field.label)}
                             {...register(fieldName, getValidationRules(field))}
@@ -418,94 +422,93 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         item.description.toLowerCase().includes(search.toLowerCase().trim());
 
                     return (
-                        <div
-                            key={fieldName}
-                            className="edit-form-field"
-                            style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}
-                        >
-                            <label>{field.label}</label>
-
-                            <div className="privilege-container">
-                                {/* Left: Available */}
-                                <div className="privilege-column">
-                                    <p>Доступные</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Поиск..."
-                                        value={availableSearch}
-                                        onChange={(e) => setAvailableSearch(e.target.value)}
-                                        className="privilege-search"
-                                    />
-
-                                    {Object.entries(ordered_groups).map(([, group]) =>
-                                        Object.entries(group)
-                                            .filter(([id, item]) => {
-                                                return (
-                                                    !isChecked(id) &&
-                                                    matchesSearch(item, availableSearch)
-                                                );
-                                            })
-                                            .map(([id, item]) => renderCheckbox(id, item))
-                                    )}
-                                </div>
-
-                                {/* Middle: Buttons */}
-                                <div className="privilege-separator">
-                                    <button
-                                        type="button"
-                                        onClick={moveAllToSelected}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                    >
-                                        {">>>"}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={moveAllToAvailable}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                    >
-                                        {"<<<"}
-                                    </button>
-                                </div>
-
-                                {/* Right: Assigned */}
-                                <div className="privilege-column">
-                                    <p>Назначенные</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Поиск..."
-                                        value={assignedSearch}
-                                        onChange={(e) => setAssignedSearch(e.target.value)}
-                                        className="privilege-search"
-                                    />
-
-                                    {Object.entries(ordered_groups).map(([, group]) =>
-                                        Object.entries(group)
-                                            .filter(([id, item]) => {
-                                                return (
-                                                    isChecked(id) &&
-                                                    matchesSearch(item, assignedSearch)
-                                                );
-                                            })
-                                            .map(([id, item]) => renderCheckbox(id, item))
-                                    )}
-                                </div>
+                        <div className="privileges-wrapper">
+                        {/* Sticky Header */}
+                        <div className="privileges-header">
+                            <div className="search-block">
+                            <p>Доступные</p>
+                            <input
+                                type="text"
+                                placeholder="Поиск..."
+                                value={availableSearch}
+                                onChange={(e) => setAvailableSearch(e.target.value)}
+                                className="privilege-search"
+                            />
                             </div>
 
-                            <input
-                                type="hidden"
-                                {...register(fieldName, getValidationRules(field))}
-                                value={Array.from(selected).join(",")}
-                            />
+                            <div className="button-block">
+                            <button
+                                type="button"
+                                onClick={moveAllToSelected}
+                                disabled={disabled_fields.includes(field.label)}
+                                className="privilege-button"
+                                title="Добавить все"
+                            >
+                                {">>>"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={moveAllToAvailable}
+                                disabled={disabled_fields.includes(field.label)}
+                                className="privilege-button"
+                                title="Удалить все"
+                            >
+                                {"<<<"}
+                            </button>
+                            </div>
 
-                            {errors[fieldName] && <p>{errors[fieldName].message}</p>}
+                            <div className="search-block">
+                            <p>Назначенные</p>
+                            <input
+                                type="text"
+                                placeholder="Поиск..."
+                                value={assignedSearch}
+                                onChange={(e) => setAssignedSearch(e.target.value)}
+                                className="privilege-search"
+                            />
+                            </div>
+                        </div>
+
+                        {/* Content Rows */}
+                        <div className="privileges-columns">
+                            {/* Left: Available */}
+                            <div className="privilege-column">
+                            {Object.entries(ordered_groups).map(([, group]) =>
+                                Object.entries(group)
+                                .filter(([id, item]) => !isChecked(id) && matchesSearch(item, availableSearch))
+                                .map(([id, item]) => renderCheckbox(id, item))
+                            )}
+                            </div>
+
+                            {/* Right: Assigned */}
+                            <div className="privilege-column">
+                            {Object.entries(ordered_groups).map(([, group]) =>
+                                Object.entries(group)
+                                .filter(([id, item]) => isChecked(id) && matchesSearch(item, assignedSearch))
+                                .map(([id, item]) => renderCheckbox(id, item))
+                            )}
+                            </div>
+                        </div>
+
+                        {/* Hidden Field */}
+                        {/* <input
+                            type="hidden"
+                            {...register(fieldName, getValidationRules(field))}
+                            value={Array.from(selected || [" "]).join(",")}
+                        /> */}
+
+                        {errors[fieldName] && (
+                            <p>{errors[fieldName].message}</p>
+                        )}
                         </div>
                     );
                 } else {
                     return (
                         <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
-                            <label>{field.label}</label>
+                            <label>
+                                {field.label}
+                                {field.required && <span style={{ color: 'red' }}> *</span>}
+                            </label>
                             <div className="checkbox-container">
                                 {Object.entries(options).map(([val, label]) => (
                                     <label key={val} className="checkbox-item">
@@ -543,7 +546,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             width: field.width ? `calc(${field.width} - 14px)` : undefined,
                         }}
                     >
-                        <label>{field.label}</label>
+                        <label>
+                            {field.label}
+                            {field.required && <span style={{ color: 'red' }}> *</span>}
+                        </label>
 
                         <textarea
                             disabled={disabled_fields.includes(field.label)}
@@ -565,8 +571,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             onClick={handleFileInputClick}
                             style={{
                                 position: "absolute",
-                                bottom: "8px",
-                                right: "8px",
+                                bottom: "24px",
+                                right: "24px",
                                 cursor: "pointer",
                             }}
                         >
@@ -587,7 +593,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (field.type === "file" || field.type === "file_list") {
                 return (
                     <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
-                        <label>{field.label}</label>
+                        <label>
+                            {field.label}
+                            {field.required && <span style={{ color: 'red' }}> *</span>}
+                        </label>
                         <input
                             disabled={disabled_fields.includes(field.label)}
                             type="file"
@@ -611,8 +620,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 defaultChecked={itemData?.[fieldName] || false}
                                 disabled={disabled_fields.includes(field.label)}
                             />
-                            <span>{field.label}</span>
-                            </label>
+                            <span>
+                                {field.label}
+                                {field.required && <span style={{ color: 'red' }}> *</span>}
+                            </span>
+                        </label>
                         {errors[fieldName] && (
                             <p>{errors[fieldName].message}</p>
                         )}
@@ -622,7 +634,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             return (
                 <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
-                    <label>{field.label}</label>
+                    <label>
+                        {field.label}
+                        {field.required && <span style={{ color: 'red' }}> *</span>}
+                    </label>
                     {field.type === "textarea" ? (
                         <textarea
                             disabled={disabled_fields.includes(field.label)}
@@ -657,7 +672,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     return (
         <div className="form-container">
-            <div>
+            <div className="form-wrapper">
                 <p><OrderIcon />{TABLE_PAGES_CONFIG[page_name]["singular"]}</p>
                 {firstComment !== " " &&
                     <div className="first-comment">

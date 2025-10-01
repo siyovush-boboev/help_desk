@@ -670,7 +670,7 @@ html {
   display: flex;
   flex-wrap: wrap;
   padding: 20px 12px;
-  gap: 14px;
+  gap: 12px;
   overflow: auto;
 }
 
@@ -678,7 +678,6 @@ html {
 #editForm select,
 #editForm textarea {
   padding: 8px;
-  margin-top: 4px;
   border: 2px solid var(--input-border);
   border-radius: 4px;
   color: var(--black);
@@ -740,8 +739,11 @@ option {
   gap: 32px;
   padding: 20px;
   overflow: auto;
-  max-width: min(1200px, 80vw);
-  min-height: 100vh;
+  max-width: min(1200px, 90vw);
+}
+
+.order-history-wrapper {
+  min-width: 33%;
 }
 
 .filters-form {
@@ -899,15 +901,9 @@ option {
   max-height: 600px;
   overflow: auto;
 }
-
-/* * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--text-secondary) var(--black);
-  } */
   
 .order-history-wrapper>p {
-  margin-bottom: 20px;
-  width: 360px;
+  margin-bottom: 18px;
   max-height: 600px;
 }
 
@@ -1022,7 +1018,8 @@ option {
   .form-container {
     flex-direction: column;
     align-items: flex-start;
-    }
+  }
+
   .edit-form-field {
     width: 100%;
   }
@@ -1184,10 +1181,6 @@ option {
   overflow: visible;
 }
 
-.form-container > div:first-child {
-  margin: auto 0;
-}
-
 .filter-dropdown {
   position: relative; /* Makes dropdown-options position relative to this */
   min-width: 250px;
@@ -1241,44 +1234,70 @@ option {
   margin-right: 6px;
 }
 
-.privilege-container {
-    display: flex;
-    border: 1px solid var(--input-border);
-    border-radius: 6px;
-    padding: 12px;
-    position: relative;
-    gap: 2rem;
+.privileges-wrapper {
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
 }
 
-.privilege-column {
-    flex: 1;
+/* Sticky Header */
+.privileges-header {
+  display: flex;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px;
+  gap: 1rem;
+  border-bottom: 1px solid #ddd;
 }
 
-.privilege-separator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 1rem;
-}
-
-.privilege-button {
-    padding: 6px 10px;
-    cursor: pointer;
-    margin: 5px 0;
-    border: none;
-    background-color: var(--primary-color);
-    color: var(--white);
-    border-radius: 6px;
-}
-
-.checkbox-disabled {
-    cursor: not-allowed;
+.search-block {
+  flex: 1;
 }
 
 .privilege-search {
-    width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  width: 100%;
+  padding: 6px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.button-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.privilege-button {
+  padding: 6px 10px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-radius: 6px;
+}
+
+.privileges-columns {
+  display: flex;
+  gap: 2rem;
+  padding: 12px;
+  height: 320px;
+  overflow-y: auto;
+}
+
+.privilege-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
