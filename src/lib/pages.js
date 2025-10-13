@@ -16,7 +16,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Заявка",
     plural: "Заявки",
     resource: "order",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -45,7 +45,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Пользователь",
     plural: "Пользователи",
     resource: "user",
-    preload: ["department", "otdel", "branch", "office", "role", "status"],
+    preload: ["department", "otdel", "branch", "office", "role", "status", "position", "permission"],
     columns: {
       "Имя": "fio",
       "Департамент": "department_id",
@@ -190,6 +190,49 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     }
   },
+  position: {
+    singular: "Должность",
+    plural: "Должности",
+    resource: "position",
+    preload: ["status"],
+    columns: {
+      "CHECKMARK": null,
+      "№": null,
+      "Наименование": "name",
+      "Статус": "status_id",
+      "Действия": null
+    }
+  },
+  order_type: {
+    singular: "Тип заявки",
+    plural: "Типы заявок",
+    resource: "order_type",
+    preload: ["status"],
+    columns: {
+      "CHECKMARK": null,
+      "№": null,
+      "Наименование": "name",
+      "Статус": "status_id",
+      "Действия": null
+    }
+  },
+  order_rule: {
+    singular: "Правило заявки",
+    plural: "Правила заявок",
+    resource: "order_rule",
+    preload: ["order_type", "department", "otdel", "position", "status"],
+    columns: {
+      "CHECKMARK": null,
+      "№": null,
+      "Наименование": "name",
+      "Тип заявки": "order_type_id",
+      "Департамент": "department_id",
+      "Отдел": "otdel_id",
+      "Должность": "position_id",
+      "Статус": "status_id",
+      "Действия": null
+    }
+  },
   equipment_type: {
     singular: "Тип оборудования",
     plural: "Типы оборудований",
@@ -242,6 +285,7 @@ export const TABLE_PAGES_CONFIG = {
 
 export const FORM_CONFIG = {
   order: {
+    order_type_id: { label: "Тип заявки", type: "select", required: true },
     name: { label: "Наименование заявки", type: "text", required: true, min: 5, width: "100%" },
     comment: { label: "Описание", type: "textarea", required: false, min: 3, width: "100%" },
     department_id: { label: "Департамент", type: "select", required: true, width: "33%" },
@@ -257,6 +301,18 @@ export const FORM_CONFIG = {
     address: { label: "Адрес", type: "text", required: false, min: 5, width: "100%" },
     file: { label: "Вложение", type: "file", required: false },
   },
+  order_type: {
+    name: { label: "Наименование", type: "text", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
+  order_rule: {
+    name: { label: "Наименование", type: "text", required: true },
+    order_type_id: { label: "Тип заявки", type: "select", required: true },
+    department_id: { label: "Департамент", type: "select", required: true },
+    otdel_id: { label: "Отдел", type: "select", required: false },
+    position_id: { label: "Должность", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
+  },
   user: {
     fio: { label: "Имя", type: "text", required: true, width: "100%" },
     department_id: { label: "Департамент", type: "select", required: true },
@@ -267,10 +323,11 @@ export const FORM_CONFIG = {
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail", type: "email", required: true },
     photoFile: { label: "Фото", type: "file", required: false },
-    position: { label: "Должность", type: "text", required: false },
+    position_id: { label: "Должность", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: false },
     role_ids: { label: "Роль", type: "multiselect", required: true },
     is_head: { label: "Руководитель?", type: "checkbox", required: false },
+    individual_permissions: { label: "Привелигия", type: "multiselect", required: false },
   },
   status: {
     name: { label: "Наименование", type: "text", required: true },
@@ -314,6 +371,11 @@ export const FORM_CONFIG = {
   permission: {
     name: { label: "Наименование", type: "text", required: true },
     description: { label: "Описание", type: "textarea", required: false, width: "100%" },
+  },
+  position: {
+    name: { label: "Наименование", type: "text", required: true },
+    level: { label: "Уровень", type: "number", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
   },
   equipment_type: {
     name: { label: "Наименование", type: "text", required: true },

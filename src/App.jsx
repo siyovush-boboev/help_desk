@@ -15,9 +15,9 @@ import Users from "./components/pages/Users";
 import Collections from "./components/pages/Collections";
 import Reports from "./components/pages/Reports";
 import Settings from "./components/pages/Settings";
-import ModalProvider from "./components/layout/ModalProvider";
 import PasswordReset from "./components/pages/PasswordReset";
 import PasswordChange from "./components/pages/PasswordChange";
+import ModalProvider from "./components/layout/ModalProvider";
 
 import "./index.css";
 

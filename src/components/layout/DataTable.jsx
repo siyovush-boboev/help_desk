@@ -104,14 +104,20 @@ export default function DataTable({
                     {data.map((item, i) => {
                         let hideRow = false;
                         let make_red = false;
+                        let make_green = false;
 
                         const tds = Object.entries(columns).map(([colName, field]) => {
                             if (colName === "Статус") {
                                 const status_id = `${item[field]}`;
                                 const status = pageData[colName]?.[status_id];
-                                if (status?.name === "Закрыто") hideRow = !showClosed;
+                                if (status?.name === "Закрыто"){
+                                    hideRow = !showClosed;
+                                    make_green = true;
+                                }
                                 const icon = <img src={BASE_URL + status?.["icon_small"]} alt="" className="status-icon" />;
-                                return <td key={i + colName}><div className="status-cell">{icon} {status?.name || ""}</div></td>;
+                                return <td key={i + colName}>
+                                           <div className="status-cell">{icon} {status?.name || ""}</div>
+                                       </td>;
                             }
                             else if (colName === "Иконка") {
                                 const icon = item[field] ? <img src={BASE_URL + item[field]} alt="" /> : "Нет иконки";
@@ -208,7 +214,7 @@ export default function DataTable({
                         });
 
                         return (
-                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_red ? "rgba(255, 184, 184, 1)" : "inherit"}} row-id={item.id}>
+                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_red ? "rgba(255, 184, 184, 1)" : make_green ? "rgba(175, 253, 195, 1)" : "inherit"}} row-id={item.id}>
                                 {main_page && <td></td>}
                                 {tds}
                             </tr>

@@ -2,6 +2,7 @@ import axios from "../contexts/axiosInstance";
 import DeleteForm from "../../components/layout/DeleteForm";
 import DynamicForm from "../../components/layout/DynamicForm";
 import { CACHE_TIME_SECONDS } from "../constants";
+import { TABLE_PAGES_CONFIG } from "../pages";
 
 
 export function navbarClickHandler(e) {
@@ -89,7 +90,7 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
 
     } catch (err) {
         console.error(err);
-        setError("Ошибка загрузки данных");
+        setError("Ошибка загрузки справочных данных");
     }
 };
 
@@ -114,7 +115,10 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
         // go thru objects in mainRes.data.body.list
         // if the object has executor field, replace it with executor_id and executor_name fields
         let main_data = mainRes.data.body;
-        if ("pagination" in main_data) main_data = main_data["list"];
+        if ("pagination" in main_data) {
+            mainRes.data.pagination = main_data.pagination;
+            main_data = main_data["list"];
+        }
         main_data = main_data.map(item => {
             if ("executor" in item && item.executor && typeof item.executor === "object") {
                 item.executor_id = item.executor.id;
@@ -133,7 +137,7 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
         setData(mainRes.data);
     } catch (err) {
         console.error(err);
-        setError("Ошибка загрузки таблицы");
+        setError("Ошибка загрузки данных таблицы");
     } finally {
         setLoading(false);
     }
@@ -155,39 +159,65 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 }
 
 
-export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey) {
+export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey=null) {
     if (has_file_field)
         new_data["_files"] = {};
 
-    console.log("Form submitted with data:", new_data);
-
-    // Convert fields properly
     Object.entries(new_data).forEach(([key, val]) => {
-        // check if the value is a file
         if (val instanceof FileList) {
-            if (val.length > 0)
+            if (val.length > 0) {
                 new_data["_files"][key] = val;
+            }
             delete new_data[key];
-        } 
-        else if (val === 0 || val === "" || (Array.isArray(val) && val.length === 0)) {
-            delete new_data[key]; // Remove empty fields
-        } 
-        else if ((typeof itemData?.[key] === "number" && !isNaN(itemData?.[key])) || key.slice(-3) === "_id") {
+
+        // Handle empty values (nulls, empty arrays/objects)
+        } else if (
+            !val ||
+            (Array.isArray(val) && val.length === 0) ||
+            (typeof val === "object" && Object.keys(val).length === 0)
+        ) {
+            if (!itemData) {
+                delete new_data[key];
+            } else if (
+                !itemData[key] ||
+                (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
+                (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
+            ) {
+                delete new_data[key];
+            } else {
+                new_data[key] = null;
+            }
+
+        // Convert to number if its an id
+        } else if (
+            (typeof itemData?.[key] === "number" && !isNaN(itemData[key])) ||
+            key.slice(-3) === "_id"
+        ) {
             new_data[key] = Number(val);
-        } 
-        else if (Array.isArray(val) && val.length > 0 && /^-?\d+$/.test(val[0])) {
+
+        // Convert array of numeric strings to numbers
+        } else if (
+            Array.isArray(val) &&
+            val.length > 0 &&
+            /^-?\d+$/.test(val[0])
+        ) {
             new_data[key] = val.map(Number);
-        } 
-        else if (val && (key.includes("date") || key.includes("duration"))) {
-            let formatted = val;
-            if (formatted.includes("T"))
+
+        // Format date/duration strings
+        } else if (val && (key.includes("date") || key.includes("duration"))) {
+            let formatted = String(val);
+            if (formatted.includes("T")) {
                 formatted += ":00+05:00";
+            }
             new_data[key] = formatted;
-        }
-        else if (typeof val === "string") {
+
+        // Trim strings
+        } else if (typeof val === "string") {
             new_data[key] = val.trim();
         }
     });
+
+    console.log("Form submitted with data:", new_data);
 
     try {
         if (!itemData) {
@@ -230,14 +260,11 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
 
             for (const key in new_data) {
                 if (key === "login") continue;
-                // if (key === "duration") {
-                //     itemData[key] = itemData[key]?.slice(0, 16);
-                // }
                 const newVal = new_data[key];
                 const oldVal = itemData[key];
 
                 const isDifferent =
-                    ((typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean") && newVal !== oldVal) ||
+                    ((typeof newVal === "string" || typeof newVal === "number" || typeof newVal === "boolean" || newVal === null) && newVal !== oldVal) ||
                     (newVal instanceof FileList && newVal.length > 0) ||
                     (Array.isArray(newVal) &&
                         (!Array.isArray(oldVal) ||
@@ -356,21 +383,6 @@ export const onSandwitchClick = () => {
     nav.style.left = nav.style.left === "0px" ? "-1000px" : "0px";
 }
 
-// export function get_normalized_role_name(role) {
-//     const keywords = {
-//         // superuser: ["super", "супер"],
-//         admin: ["admin", "админ"],
-//         user: ["user", "пользователь", "руководитель"],
-//         executor: ["executor", "исполнитель"],
-//         viewer: ["view", "ревизор", "наблюдатель", "revisor", "viewer", "observer"],
-//     }
-//     role = role.toLowerCase().replace(/\s+/g, '').replace(/-/g, '').replace(/_/g, '').replace(/\./g, '').replace(/"/g, '');
-//     for (const [normalized, keys] of Object.entries(keywords)) {
-//         if (keys.some(k => role.includes(k))) return normalized;
-//     }
-//     return "unknown";
-// }
-
 
 export const onEmailChange = (e => {
     const email = e.target.value;
@@ -415,7 +427,9 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
 
 export const getValidationRules = (field) => {
     const rules = {};
-    if (field.required) rules.required = `"${field.label}" обязательно для заполнения`;
+
+    if (field.required)
+        rules.required = `"${field.label}" обязательно для заполнения`;
 
     if (field.label === "Телефон") {
         rules.pattern = {
@@ -427,19 +441,16 @@ export const getValidationRules = (field) => {
     if (field.type === "text") {
         rules.minLength = { value: field?.min || 1, message: `Слишком мало символов` };
         rules.maxLength = { value: field?.max || 255, message: `Слишком много символов (255)` };
-    }
-    else if (field.type === "number") {
+    } else if (field.type === "number") {
         rules.min = { value: 0, message: `Это число не может быть отрицательным` };
         rules.max = { value: 2 ** 32 - 1, message: `Слишком большое  число` };
         rules.valueAsNumber = true;
-    }
-    else if (field.type === "email") {
+    } else if (field.type === "email") {
         rules.pattern = {
             value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
             message: "Неправильный формат email",
         };
-    }
-    else if (field.type === "date" || field.type === "datetime-local") {
+    } else if (field.type === "date" || field.type === "datetime-local") {
         rules.validate = {
             isValidDate: (value) => {
                 if (!value) return true; // allow empty if not required
@@ -447,12 +458,29 @@ export const getValidationRules = (field) => {
                 return !isNaN(date.getTime()) || `Некорректная дата`;
             },
         };
-    }
-    else if (field.type === "multiselect") {
+    } else if (field.type === "multiselect") {
         rules.validate = { notEmpty: (val) => val?.length > 0 || `Выберите хотя бы один вариант для ${field.label.toLowerCase()}`, };
     }
 
     return rules;
 };
 
+export function getDisabledFields(itemData, config, preloadData, permissions) {
+    let new_disabled_fields = [];
+    const mode = itemData ? "update" : "create";
 
+    Object.entries(config).forEach(([fieldName, field]) => {
+        const label = field.label || fieldName;
+        if (!permissions.includes(`order:${mode}:${fieldName}`)){
+            new_disabled_fields.push(label);
+        }
+    });
+
+    if (itemData && itemData.status_id) {
+        const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+        const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
+        if (status_name === "Закрыто")
+            new_disabled_fields = Object.values(config).map(field => field.label);
+    }
+    return new_disabled_fields;
+}

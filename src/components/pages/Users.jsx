@@ -144,10 +144,10 @@ export default function Users() {
             />
 
             <Pagination
-                totalItems={data?.body?.pagination?.total_count || data?.body?.length || 0}
-                currentPage={currentPage || data?.body?.pagination?.page || 1}
-                totalPages={data?.body?.pagination?.total_pages || 1}
-                limit={limit || data?.body?.pagination?.limit || 10}
+                totalItems={data?.pagination?.total_count || data?.body?.length || 0}
+                currentPage={currentPage || data?.pagination?.page || 1}
+                totalPages={data?.pagination?.total_pages || 1}
+                limit={limit || data?.pagination?.limit || 10}
                 onPageChange={(page) => {
                     setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}
