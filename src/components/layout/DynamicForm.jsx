@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
-import { onEmailChange, getDefaultValues, getValidationRules, getDisabledFields } from "../../lib/utils/helpers";
+import { onEmailChange, getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
 import { API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
@@ -19,16 +19,12 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const fileInputRefs = useRef({});
     const [history, setHistory] = useState(["loading msg"]);
     const [disabled_fields, setDisabledFields] = useState([]);
-    const initialSelected = itemData?.["permissions"]?.map(String) || [];
-    const [selected, setSelected] = useState(new Set(initialSelected));
+    const [selected, setSelected] = useState(new Set(itemData?.["permissions"]?.map(String) || []));
     const [orderType, setOrderType] = useState("");
 
     // === 1. State for searches in permissions ===
     const [availableSearch, setAvailableSearch] = useState("");
     const [assignedSearch, setAssignedSearch] = useState("");  
-    
-    const [allowedPermissions, setAllowedPermissions] = useState(new Set());
-    const [bannedPermissions, setBannedPermissions] = useState(new Set());
 
     const {
         register,
@@ -70,6 +66,23 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         }
     }, [itemData?.id, page_name]);
 
+    // fetch permissions if needed
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/user/${itemData.id}/permission`);
+                const has_access = res.data.body.has_access;
+                setSelected(new Set(has_access.map(item => item.id).map(String)));
+            } catch (err) {
+                console.error("Error loading permissions:", err);
+            }
+        };
+
+        if (itemData?.id && page_name === "user") {
+            fetchPermissions();
+        }
+    }, [itemData?.id, page_name]);
+
     const handleFormSubmit = async (data) => {
         try {
             setIsSubmitting(true);
@@ -85,18 +98,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     function onOptionChange(fieldName) {
         const origin_select = document.querySelector(`select[name="${fieldName}"]`);
         if (!origin_select) return;
-        const origin_val = origin_select.value;
+        let origin_val = origin_select.value;
+
+        if (Number(origin_val)) origin_val = Number(origin_val);
 
         if (page_name === "order" && fieldName === "order_type_id") {
             setOrderType(origin_val);
-            const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][origin_val]["name"];
-            if (order_type_title.toLowerCase().startsWith("администр")) {
-                // if order_type_id is "Административный" then set some fields and disable them
-                const department_id = Object.values(preloadData[TABLE_PAGES_CONFIG["department"]["singular"]]).find(obj => obj.name.toLowerCase().includes("операц")).id;
-                const otdel_id = Object.values(preloadData[TABLE_PAGES_CONFIG["otdel"]["singular"]]).find(obj => obj.name.toLowerCase().includes("о")).id;
-                setValue("department_id", department_id);
-                setValue("otdel_id", otdel_id);
-                setDisabledFields(() => [...disabled_fields, "Департамент", "Отдел"]);
+            const rule = Object.values(preloadData[TABLE_PAGES_CONFIG["order_rule"]["singular"]]).find(innerObj => innerObj[fieldName] === origin_val);;
+            if (rule) {
+                setValue("department_id", rule.department_id);
+                setValue("otdel_id", rule.otdel_id);
+                setDisabledFields(() => [...disabled_fields, "Департамент", "Отдел", "Исполнитель", "Срок"]);
             } else {
                 setDisabledFields(getDisabledFields(itemData, config, preloadData, permissions));
             }
@@ -440,7 +452,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     const matchesSearch = (item, search) =>
                         item.description.toLowerCase().includes(search.toLowerCase().trim());
 
-                    if (page_name === "role"){
                         return (
                             <div className="privileges-wrapper">
                             {/* Sticky Header */}
@@ -515,148 +526,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             )}
                             </div>
                         );
-                    }
-                    else if (page_name === "user"){
-                        const toggleAllowed = (id) => {
-                            setAllowedPermissions(prevAllowed => {
-                                const newAllowed = new Set(prevAllowed);
-                                if (newAllowed.has(id)) {
-                                    newAllowed.delete(id);
-                                } else {
-                                    newAllowed.add(id);
-                                }
-                                return newAllowed;
-                            });
-
-                            // Always remove from banned when added to allowed
-                            setBannedPermissions(prevBanned => {
-                                const newBanned = new Set(prevBanned);
-                                newBanned.delete(id);
-                                return newBanned;
-                            });
-                        };
-                        const toggleBanned = (id) => {
-                            setBannedPermissions(prevBanned => {
-                                const newBanned = new Set(prevBanned);
-                                if (newBanned.has(id)) {
-                                    newBanned.delete(id);
-                                } else {
-                                    newBanned.add(id);
-                                }
-                                return newBanned;
-                            });
-
-                            // Always remove from allowed when added to banned
-                            setAllowedPermissions(prevAllowed => {
-                                const newAllowed = new Set(prevAllowed);
-                                newAllowed.delete(id);
-                                return newAllowed;
-                            });
-                        };
-
-                        const renderCheckbox = (id, item, checked, onChange) => (
-                            <label key={id} className="checkbox-item">
-                                <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={() => onChange(id)}
-                                />
-                                <span className="checkbox-label">{item.description}</span>
-                            </label>
-                        );
-                        const allowAllPermissions = () => {
-                            const allIds = Object.keys(options);
-                            setAllowedPermissions(new Set(allIds));
-                            setBannedPermissions(new Set()); // clear banned
-                        };
-
-                        const banAllPermissions = () => {
-                            const allIds = Object.keys(options);
-                            setBannedPermissions(new Set(allIds));
-                            setAllowedPermissions(new Set()); // clear allowed
-                        };
-
-                        return (
-                            <div className="privileges-wrapper">
-                                {/* Sticky Header */}
-                                <div className="privileges-header">
-                                <div className="search-block">
-                                    <p>Запрещенные</p>
-                                    <input
-                                    type="text"
-                                    placeholder="Поиск..."
-                                    value={availableSearch}
-                                    onChange={(e) => setAvailableSearch(e.target.value)}
-                                    className="privilege-search"
-                                    />
-                                </div>
-
-                                <div className="button-block">
-                                    <button
-                                        type="button"
-                                        onClick={allowAllPermissions}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                        title="Разрешить все"
-                                    >
-                                        {">>>"}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={banAllPermissions}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                        title="Запретить все"
-                                    >
-                                        {"<<<"}
-                                    </button>
-                                </div>
-
-                                <div className="search-block">
-                                    <p>Разрешенные</p>
-                                    <input
-                                    type="text"
-                                    placeholder="Поиск..."
-                                    value={assignedSearch}
-                                    onChange={(e) => setAssignedSearch(e.target.value)}
-                                    className="privilege-search"
-                                    />
-                                </div>
-                                </div>
-
-                                {/* Content Rows */}
-                                <div className="privileges-columns">
-                                    {/* Left: Banned */}
-                                    <div className="privilege-column">
-                                        <h3>Запрещенные</h3>
-                                        {Object.entries(ordered_groups).map(([, group]) =>
-                                            Object.entries(group)
-                                                .filter(([, item]) => matchesSearch(item, availableSearch))
-                                                .map(([id, item]) =>
-                                                    renderCheckbox(id, item, bannedPermissions.has(id), toggleBanned)
-                                                )
-                                        )}
-                                    </div>
-
-                                    {/* Right: Allowed */}
-                                    <div className="privilege-column">
-                                        <h3>Разрешенные</h3>
-                                        {Object.entries(ordered_groups).map(([, group]) =>
-                                            Object.entries(group)
-                                                .filter(([, item]) => matchesSearch(item, assignedSearch))
-                                                .map(([id, item]) =>
-                                                    renderCheckbox(id, item, allowedPermissions.has(id), toggleAllowed)
-                                                )
-                                        )}
-                                    </div>
-                                </div>
-
-                                {errors[fieldName] && (
-                                    <p>{errors[fieldName].message}</p>
-                                )}
-                            </div>
-                            );
-                    }
                 } else {
                     return (
                         <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
@@ -805,6 +674,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             {...register(fieldName, getValidationRules(field))}
                             onChange={(fieldName === "email" || null) && onEmailChange}
                             disabled={fieldName === "login" || disabled_fields.includes(field.label)}
+                            onInput={
+                                field.label.toLowerCase() === "имя"
+                                ? (e) => {const capitalized = capitalizeName(e.target.value);e.target.value = capitalized;} 
+                                : undefined
+                            }
                         />
                     )}
                     {errors[fieldName] && (

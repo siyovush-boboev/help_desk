@@ -29,8 +29,9 @@ export default function Header() {
                 const {
                     id,
                     fio,
-                    position,
+                    position_name,
                     department_id,
+                    department_name,
                     email,
                     phone_number,
                     photo_url,
@@ -39,8 +40,9 @@ export default function Header() {
                 setUserDetails({
                     id,
                     fio,
-                    position,
+                    position_name,
                     department_id,
+                    department_name,
                     email,
                     phone_number,
                     photo_url
@@ -64,8 +66,8 @@ export default function Header() {
             <UserInfoModal
                 userId={userDetails.id}
                 onClose={closeModal}
-                departments={preload[TABLE_PAGES_CONFIG["department"]["singular"]]}
                 data={userDetails}
+                details_state={[userDetails, setUserDetails]}
             />
         );
     };

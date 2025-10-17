@@ -223,6 +223,20 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         if (!itemData) {
             // CREATE NEW
             console.log("Creating new item:", new_data);
+            if (url === "user" && new_data["permissions"]){
+                const permissions_data = {"has_access_ids": [], "no_access_ids": []};
+                const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
+                Object.values(all_permissions).forEach(permission => {
+                    if (new_data["permissions"].includes(permission.id)) {
+                        permissions_data["has_access_ids"].push(permission.id);
+                    } else {
+                        permissions_data["no_access_ids"].push(permission.id);
+                    }
+                });
+                new_data["has_access_ids"] = permissions_data["has_access_ids"];
+                new_data["no_access_ids"] = permissions_data["no_access_ids"];
+                delete new_data["permissions"];
+            }
             // check if we have files
             if (has_file_field) {
                 const _files = {...new_data["_files"]};
@@ -248,7 +262,6 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             }
 
             setRefreshKey(prev => prev + 1);
-
             console.log("Created successfully");
         } else {
             // EDIT EXISTING
@@ -257,6 +270,21 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             const changedFields = {};
             const changedFiles = {...new_data["_files"]};
             delete new_data["_files"];
+
+            if (url === "user" && new_data["permissions"]){
+                const permissions_data = {"has_access_ids": [], "no_access_ids": []};
+                const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
+                Object.values(all_permissions).forEach(permission => {
+                    if (new_data["permissions"].includes(permission.id)) {
+                        permissions_data["has_access_ids"].push(permission.id);
+                    } else {
+                        permissions_data["no_access_ids"].push(permission.id);
+                    }
+                });
+                new_data["has_access_ids"] = permissions_data["has_access_ids"];
+                new_data["no_access_ids"] = permissions_data["no_access_ids"];
+                delete new_data["permissions"];
+            }
 
             for (const key in new_data) {
                 if (key === "login") continue;
@@ -301,6 +329,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                     // No file changes, send as JSON
                     await axios.put(`/${url}/${new_data.id}`, changedFields);
                 }
+
 
                 setRefreshKey(prev => prev + 1);
             } else {
@@ -483,4 +512,21 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
             new_disabled_fields = Object.values(config).map(field => field.label);
     }
     return new_disabled_fields;
+}
+
+
+export function capitalizeName(str) {
+  if (!str) return "";
+
+  return str
+    .split(" ")
+    .map(word =>
+      word
+        .split("-")
+        .map(part =>
+          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        )
+        .join("-")
+    )
+    .join(" ");
 }

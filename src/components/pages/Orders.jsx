@@ -75,7 +75,6 @@ export default function Orders() {
             <UserInfoModal
                 userId={userId}
                 onClose={closeModal}
-                departments={preload[TABLE_PAGES_CONFIG["department"]["singular"]]}
             />
         );
     };

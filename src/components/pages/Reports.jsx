@@ -11,3 +11,23 @@ export default function Reports() {
         </div>
     );
 }
+
+
+/*
+
+
+filters:
+    period date_from date_to
+    event_type
+    user_ids
+
+
+buttons
+
+table
+
+
+
+for now just put a download button
+
+*/

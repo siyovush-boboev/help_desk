@@ -350,8 +350,9 @@ button:disabled {
 #search-input:focus,
 #login:focus,
 #password:focus {
-  border-color: var(--input-focus) !important;
   box-shadow: 0 0 10px rgba(6, 158, 161, 0.6);
+  border: 1px solid var(--input-focus) !important;
+  outline: none;
 }
 
 #clear-button {
@@ -533,7 +534,6 @@ html {
   object-fit: cover;
 }
 
-
 .user-info-close-button {
   position: relative;
   top: 24px;
@@ -570,20 +570,25 @@ html {
   gap: 20px;
   padding: 20px 0;
   width: 100%;
-  max-width: 420px;
-  overflow: auto;
 }
 
 .user-text-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: 200px;
+  width: 200px;
 }
 
-.user-text-info label {
+.user-text-info > div > label {
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.user-text-info > div > input {
+  display: block;
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid var(--input-border);
 }
 
 .modal-buttons,
@@ -678,7 +683,7 @@ html {
 #editForm select,
 #editForm textarea {
   padding: 8px;
-  border: 2px solid var(--input-border);
+  border: 1px solid var(--input-border);
   border-radius: 4px;
   color: var(--black);
   background-color: var(--white);
@@ -691,8 +696,10 @@ html {
   background-color: var(--input-border);
 }
 
-#editForm input[name="is_head"] {
-  margin-top: 8px;
+#editForm input:focus,
+#editForm select:focus,
+#editForm textarea:focus {
+  outline: none;
 }
 
 option {
@@ -1012,7 +1019,7 @@ option {
 
   .user-info-main-container {
     padding: 20px;
-    max-width: 260px;
+    max-width: 290px;
   }
 
   .form-container {
@@ -1026,6 +1033,11 @@ option {
 
   .checkbox-item {
     min-width: calc(100% - 12px);
+  }
+
+  .user-info-main-content {
+    overflow: auto;
+    gap: 28px;
   }
 }
 
@@ -1118,7 +1130,7 @@ option {
   100%{transform: rotate(1turn)}
 }
 
-.btn-logout {
+.btn-logout, .btn-edit, .btn-cancel, .btn-save {
   background-color: var(--primary-color);
   color: var(--white);
   border: none;

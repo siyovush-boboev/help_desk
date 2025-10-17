@@ -16,7 +16,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Заявка",
     plural: "Заявки",
     resource: "order",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -326,7 +326,6 @@ export const FORM_CONFIG = {
     position_id: { label: "Должность", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: false },
     role_ids: { label: "Роль", type: "multiselect", required: true },
-    is_head: { label: "Руководитель?", type: "checkbox", required: false },
     individual_permissions: { label: "Привелигия", type: "multiselect", required: false },
   },
   status: {
