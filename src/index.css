@@ -559,9 +559,13 @@ html {
   padding: 40px;
 }
 
-.user-info-main-container p:first-child {
+.user-info-main-container > p:first-child {
   padding-bottom: 4px;
   border-bottom: 1px solid var(--black);
+}
+
+.user-info-main-container > .login-error {
+  margin: 0 auto auto auto;
 }
 
 .user-info-main-content {
@@ -589,6 +593,11 @@ html {
   padding: 2px;
   border-radius: 4px;
   border: 1px solid var(--input-border);
+}
+
+.user-info-buttons {
+  margin-top: auto;
+  display: flex;
 }
 
 .modal-buttons,

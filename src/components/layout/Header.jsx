@@ -32,6 +32,8 @@ export default function Header() {
                     position_name,
                     department_id,
                     department_name,
+                    otdel_name,
+                    branch_name,
                     email,
                     phone_number,
                     photo_url,
@@ -43,6 +45,8 @@ export default function Header() {
                     position_name,
                     department_id,
                     department_name,
+                    otdel_name,
+                    branch_name,
                     email,
                     phone_number,
                     photo_url

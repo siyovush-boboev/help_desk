@@ -6,6 +6,7 @@ import { BASE_URL, API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { UserInfoCloseIcon } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
+import { isValidCredsInput, capitalizeName } from "../../lib/utils/helpers";
 
 export default function UserInfoModal({ userId, onClose, data = null, details_state=null }) {
     const [userData, setUserData] = useState(data);
@@ -13,6 +14,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     const [logoutLoading, setLogoutLoading] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [error, setError] = useState(null);
     const fileInputRef = useRef();
 
     let initialLastName = "";
@@ -23,7 +25,16 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
 
     if (data || userData) {
         const fioParts = (userData?.fio || "").split(" ");
-        [initialLastName, initialFirstName, initialMiddleName] = fioParts;
+        if (fioParts.length >= 3) {
+            initialLastName = fioParts[0];
+            initialFirstName = fioParts[1];
+            initialMiddleName = fioParts[2];
+        } else if (fioParts.length === 2) {
+            initialLastName = fioParts[0];
+            initialFirstName = fioParts[1];
+        } else if (fioParts.length === 1) {
+            initialFirstName = fioParts[0];
+        }
         initialEmail = userData?.email || "";
         initialPhoneNumber = userData?.phone_number || "";
     }
@@ -99,13 +110,15 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     }
 
     const infoBlocks = [
-        { id: "last_name", label: "Фамилия", value: initialLastName },
-        { id: "first_name", label: "Имя", value: initialFirstName },
-        { id: "middle_name", label: "Отчество", value: initialMiddleName },
-        { id: "email", label: "E-mail", value: userData.email },
-        { id: "phone_number", label: "Телефон", value: userData.phone_number },
-        { id: "position", label: "Должность", value: userData.position_name },
-        { id: "department", label: "Департамент", value: userData.department_name },
+        { id: "last_name", label: "Фамилия", value: initialLastName || "-" },
+        { id: "first_name", label: "Имя", value: initialFirstName || "-" },
+        { id: "middle_name", label: "Отчество", value: initialMiddleName || "-" },
+        { id: "email", label: "E-mail", value: userData.email || "-" },
+        { id: "phone_number", label: "Телефон", value: userData.phone_number || "-" },
+        { id: "position", label: "Должность", value: userData.position_name || "-" },
+        { id: "department", label: "Департамент", value: userData.department_name || "-" },
+        { id: "otdel", label: "Отдел", value: userData.otdel_name || "-" },
+        { id: "branch", label: "Филиал", value: userData.branch_short_name || userData.branch_name || "-" },
     ];
 
     const handleChange = (e) => {
@@ -114,9 +127,21 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     };
 
     const handleSave = async () => {
-        editedFields.fio = `${editedFields.last_name} ${editedFields.first_name} ${editedFields.middle_name}`;
+        setError(null);
+        editedFields.fio = capitalizeName([editedFields.last_name, editedFields.first_name, editedFields.middle_name].join(" "));
         const {fio, email, phone_number } = editedFields;
-        if (!fio || !email || !phone_number) {
+        if (!(editedFields.first_name || editedFields.last_name || editedFields.middle_name)){
+            setError("Введите ФИО");
+            return;
+        }
+        const email_error = isValidCredsInput(email, "email", false);
+        if (email_error){
+            setError(email_error);
+            return;
+        }
+        const phone_error = isValidCredsInput(phone_number, "phone", false);
+        if (phone_error){
+            setError(phone_error);
             return;
         }
         // iterate and add only changed fields
@@ -171,7 +196,8 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
             setEditMode(false);
         } catch (err) {
             console.error("Ошибка при обновлении данных:", err);
-            alert("Не удалось сохранить изменения");
+            console.log("error", err);
+            setError(err?.response?.data?.message || err.message || "Не удалось обновить данные. Попробуйте позже.");
         } finally {
             setLogoutLoading(false);
         }
@@ -229,7 +255,6 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                                             name={b.id}
                                             value={editedFields[b.id]}
                                             onChange={handleChange}
-                                            required
                                         />
                                     ) : (
                                         <p id={b.id}>{editedFields[b.id] || b.value}</p>
@@ -241,23 +266,26 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                 </div>
 
                 {data && (
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginTop: "20px", flexWrap: "wrap" }}>
-                        {logoutLoading ? (
-                            <div className="loader-black"></div>
-                        ) : (
-                            <>
-                                {editMode ? (
-                                    <>
-                                        <button className="btn-save" type="submit" form="edit-user-form">Сохранить</button>
-                                        <button className="btn-cancel" onClick={handleCancel}>Отмена</button>
-                                    </>
-                                ) : (
-                                    <button className="btn-edit" onClick={() => setEditMode(true)}>Редактировать</button>
-                                )}
-                                <button className="btn-logout" onClick={handleLogout}>Выйти</button>
-                            </>
-                        )}
-                    </div>
+                    <>
+                        <p className="login-error">{error}&nbsp;</p>
+                        <div className="user-info-buttons">
+                            {logoutLoading ? (
+                                <div className="loader-black"></div>
+                            ) : (
+                                <>
+                                    {editMode ? (
+                                        <>
+                                            <button className="btn-save" type="submit" form="edit-user-form">Сохранить</button>
+                                            <button className="btn-cancel" onClick={handleCancel}>Отмена</button>
+                                        </>
+                                    ) : (
+                                        <button className="btn-edit" onClick={() => setEditMode(true)}>Редактировать</button>
+                                    )}
+                                    <button className="btn-logout" onClick={handleLogout}>Выйти</button>
+                                </>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
         </div>

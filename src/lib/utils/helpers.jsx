@@ -377,23 +377,29 @@ export function hide_credentials(credentials, method) {
 }
 
 
-export function isValidCredsInput(input){
+export function isValidCredsInput(input, cred_type=null, blank=true){
     const trimmed = input.trim();
-    if (trimmed === "") return "";
+    if (trimmed === ""){
+        if (!blank) return "Поле не может быть пустым";
+        return "";
+    }
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (emailRegex.test(trimmed)) return "";
-    if (trimmed.includes('@')) return 'Неверный формат email';
+    if (cred_type === "email" || !cred_type){
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (emailRegex.test(trimmed)) return "";
+        if (trimmed.includes('@') || cred_type) return 'Неверный формат email';
+    }
 
-    if (/[^+\d\s]/.test(trimmed)) return 'Недопустимые символы в номере';
-    if ((trimmed.match(/\+/g) || []).length > 1) return 'Только один "+" разрешён';
-    if (trimmed.includes('+') && !trimmed.startsWith('+')) return '"+ должен быть в начале';
-
-    const digitsOnly = trimmed.replace(/\s/g, '').replace(/^\+/, '');
-    if (digitsOnly.length < 9 || digitsOnly.length > 12) return 'Номер должен содержать от 9 до 12 цифр';
-    if (trimmed.startsWith("+") && digitsOnly.length < 12) return 'Номер должен содержать 12 цифр, после знака "+"';
-    if (digitsOnly.length === 12 && !digitsOnly.startsWith("992")) return 'Номер должен начинаться с 992';
-
+    if (cred_type === "phone" || !cred_type){
+        if (/[^+\d\s]/.test(trimmed)) return 'Недопустимые символы в номере';
+        if ((trimmed.match(/\+/g) || []).length > 1) return 'Только один "+" разрешён';
+        if (trimmed.includes('+') && !trimmed.startsWith('+')) return '"+ должен быть в начале';
+    
+        const digitsOnly = trimmed.replace(/\s/g, '').replace(/^\+/, '');
+        if (digitsOnly.length < 9 || digitsOnly.length > 12) return 'Номер должен содержать от 9 до 12 цифр';
+        if (trimmed.startsWith("+") && digitsOnly.length < 12) return 'Номер должен содержать 12 цифр, после знака "+"';
+        if (digitsOnly.length === 12 && !digitsOnly.startsWith("992")) return 'Номер должен начинаться с 992';
+    }
     return "";
 };
 
