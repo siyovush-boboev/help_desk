@@ -141,6 +141,20 @@ export default function Users() {
                 onSort={handleSort}
                 showEdit={showEdit}
                 showDelete={showDelete}
+                showPermissionsEdit={true}
+                onPermissionsEdit={(id) =>
+                    onCreate(
+                        setModalContent,
+                        closeModal,
+                        preload,
+                        FORM_CONFIG["individual_permissions"],
+                        config["permissions_resource"],
+                        (data.body?.list || data.body).find((item) => item.id === id),
+                        false,
+                        setRefreshKey,
+                        PAGE_NAME,
+                    )
+                }
             />
 
             <Pagination

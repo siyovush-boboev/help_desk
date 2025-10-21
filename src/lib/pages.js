@@ -3,7 +3,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Главная",
     plural: "Главная",
     resource: "main",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -45,6 +45,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Пользователь",
     plural: "Пользователи",
     resource: "user",
+    permissions_resource: "user/permission",
     preload: ["department", "otdel", "branch", "office", "role", "status", "position", "permission"],
     columns: {
       "Имя": "fio",
@@ -53,6 +54,7 @@ export const TABLE_PAGES_CONFIG = {
       "Роль": "role_ids",
       "Телефон": "phone_number",
       "E-mail": "email",
+      "Должность": "position_id",
       "Статус": "status_id",
       "Действия": null
     },
@@ -194,11 +196,14 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Должность",
     plural: "Должности",
     resource: "position",
-    preload: ["status"],
+    preload: ["status", "department", "otdel", "branch", "office", "position_type"],
     columns: {
       "CHECKMARK": null,
       "№": null,
       "Наименование": "name",
+      "Департамент": "department_id",
+      "Отдел": "otdel_id",
+      "Филиал": "branch_id",
       "Статус": "status_id",
       "Действия": null
     }
@@ -220,7 +225,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Правило заявки",
     plural: "Правила заявок",
     resource: "order_rule",
-    preload: ["order_type", "department", "otdel", "position", "status"],
+    preload: ["order_type", "department", "otdel", "position", "status", "position_type"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -228,7 +233,7 @@ export const TABLE_PAGES_CONFIG = {
       "Тип заявки": "order_type_id",
       "Департамент": "department_id",
       "Отдел": "otdel_id",
-      "Должность": "position_id",
+      "Должность": "position_type_name",
       "Статус": "status_id",
       "Действия": null
     }
@@ -272,7 +277,15 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Отчет",
     plural: "Отчеты",
     resource: "report",
-    preload: [],
+    preload: ["user", "order_type", "priority"],
+    filters: [
+      {id: "date_from", label: "Начальная дата"},
+      {id: "date_to", label: "Конечная дата"},
+      {id: "order_type_ids", label: "Тип заявки"},
+      {id: "priority_ids", label: "Приоритет"},
+      {id: "executor_ids", label: "Пользователь"},
+      {id: "format", label: "Формат"},
+    ],
   },
   setting: {
     singular: "Настройка",
@@ -310,7 +323,7 @@ export const FORM_CONFIG = {
     order_type_id: { label: "Тип заявки", type: "select", required: true },
     department_id: { label: "Департамент", type: "select", required: true },
     otdel_id: { label: "Отдел", type: "select", required: false },
-    position_id: { label: "Должность", type: "select", required: true },
+    position_type: { label: "Должность", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
   },
   user: {
@@ -319,14 +332,15 @@ export const FORM_CONFIG = {
     otdel_id: { label: "Отдел", type: "select", required: false },
     branch_id: { label: "Филиал", type: "select", required: true },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
-    login: { label: "Логин", type: "text", required: false },
-    phone_number: { label: "Телефон", type: "text", required: true },
-    email: { label: "E-mail", type: "email", required: true },
-    photoFile: { label: "Фото", type: "file", required: false },
-    position_id: { label: "Должность", type: "select", required: true },
-    status_id: { label: "Статус", type: "select", required: false },
     role_ids: { label: "Роль", type: "multiselect", required: true },
-    individual_permissions: { label: "Привелигия", type: "multiselect", required: false },
+    position_id: { label: "Должность", type: "select", required: true },
+    phone_number: { label: "Телефон", type: "text", required: true },
+    email: { label: "E-mail / Логин", type: "email", required: true },
+    photoFile: { label: "Фото", type: "file", required: false },
+    status_id: { label: "Статус", type: "select", required: false },
+  },
+  individual_permissions: {
+    permissions: { label: "Привелигия", type: "multiselect", required: false, width: "100%" },
   },
   status: {
     name: { label: "Наименование", type: "text", required: true },
@@ -373,8 +387,12 @@ export const FORM_CONFIG = {
   },
   position: {
     name: { label: "Наименование", type: "text", required: true },
-    level: { label: "Уровень", type: "number", required: true },
     status_id: { label: "Статус", type: "select", required: true },
+    department_id: { label: "Департамент", type: "select", required: false },
+    otdel_id: { label: "Отдел", type: "select", required: false },
+    branch_id: { label: "Филиал", type: "select", required: false },
+    office_id: { label: "Офис ЦБО", type: "select", required: false },
+    type: { label: "Тип", type: "select", required: false },
   },
   equipment_type: {
     name: { label: "Наименование", type: "text", required: true },
@@ -392,7 +410,7 @@ FORM_CONFIG["main"] = FORM_CONFIG["order"];
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id", "executor_id"],
+    department_id: ["otdel_id", "executor_id", "position_id"],
     otdel_id: ["executor_id"],
     branch_id: ["office_id", "equipment_id"],
     office_id: ["equipment_id"],

@@ -44,9 +44,14 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
         // map each key -> either from cache or fresh fetch
         await Promise.all(
             config.preload.map(async (key) => {
-                const resource = TABLE_PAGES_CONFIG[key]["resource"];
-                const singularKey = TABLE_PAGES_CONFIG[key].singular || key;
-                const cacheKey = `preload_${resource}`;
+                let resource = TABLE_PAGES_CONFIG?.[key]?.["resource"];
+                let singularKey = TABLE_PAGES_CONFIG?.[key]?.singular || key;
+                let cacheKey = `preload_${resource}`;
+                if (key === "position_type"){
+                    resource = "position/types";
+                    singularKey = "position_type_id";
+                    cacheKey = "preload_position_type_id";
+                }
 
                 // check localStorage cache for this resource
                 const cached = localStorage.getItem(cacheKey);
@@ -65,8 +70,10 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
                 if ("pagination" in raw_data) raw_data = raw_data["list"];
 
                 const prepped = raw_data.reduce((acc, item) => {
-                    const id = item.id || item._id || item.ID;
+                    let id = item.id || item._id || item.ID;
                     const name = item.name || item.title || item.fio || id;
+                    if (key === "position_type")
+                        id = item.code;
                     acc[id] = { ...item, name };
                     Object.entries(item).forEach(([field, value]) => {
                         if (field.endsWith("_id") && field !== "id" && field !== "_id") {
@@ -122,13 +129,13 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
         main_data = main_data.map(item => {
             if ("executor" in item && item.executor && typeof item.executor === "object") {
                 item.executor_id = item.executor.id;
-                item.executor_name = item.executor.name || item.executor.fio || item.executor.login || item.executor_id;
+                item.executor_name = item.executor.name || item.executor.fio || item.executor_id;
                 delete item.executor;
             }
             // same with creator
             if ("creator" in item && item.creator && typeof item.creator === "object") {
                 item.creator_id = item.creator.id;
-                item.creator_name = item.creator.name || item.creator.fio || item.creator.login || item.creator_id;
+                item.creator_name = item.creator.name || item.creator.fio || item.creator_id;
                 delete item.creator;
             }
             return item;
@@ -179,13 +186,15 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             if (!itemData) {
                 delete new_data[key];
             } else if (
-                !itemData[key] ||
+                !val ||
                 (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
                 (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
             ) {
+                console.log("shii gettin deleted");
                 delete new_data[key];
             } else {
-                new_data[key] = null;
+                console.log("shii gettin set to null", key, val);
+                new_data[key] = Array.isArray(val) ? [] : typeof val === "object" ? {} : null;
             }
 
         // Convert to number if its an id
@@ -223,7 +232,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         if (!itemData) {
             // CREATE NEW
             console.log("Creating new item:", new_data);
-            if (url === "user" && new_data["permissions"]){
+            if (url.includes("user/permission") && new_data["permissions"]){
                 const permissions_data = {"has_access_ids": [], "no_access_ids": []};
                 const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
                 Object.values(all_permissions).forEach(permission => {
@@ -271,7 +280,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             const changedFiles = {...new_data["_files"]};
             delete new_data["_files"];
 
-            if (url === "user" && new_data["permissions"]){
+            if (url.includes("user/permission") && new_data["permissions"]){
+                console.log("new_data: ", new_data);
                 const permissions_data = {"has_access_ids": [], "no_access_ids": []};
                 const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
                 Object.values(all_permissions).forEach(permission => {
@@ -287,7 +297,6 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             }
 
             for (const key in new_data) {
-                if (key === "login") continue;
                 const newVal = new_data[key];
                 const oldVal = itemData[key];
 
@@ -419,13 +428,6 @@ export const onSandwitchClick = () => {
 }
 
 
-export const onEmailChange = (e => {
-    const email = e.target.value;
-    const loginField = document.querySelector('input[name="login"]');
-    loginField.value = email.split("@")[0];
-})
-
-
 export function getDefaultValues(itemData = null, config = {}, preloadData = {}) {
     const defaults = {};
 
@@ -442,8 +444,6 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
                 } else {
                     defaults[key] = itemData[key];
                 }
-                if (key === "email")
-                    defaults["login"] = itemData[key].split("@")[0];
             }
         }
     } else {
@@ -523,16 +523,7 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
 
 export function capitalizeName(str) {
   if (!str) return "";
-
-  return str
-    .split(" ")
-    .map(word =>
-      word
-        .split("-")
-        .map(part =>
-          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-        )
-        .join("-")
-    )
-    .join(" ");
+  return str.split(" ").map(word => word.split("-")
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join("-")).join(" ");
 }

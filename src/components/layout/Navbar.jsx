@@ -61,12 +61,14 @@ export default function Navbar() {
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
 
-            {permissions.includes("order:view") &&
-            <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />}
+            {permissions.includes("order:view") && 
+                <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
+            }
 
             {(permissions.includes("user:update") || permissions.includes("user:create") 
-              || permissions.includes("user:delete")) &&
-            <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />}
+              || permissions.includes("user:delete")) && 
+                  <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />
+            }
 
             {COLLECTION_LINKS.length > 0 && (
                     <div className="navbar-link dropdown-container">
@@ -86,7 +88,10 @@ export default function Navbar() {
                     </div>
             )}
 
-            <NavbarLink {...MAIN_NAVBAR_LINKS["report"]} key="report" />
+            {permissions.includes("report:view") && 
+                <NavbarLink {...MAIN_NAVBAR_LINKS["report"]} key="report" />
+            }
+
             <NavbarLink {...MAIN_NAVBAR_LINKS["setting"]} key="setting" />
         </nav>
     );

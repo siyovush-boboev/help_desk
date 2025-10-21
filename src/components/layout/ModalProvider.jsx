@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
 
@@ -8,11 +8,44 @@ export default function ModalProvider({ children }) {
 
     const modal_root = document.getElementById("modal");
 
-    // when clicking outside the modal content, close the modal
-    // currently not for all modals
-    modal_root.onclick = (e) => {
-        if(e.target === modal_root && document.querySelector(".user-info-modal-content")) closeModal();
-    };
+    // Handle clicking outside the modal content
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (
+                e.target === modal_root &&
+                document.querySelector(".user-info-modal-content")
+            ) {
+                closeModal();
+            }
+        };
+
+        if (modal_root) {
+            modal_root.addEventListener("click", handleClickOutside);
+        }
+
+        return () => {
+            if (modal_root) {
+                modal_root.removeEventListener("click", handleClickOutside);
+            }
+        };
+    }, [modal_root]);
+
+    // Handle Esc key to close modal
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                closeModal();
+            }
+        };
+
+        if (modalContent) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [modalContent]);
 
     return (
         <ModalContext.Provider value={{ setModalContent, closeModal }}>

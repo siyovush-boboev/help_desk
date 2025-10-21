@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
-import { onEmailChange, getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
+import { getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
 import { API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
@@ -24,7 +24,32 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     // === 1. State for searches in permissions ===
     const [availableSearch, setAvailableSearch] = useState("");
-    const [assignedSearch, setAssignedSearch] = useState("");  
+    const [assignedSearch, setAssignedSearch] = useState("");
+
+    const [openDropdowns, setOpenDropdowns] = useState({});
+    const dropdownRef = useRef(null);
+
+    // Toggle dropdown open/close
+    const toggleDropdown = (fieldId) => {
+        setOpenDropdowns((prev) => {
+            const isOpen = !!prev[fieldId];
+            return isOpen ? {} : { [fieldId]: true }; // Close others
+        });
+    };
+
+    // Click outside to close
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setOpenDropdowns({});
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const {
         register,
@@ -37,8 +62,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     });
 
     useEffect(() => {
-        setValue("permissions", Array.from(selected).map(Number), { shouldValidate: true });
-    }, [selected, setValue]);
+        if (page_name === "role" || page_name === "user") {
+            setValue("permissions", Array.from(selected).map(Number), { shouldValidate: true });
+        }
+    }, [page_name, selected, setValue]);
 
     // deep copy of preloadData
     const preloadOG = JSON.parse(JSON.stringify(preloadData));
@@ -70,7 +97,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const res = await axios.get(`${API_BASE_URL}/user/${itemData.id}/permission`);
+                const res = await axios.get(`${API_BASE_URL}/user/permission/${itemData.id}`);
                 const has_access = res.data.body.has_access;
                 setSelected(new Set(has_access.map(item => item.id).map(String)));
             } catch (err) {
@@ -102,7 +129,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
         if (Number(origin_val)) origin_val = Number(origin_val);
 
-        if (page_name === "order" && fieldName === "order_type_id") {
+        if ((page_name === "order" || page_name === "main") && fieldName === "order_type_id") {
             setOrderType(origin_val);
             const rule = Object.values(preloadData[TABLE_PAGES_CONFIG["order_rule"]["singular"]]).find(innerObj => innerObj[fieldName] === origin_val);;
             if (rule) {
@@ -114,7 +141,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
         }
 
-        if (fieldName === "equipment_id" && page_name === "order") {
+        if (fieldName === "equipment_id" && (page_name === "order" || page_name === "main")) {
             // find a field with label "Адрес" and fill it with the address of the selected equipment
             const addressFieldName = Object.entries(config).find(([, field]) => field.label === "Адрес")?.[0];
             if (addressFieldName) {
@@ -124,7 +151,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
         }
 
-        if (fieldName === "department_id" && page_name === "order" && permissions.includes("scope:department")) {
+        if (fieldName === "department_id" && (page_name === "order" || page_name === "main") && permissions.includes("scope:department")) {
             const user_department_id = localStorage.getItem("user_department_id");
             if (origin_val === user_department_id) {
                 setDisabledFields(() => []);
@@ -274,7 +301,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             preloadData = {...preloadOG};
             preloadData = getOptionsWithoutInactive(preloadData, itemData);
 
-            if (page_name === "order"){
+            if (page_name === "order" || page_name === "main") {
                 if (!itemData && !orderType && fieldName !== "order_type_id")
                     return;
                 if (itemData && fieldName === "order_type_id")
@@ -343,7 +370,14 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
                 }
             }
-            const preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+            let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+            if ((fieldName === "type" && page_name === "position") || (page_name === "order_rule" && fieldName === "position_type")) {
+                preloadOptions = preloadData?.["position_type_id"];
+                console.log("nig options:", preloadData);
+            }
+            if (fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
+                preloadOptions = preloadOG[TABLE_PAGES_CONFIG["status"].singular];
+            }
             if (field.type === "select") {
                 return (
                     <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
@@ -527,28 +561,62 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </div>
                         );
                 } else {
+                    // For showing selected values in the header
+                    const selectedValues = itemData?.[fieldName] || [];
+
+                    const selectedLabels = Object.entries(options)
+                        .filter(([val]) => selectedValues.includes(Number(val)))
+                        .map(([, label]) =>
+                            ["Роль", "Привелигия"].includes(field.label)
+                                ? label.description
+                                : label.name
+                        );
+
+                    const displayText = selectedLabels.length > 0
+                        ? selectedLabels.join(", ")
+                        : "Выбрать...";
+
                     return (
-                        <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                        <div
+                            key={fieldName}
+                            className="edit-form-field"
+                            style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}
+                        >
                             <label>
                                 {field.label}
                                 {field.required && <span style={{ color: 'red' }}> *</span>}
                             </label>
-                            <div className="checkbox-container">
-                                {Object.entries(options).map(([val, label]) => (
-                                    <label key={val} className="checkbox-item">
-                                        <input
-                                            type="checkbox"
-                                            value={val}
-                                            {...register(fieldName, getValidationRules(field))}
-                                            defaultChecked={itemData?.[fieldName]?.includes(Number(val))}
-                                            disabled={disabled_fields.includes(field.label)}
-                                        />
-                                        <span>{["Роль", "Привелигия"].includes(field.label) ? label["description"] : label["name"]}</span>
-                                    </label>
-                                ))}
+
+                            <div className="multi-select-dropdown" ref={dropdownRef}>
+                                <div className="multi-select-header" onClick={() => toggleDropdown(fieldName)}>
+                                    <span className="multi-select-values">{displayText}</span>
+                                    <span className="multi-select-arrow">{openDropdowns[fieldName] ? "▲" : "▼"}</span>
+                                </div>
+
+                                {openDropdowns[fieldName] && (
+                                    <div className="multi-select-options">
+                                        {Object.entries(options).map(([val, label]) => (
+                                            <label key={val} className="multi-select-option">
+                                                <input
+                                                    type="checkbox"
+                                                    value={val}
+                                                    {...register(fieldName, getValidationRules(field))}
+                                                    defaultChecked={selectedValues.includes(Number(val))}
+                                                    disabled={disabled_fields.includes(field.label)}
+                                                />
+                                                <span>
+                                                    {["Роль", "Привелигия"].includes(field.label)
+                                                        ? label.description
+                                                        : label.name}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+
                             {errors[fieldName] && (
-                                <p>{errors[fieldName].message}</p>
+                                <p className="error-message">{errors[fieldName].message}</p>
                             )}
                         </div>
                     );
@@ -672,8 +740,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         <input
                             type={field.type || "text"}
                             {...register(fieldName, getValidationRules(field))}
-                            onChange={(fieldName === "email" || null) && onEmailChange}
-                            disabled={fieldName === "login" || disabled_fields.includes(field.label)}
+                            disabled={disabled_fields.includes(field.label)}
                             onInput={
                                 field.label.toLowerCase() === "имя"
                                 ? (e) => {const capitalized = capitalizeName(e.target.value);e.target.value = capitalized;} 
@@ -692,7 +759,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
             {form_content}
             <div className="modal-buttons">
-                {!(page_name === "order" && !itemData && orderType === "") &&
+                {!((page_name === "order" || page_name === "main") && !itemData && orderType === "") &&
                     <button id="confirmBtn" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Загрузка..." : "Сохранить"}
                     </button>

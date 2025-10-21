@@ -60,9 +60,9 @@ const Login = () => {
         <AuthContainer header_text={"Войти в личный кабинет"}>
             <form id="auth-form" onSubmit={handleLogin}>
                 <AuthInput
-                    label={"Логин"}
+                    label={"E-mail"}
                     name={"login"}
-                    placeholder={"Введите ваш логин"}
+                    placeholder={"Введите ваш email"}
                     value={username}
                     set_func={setUsername}
                     required={true}

@@ -1,4 +1,4 @@
-import { DeleteTableRowIcon, EditTableRowIcon } from "../ui/icons.jsx";
+import { DeleteTableRowIcon, EditTableRowIcon, PermissionsIcon } from "../ui/icons.jsx";
 import { BASE_URL } from "../../lib/constants.js";
 import { priority_colors } from "../../lib/constants.js";
 
@@ -45,6 +45,8 @@ export default function DataTable({
     showClosed = false,
     showEdit=false,
     showDelete=false,
+    showPermissionsEdit=false,
+    onPermissionsEdit=() => { },
 }) {
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
@@ -135,8 +137,9 @@ export default function DataTable({
                                     return (
                                         <td key={i + colName}>
                                             <div className="table-actions">
-                                                {showDelete && <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button"><DeleteTableRowIcon /></button>}
-                                                {showEdit && <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button"><EditTableRowIcon /></button>}
+                                                {showDelete && <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button" title="Удалить"><DeleteTableRowIcon /></button>}
+                                                {showEdit && <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button" title="Изменить данные"><EditTableRowIcon /></button>}
+                                                {showPermissionsEdit && <button id="table-edit-button" onClick={() => onPermissionsEdit(item.id)} aria-label="table-edit-button" title="Редактировать привилегии"><PermissionsIcon /></button>}
                                             </div>
                                         </td>
                                     );
