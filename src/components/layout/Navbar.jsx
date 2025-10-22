@@ -12,7 +12,7 @@ const ICONS = {
     "setting": SettingsIcon,
 };
 
-const PAGINATION_URL_PARAMS = "withPagination=true&page=1&limit=10";
+const PAGINATION_URL_PARAMS = "withPagination=true&page=1&limit=20";
 
 const NAVBAR_PAGES = ["main", "order", "user", "report", "setting"];
 

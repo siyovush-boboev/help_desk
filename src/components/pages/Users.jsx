@@ -26,7 +26,7 @@ export default function Users() {
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const currentPage = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
+    const limit = parseInt(searchParams.get("limit")) || 20;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
@@ -161,7 +161,7 @@ export default function Users() {
                 totalItems={data?.pagination?.total_count || data?.body?.length || 0}
                 currentPage={currentPage || data?.pagination?.page || 1}
                 totalPages={data?.pagination?.total_pages || 1}
-                limit={limit || data?.pagination?.limit || 10}
+                limit={limit || data?.pagination?.limit || 20}
                 onPageChange={(page) => {
                     setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
                 }}

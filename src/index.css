@@ -1393,7 +1393,7 @@ option {
     color: var(--black);
 }
 
-button {
+button:not(.user-info-close-button) {
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -2,12 +2,14 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
-import { loadDataPreload } from "../../lib/utils/helpers";
-import { priority_colors, BASE_URL } from "../../lib/constants";
+import { priority_colors, BASE_URL, API_BASE_URL } from "../../lib/constants";
+import { loadDataPreload, convertRFCtoLocalDatetimeInput, cleanString, downloadFile } from "../../lib/utils/helpers";
+
 
 const PAGE_NAME = "report";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 const FILTER_CONFIG = config["filters"];
+
 
 export default function Reports() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
@@ -15,19 +17,51 @@ export default function Reports() {
     if (!permissions.includes(`${PAGE_NAME}:view`)) {
         navigate("/main");
     }
-
     const [preload, setPreload] = useState({});
     const [error, setError] = useState("");
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const [openDropdowns, setOpenDropdowns] = useState({});
     const dropdownRefs = useRef({});
+    const [dates, setDates] = useState({ "date_from": "", "date_to": "" })
 
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config).then(() =>
             setPreloadLoaded(true)
         );
     }, []);
+
+    useEffect(() => {
+        const setDefaultDates = () => {
+            const today = new Date();
+            const dateFrom = new Date(dates.date_from || today);
+            dateFrom.setHours(0, 0, 0, 0); // Set time to 00:00
+            const dateTo = new Date(dates.date_to || today);
+            dateTo.setHours(23, 59, 59, 999); // Set time to 23:59
+
+            setDates({
+                date_from: convertRFCtoLocalDatetimeInput(dateFrom), // Format date as YYYY-MM-DDTHH:MM
+                date_to: convertRFCtoLocalDatetimeInput(dateTo)
+            });
+            
+            setSearchParams({
+                ...Object.fromEntries(searchParams),
+                date_from: convertRFCtoLocalDatetimeInput(dateFrom),
+                date_to: convertRFCtoLocalDatetimeInput(dateTo)
+            });
+        };
+
+        setDefaultDates();
+    }, [dates.date_from, dates.date_to, searchParams, setSearchParams]);
+
+    const handleDateChange = (e, id) => {
+        const dateString = e.target.value;
+        // Update the state for date change
+        setDates(prevDates => ({
+            ...prevDates,
+            [id]: dateString
+        }));
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -49,45 +83,49 @@ export default function Reports() {
 
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
-    }, [openDropdowns]);
-
-    const filtersFromUrl = useMemo(() => {
-        const filters = {};
-        for (const [key, value] of searchParams.entries()) {
-            const match = key.match(/^(.+?)$/);
-            if (match) {
-                filters[match[1]] = value.split(",");
-            } else {
-                filters[key] = value;
-            }
-        }
-        return filters;
-    }, [searchParams]);
-
-    const updateFilter = (id, value) => {
-        const newParams = new URLSearchParams(searchParams.toString());
-
-        if (Array.isArray(value)) {
-            if (value.length > 0) {
-                newParams.set(`${id}`, value.join(","));
-            } else {
-                newParams.delete(`${id}`);
-            }
-        } else if (value) {
-            newParams.set(`${id}`, value);
-        } else {
-            newParams.delete(`${id}`);
-        }
-
-        setSearchParams(newParams);
-    };
-
+    }, [openDropdowns]);    
+    
     const toggleDropdown = (filterId) => {
         setOpenDropdowns(prev => ({
             ...prev,
             [filterId]: !prev[filterId],
         }));
     };
+
+    const filtersFromUrl = useMemo(() => {
+        const filters = {};
+        // Add default values for missing filters
+        FILTER_CONFIG.forEach((filter) => {
+            if (!searchParams.has(filter.id)) {
+                filters[filter.id] = filter.defaultValue ? [filter.defaultValue] : [];
+            }    
+        });
+        for (const [key, value] of searchParams.entries()) {
+            const match = key.match(/^(.+?)$/);
+            if (match) {
+                filters[match[1]] = value.split(",");
+            } else {
+                filters[key] = value;
+            }    
+        }
+        return filters;
+    }, [searchParams]);    
+
+    const updateFilter = (id, value) => {
+        const newParams = new URLSearchParams(searchParams.toString());
+        if (Array.isArray(value)) {
+            if (value.length > 0) {
+                newParams.set(id, value.join(","));
+            } else {
+                newParams.delete(id);
+            }    
+        } else if (value) {
+            newParams.set(id, value);
+        } else {
+            newParams.delete(id);
+        }    
+        setSearchParams(newParams);
+    };    
 
     const handleCheckboxChange = (filterId, val) => {
         const prevVals = new Set(filtersFromUrl[filterId] || []);
@@ -99,13 +137,37 @@ export default function Reports() {
         updateFilter(filterId, Array.from(prevVals));
     };
 
-    const handleDownload = () => {
-        const url = new URL("/api/report", window.location.origin);
+    const handleDownload = async () => {
+        // Create the URL with search params
+        const url = new URL(API_BASE_URL + "/report", window.location.origin);
+
+        // Append all current search parameters to the URL
         for (const [key, value] of searchParams.entries()) {
             url.searchParams.set(key, value);
         }
 
-        window.open(url.toString(), "_blank");
+        // Get and format both date_from and date_to from the searchParams
+        let formattedDateFrom = convertRFCtoLocalDatetimeInput(searchParams.get("date_from"));
+        let formattedDateTo = convertRFCtoLocalDatetimeInput(searchParams.get("date_to"));
+
+        // remove time from formatted
+        formattedDateFrom = formattedDateFrom.split("T")[0];
+        formattedDateTo = formattedDateTo.split("T")[0];
+
+        // Determine the file extension based on the selected format
+        const selectedFormat = filtersFromUrl["format"]?.[0] || "xlsx"; // Default to "xlsx" if not selected
+        const fileExtension = selectedFormat === "csv" ? ".csv" : ".xlsx";
+
+        // Create the filename based on the date range
+        const fileName = `report_help_desk_${cleanString(formattedDateFrom)}_${cleanString(formattedDateTo)}${fileExtension}`;
+
+        try {
+            // Download the file using the downloadFile function
+            await downloadFile(url.href, fileName, setError);
+        } catch (error) {
+            setError('Не удалось загрузить отчет');
+            console.error('Download failed:', error);
+        }
     };
 
     const renderFilterInput = (filter) => {
@@ -176,11 +238,9 @@ export default function Reports() {
                     <label>{label}</label>
                     <input
                         type="datetime-local"
-                        value={value[0] || ""}
-                        onChange={(e) => {
-                            const rfc3339 = e.target.value ? new Date(e.target.value).toISOString() : "";
-                            updateFilter(id, rfc3339);
-                        }}
+                        name={id}
+                        value={convertRFCtoLocalDatetimeInput(dates[id])} // Ensures proper date format (YYYY-MM-DDTHH:MM)
+                        onInput={(e) => handleDateChange(e, id)}  // Handle date change
                     />
                 </div>
             );
@@ -195,6 +255,7 @@ export default function Reports() {
                         onChange={(e) => updateFilter(id, e.target.value)}
                     >
                         <option value="xlsx">XLSX</option>
+                        <option value="csv">CSV</option>
                     </select>
                 </div>
             );
@@ -211,7 +272,6 @@ export default function Reports() {
             <Breadcrumbs text={config.plural} />
 
             <div className="report-filter-container">
-
                 <div className="report-filters-list">
                     {FILTER_CONFIG.map(renderFilterInput)}
                 </div>

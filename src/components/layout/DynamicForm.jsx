@@ -84,7 +84,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 }
             } catch (err) {
                 console.error("Error loading history:", err);
-                setHistory("error msg");
+                setHistory(["error msg"]);
             }
         };
 
@@ -269,27 +269,27 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         // go thru all objects in preload and if it has status_id and
         // its status name in lowercase starts with "неактив" then remove it
         // Step 1: Get the status group
-        const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
-        const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
+        // const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
+        // const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
 
-        // Step 2: Find all status IDs that are "неактив"
-        const inactiveStatusIds = Object.entries(statusGroup)
-            .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
-            .map(([id]) => id); // IDs are strings
+        // // Step 2: Find all status IDs that are "неактив"
+        // const inactiveStatusIds = Object.entries(statusGroup)
+        //     .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
+        //     .map(([id]) => id); // IDs are strings
 
-        // Step 3: Loop through preload and remove items with those statuses
-        Object.entries(preload).forEach(([key, items]) => {
-            if (key === statusKey) return; // Skip the status group itself
+        // // Step 3: Loop through preload and remove items with those statuses
+        // Object.entries(preload).forEach(([key, items]) => {
+        //     if (key === statusKey) return; // Skip the status group itself
 
-            Object.entries(items).forEach(([id, item]) => {
-                const itemStatusId = String(item.status_id); // Ensure string for comparison
-                // if status is inactive and we are not editing this very item, remove it
-                if (inactiveStatusIds.includes(itemStatusId)
-                && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
-                    delete preload[key][id];
-                }
-            });
-        });
+        //     Object.entries(items).forEach(([id, item]) => {
+        //         const itemStatusId = String(item.status_id); // Ensure string for comparison
+        //         // if status is inactive and we are not editing this very item, remove it
+        //         if (inactiveStatusIds.includes(itemStatusId)
+        //         && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
+        //             delete preload[key][id];
+        //         }
+        //     });
+        // });
         return preload;
     }
 
@@ -491,7 +491,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             {/* Sticky Header */}
                             <div className="privileges-header">
                                 <div className="search-block">
-                                <p>Доступные</p>
+                                <p>Недоступные</p>
                                 <input
                                     type="text"
                                     placeholder="Поиск..."
@@ -523,7 +523,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 </div>
 
                                 <div className="search-block">
-                                <p>Назначенные</p>
+                                <p>Доступные</p>
                                 <input
                                     type="text"
                                     placeholder="Поиск..."

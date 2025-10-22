@@ -186,15 +186,17 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             if (!itemData) {
                 delete new_data[key];
             } else if (
-                !val ||
-                (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
-                (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
+                (key !== "otdel_id") && (
+                    !val ||
+                    (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
+                    (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
+                )
             ) {
                 console.log("shii gettin deleted");
                 delete new_data[key];
             } else {
                 console.log("shii gettin set to null", key, val);
-                new_data[key] = Array.isArray(val) ? [] : typeof val === "object" ? {} : null;
+                new_data[key] = Array.isArray(val) ? [] : null;
             }
 
         // Convert to number if its an id
@@ -527,3 +529,51 @@ export function capitalizeName(str) {
         .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
         .join("-")).join(" ");
 }
+
+export const convertRFCtoLocalDatetimeInput = (rfcDate) => {
+    const date = new Date(rfcDate); // Convert RFC3339 date string to Date object
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    // Format as YYYY-MM-DDTHH:MM for the input field
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+
+// Replace any non-alphanumeric characters with underscores for the filename
+export const cleanString = (str) => str.replace(/[^a-zA-Z0-9]/g, "_");
+
+
+export const downloadFile = async (url, filename, setError) => {
+    try {
+        // Make the GET request with responseType as 'blob'
+        const response = await axios.get(url, { 
+            responseType: 'blob' 
+        });
+
+        // Create a new Blob from the response data
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+
+        // Create a link element
+        const link = document.createElement('a');
+
+        // Set the download attribute with the filename you want
+        link.download = filename; // You can dynamically set the filename if needed
+
+        // Create an object URL for the Blob and set it as the link's href
+        link.href = URL.createObjectURL(blob);
+
+        // Programmatically click the link to trigger the download
+        link.click();
+
+        // Clean up the object URL after download
+        URL.revokeObjectURL(link.href);
+
+    } catch (error) {
+        setError(error?.response?.data?.message || "Не удалось отправить запрос. Попробуйте позже или проверьте подключение к интернету");
+        console.error('Error downloading the file:', error);
+    }
+};
