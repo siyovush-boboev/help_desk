@@ -160,7 +160,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const new_disabled_fields = getDisabledFields(itemData, config, preloadData, permissions);
                 // return the previous (or empty) values for these fields
                 Object.entries(config).forEach(([fieldName, field]) => {
-                    if (new_disabled_fields.includes(field.label)) {
+                    if (new_disabled_fields.includes(field.label) && itemData) {
                         setValue(fieldName, itemData?.[fieldName] || "");
                     }
                 });
@@ -269,27 +269,27 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         // go thru all objects in preload and if it has status_id and
         // its status name in lowercase starts with "неактив" then remove it
         // Step 1: Get the status group
-        // const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
-        // const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
+        const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
+        const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
 
         // // Step 2: Find all status IDs that are "неактив"
-        // const inactiveStatusIds = Object.entries(statusGroup)
-        //     .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
-        //     .map(([id]) => id); // IDs are strings
+        const inactiveStatusIds = Object.entries(statusGroup)
+            .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
+            .map(([id]) => id); // IDs are strings
 
-        // // Step 3: Loop through preload and remove items with those statuses
-        // Object.entries(preload).forEach(([key, items]) => {
-        //     if (key === statusKey) return; // Skip the status group itself
+        // Step 3: Loop through preload and remove items with those statuses
+        Object.entries(preload).forEach(([key, items]) => {
+            if (key === statusKey) return; // Skip the status group itself
 
-        //     Object.entries(items).forEach(([id, item]) => {
-        //         const itemStatusId = String(item.status_id); // Ensure string for comparison
-        //         // if status is inactive and we are not editing this very item, remove it
-        //         if (inactiveStatusIds.includes(itemStatusId)
-        //         && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
-        //             delete preload[key][id];
-        //         }
-        //     });
-        // });
+            Object.entries(items).forEach(([id, item]) => {
+                const itemStatusId = String(item.status_id); // Ensure string for comparison
+                // if status is inactive and we are not editing this very item, remove it
+                if (inactiveStatusIds.includes(itemStatusId)
+                && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
+                    delete preload[key][id];
+                }
+            });
+        });
         return preload;
     }
 
@@ -325,7 +325,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const statuses = preloadData[status_field_key];
                 if (!statuses) return;
 
-                const currStatusId = `${itemData?.["status_id"] || ""}`;
+                const default_status_id = Object.keys(preloadData["Статус"]).find(
+                    id => preloadData["Статус"][id].name.toLowerCase().startsWith("открыт")
+                    || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
+                );
+                const currStatusId = `${itemData?.["status_id"] || default_status_id}`;
                 const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
 
                 // divide statuses into these:

@@ -216,6 +216,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
         if (fileInputRef.current) {
             fileInputRef.current.value = null;
         }
+        setError(null);
     };
 
     return (

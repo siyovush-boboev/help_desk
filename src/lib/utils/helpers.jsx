@@ -186,11 +186,11 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             if (!itemData) {
                 delete new_data[key];
             } else if (
-                (key !== "otdel_id") && (
-                    !val ||
+                // (key !== "otdel_id") && (
+                    !itemData[key] ||
                     (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
                     (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
-                )
+                // )
             ) {
                 console.log("shii gettin deleted");
                 delete new_data[key];
@@ -228,7 +228,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         }
     });
 
-    console.log("Form submitted with data:", new_data);
+    console.log("Submitting form with data:", new_data);
 
     try {
         if (!itemData) {
@@ -246,6 +246,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 });
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
+                delete new_data["permissions"];
+            }
+            if (new_data["permissions"]){
                 delete new_data["permissions"];
             }
             // check if we have files
@@ -295,9 +298,10 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 });
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
+            }
+            if (new_data["permissions"]){
                 delete new_data["permissions"];
             }
-
             for (const key in new_data) {
                 const newVal = new_data[key];
                 const oldVal = itemData[key];
@@ -451,8 +455,8 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
     } else {
         if ("status_id" in config) {
             const default_status_id = Object.keys(preloadData["Статус"]).find(
-                id => preloadData["Статус"][id].name.startsWith("Актив")
-                    || preloadData["Статус"][id].name.startsWith("Открыт")
+                id => preloadData["Статус"][id].name.toLowerCase().startsWith("открыт")
+                    || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
             );
             defaults["status_id"] = default_status_id;
         }

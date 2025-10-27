@@ -63,7 +63,8 @@ export const TABLE_PAGES_CONFIG = {
       {id: "otdel_id", label: "Отдел"},
       {id: "role_id", label: "Роль"},
       {id: "branch_id", label: "Филиал"},
-      {id: "office_id", label: "Офис ЦБО"}
+      {id: "office_id", label: "Офис ЦБО"},
+      {id: "position_id", label: "Должность"}
     ]
   },
   status: {
@@ -205,8 +206,15 @@ export const TABLE_PAGES_CONFIG = {
       "Отдел": "otdel_id",
       "Филиал": "branch_id",
       "Статус": "status_id",
+      "Тип": "type",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "department_id", label: "Департамент"},
+      {id: "otdel_id", label: "Отдел"},
+      {id: "branch_id", label: "Филиал"},
+      {id: "status_id", label: "Статус"}
+    ]
   },
   order_type: {
     singular: "Тип заявки",

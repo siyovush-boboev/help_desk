@@ -190,7 +190,10 @@ export default function DataTable({
                                 const sum = (data[i]["open"] || 0) + (data[i]["closed"] || 0);
                                 main_page_sums["total"] += sum;
                                 return <td key={i + colName}>{sum}</td>;
-                            } else if (field?.includes("_id") && (colName in pageData)) {
+                            } else if ((field?.includes("_id") && (colName in pageData)) || (field === "type" && "position_type_id" in pageData)) {
+                                if (field === "type") {
+                                    colName = "position_type_id";
+                                }
                                 let field_content = ""
                                 if (Array.isArray(item[field]) && item[field].length > 0){
                                     const role_strings = [];
@@ -203,7 +206,7 @@ export default function DataTable({
                                     field_content = role_strings.join(", ");
                                 }
                                 else if (item[field]){
-                                    field_content = pageData[colName][item[field]]?.name;
+                                    field_content = pageData[colName]?.[item[field]]?.name;
                                 }
                                 else if (field in item || field.replace("_id", "") in item){
                                     field_content = item[field.replace("_id", "")]?.["name"]

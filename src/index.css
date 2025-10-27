@@ -365,16 +365,6 @@ button:disabled {
   margin-right: 10px;
 }
 
-html {
-  scrollbar-width: thin;
-  /* scrollbar-color: ; */
-}
-
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
-
 .table-wrapper {
   overflow: auto;
   max-height: max(380px, 100vh - 260px);
@@ -703,6 +693,7 @@ html {
 #editForm input:disabled,
 #editForm select:disabled,
 #editForm textarea:disabled {
+  opacity: 1;
   background-color: var(--input-border);
 }
 
@@ -1234,7 +1225,6 @@ option {
   background: white;
   border: 1px solid #ccc;
   border-top: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* optional for floating look */
   z-index: 1000;       /* ensures it appears above everything */
   padding: 8px 12px;
   border-radius: 0 0 4px 4px;
