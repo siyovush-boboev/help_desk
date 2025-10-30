@@ -246,9 +246,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 });
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
-                delete new_data["permissions"];
             }
-            if (new_data["permissions"]){
+            if (!url.includes("role") && new_data["permissions"]){
                 delete new_data["permissions"];
             }
             // check if we have files
@@ -299,7 +298,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
             }
-            if (new_data["permissions"]){
+            if (!url.includes("role") && new_data["permissions"]){
                 delete new_data["permissions"];
             }
             for (const key in new_data) {
