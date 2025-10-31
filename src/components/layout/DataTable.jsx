@@ -1,4 +1,4 @@
-import { DeleteTableRowIcon, EditTableRowIcon, PermissionsIcon } from "../ui/icons.jsx";
+import { DeleteTableRowIcon, EditTableRowIcon, CollectionBlueIcon } from "../ui/icons.jsx";
 import { BASE_URL } from "../../lib/constants.js";
 import { priority_colors } from "../../lib/constants.js";
 
@@ -139,7 +139,7 @@ export default function DataTable({
                                             <div className="table-actions">
                                                 {showDelete && <button id="table-delete-button" onClick={() => onDelete(item.id)} aria-label="table-delete-button" title="Удалить"><DeleteTableRowIcon /></button>}
                                                 {showEdit && <button id="table-edit-button" onClick={() => onEdit(item.id)} aria-label="table-edit-button" title="Изменить данные"><EditTableRowIcon /></button>}
-                                                {showPermissionsEdit && <button id="table-edit-button" onClick={() => onPermissionsEdit(item.id)} aria-label="table-edit-button" title="Редактировать привилегии"><PermissionsIcon /></button>}
+                                                {showPermissionsEdit && <button id="table-edit-button" onClick={() => onPermissionsEdit(item.id)} aria-label="table-edit-button" title="Редактировать привилегии"><CollectionBlueIcon /></button>}
                                             </div>
                                         </td>
                                     );

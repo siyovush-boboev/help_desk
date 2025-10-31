@@ -301,7 +301,6 @@ export const TABLE_PAGES_CONFIG = {
       {id: "order_type_ids", label: "Тип заявки"},
       {id: "priority_ids", label: "Приоритет"},
       {id: "executor_ids", label: "Пользователь"},
-      {id: "format", label: "Формат"},
     ],
   },
   setting: {

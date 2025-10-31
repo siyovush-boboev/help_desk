@@ -47,7 +47,8 @@ export default function Reports() {
             setSearchParams({
                 ...Object.fromEntries(searchParams),
                 date_from: convertRFCtoLocalDatetimeInput(dateFrom),
-                date_to: convertRFCtoLocalDatetimeInput(dateTo)
+                date_to: convertRFCtoLocalDatetimeInput(dateTo),
+                format: "xlsx",
             });
         };
 
@@ -77,6 +78,7 @@ export default function Reports() {
             }
 
             if (!clickedInsideAny) {
+                console.log("hndl clk outsd func");
                 setOpenDropdowns({});
             }
         };
@@ -85,9 +87,11 @@ export default function Reports() {
         return () => document.removeEventListener("click", handleClickOutside);
     }, [openDropdowns]);    
     
-    const toggleDropdown = (filterId) => {
+    const toggleDropdown = (e, filterId) => {
+        console.log("toggle func");
+        console.log(e.target);
         setOpenDropdowns(prev => ({
-            ...prev,
+            // ...prev,
             [filterId]: !prev[filterId],
         }));
     };
@@ -190,17 +194,17 @@ export default function Reports() {
                 ? selectedLabels.join(", ")
                 : "Не выбрано";
 
-            const truncatedText = displayText.length > 40
-                ? displayText.slice(0, 38) + "..."
+            const truncatedText = displayText.length > 32
+                ? displayText.slice(0, 32) + "..."
                 : displayText;
 
             return (
                 <div className="report-filter-group" key={id} ref={el => dropdownRefs.current[id] = el}>
                     <label>{label}</label>
                     <div className="report-filter-dropdown">
-                        <div className="report-dropdown-header" onClick={() => toggleDropdown(id)}>
-                            <span className="selected-values" title={displayText}>{truncatedText}</span>
-                            <span className="dropdown-arrow">{openDropdowns[id] ? "▲" : "▼"}</span>
+                        <div className="report-dropdown-header" onClick={(e) => toggleDropdown(e, id)}>
+                            <div className="selected-values" title={displayText}>{truncatedText}</div>
+                            <div className="dropdown-arrow">{openDropdowns[id] ? "▲" : "▼"}</div>
                         </div>
                         {openDropdowns[id] && (
                             <div className="dropdown-options">
@@ -209,11 +213,11 @@ export default function Reports() {
                                         key={key}
                                         className="dropdown-option"
                                         style={id === "priority_ids" ? { color: priority_colors[opt.name] || 'inherit' } : {}}
-                                    >
+                                        >
                                         <input
                                             type="checkbox"
                                             checked={value.includes(String(opt.id))}
-                                            onChange={() => handleCheckboxChange(id, String(opt.id))}
+                                            onClick={() => handleCheckboxChange(id, String(opt.id))}
                                         />
                                         {id.includes("status_id") && opt.icon_small && (
                                             <img

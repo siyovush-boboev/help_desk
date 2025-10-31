@@ -5,7 +5,7 @@ import { getDefaultValues, getValidationRules, getDisabledFields, capitalizeName
 import { API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
-import { OrderIcon, PaperClipIcon } from "../ui/icons";
+import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons";
 
 
 export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false, page_name=null }) {
@@ -25,6 +25,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     // === 1. State for searches in permissions ===
     const [availableSearch, setAvailableSearch] = useState("");
     const [assignedSearch, setAssignedSearch] = useState("");
+    const [IndividualPrivileges, setIndividualPrivileges] = useState({});
 
     const [openDropdowns, setOpenDropdowns] = useState({});
     const dropdownRef = useRef(null);
@@ -100,6 +101,16 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const res = await axios.get(`${API_BASE_URL}/user/permission/${itemData.id}`);
                 const has_access = res.data.body.has_access;
                 setSelected(new Set(has_access.map(item => item.id).map(String)));
+
+                if ("Привелигия" in preloadOG){
+                    const merged_privileges = [...res.data.body.has_access, ...res.data.body.no_access];
+                    // make an object of privileges where the key is the id from that privilege
+                    const privilegesObj = merged_privileges.reduce((acc, privilege) => {
+                        acc[privilege.id] = privilege;
+                        return acc;
+                    }, {});
+                    setIndividualPrivileges(privilegesObj);
+                }
             } catch (err) {
                 console.error("Error loading permissions:", err);
             }
@@ -415,6 +426,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 let options = preloadData?.[field.label] || {};
 
                 if (field.label === "Привелигия") {
+                    if (page_name === "user")
+                        options = IndividualPrivileges;
                     // === 2. Group privileges into categories ===
                     const groups = {
                         others: {},
@@ -475,6 +488,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         <label
                             key={id}
                             className={`checkbox-item ${disabled_fields.includes(field.label) ? "checkbox-disabled" : ""}`}
+                            title={item?.status === "denied" ? "Заблокированная привелигия" : item?.source === "individual" ? "Индивидуально назначенная привелигия" : ""}
                         >
                             <input
                                 type="checkbox"
@@ -482,8 +496,18 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 checked={selected.has(id)}
                                 disabled={disabled_fields.includes(field.label)}
                                 onChange={() => togglePermission(id)}
-                            />
-                            <span className="checkbox-label">{item.description}</span>
+                                />
+
+                            {item?.status === "denied" && <LockedIcon />}
+                            {item?.source === "individual" && <UnlockedIcon />}
+
+                            {page_name === "user" ? (
+                                <span className="checkbox-label">
+                                    {item.description}
+                                </span>
+                            ) : (
+                                <span className="checkbox-label">{item.description}</span>
+                            )}
                         </label>
                     );
 

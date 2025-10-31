@@ -1450,4 +1450,8 @@ button:not(.user-info-close-button) {
 
 .report-dropdown-header {
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--white);
 }
