@@ -136,6 +136,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 setValue("department_id", rule.department_id);
                 setValue("otdel_id", rule.otdel_id);
                 setDisabledFields(() => [...disabled_fields, "Департамент", "Отдел", "Исполнитель", "Срок"]);
+                onOptionChange("otdel_id");
             } else {
                 setDisabledFields(getDisabledFields(itemData, config, preloadData, permissions));
             }
@@ -399,7 +400,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </option>
                             {Object.entries(preloadOptions).map(([id, name]) => (
                                 <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[name["name"]] || 'inherit' } : {}}>
-                                    {["Роль", "Привелигия"].includes(field.label) ? name["description"] : name["name"]}
+                                    {["Привелигия"].includes(field.label) ? name["description"] : name["name"]}
                                 </option>
                             ))}
                         </select>
@@ -571,7 +572,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     const selectedLabels = Object.entries(options)
                         .filter(([val]) => selectedValues.includes(Number(val)))
                         .map(([, label]) =>
-                            ["Роль", "Привелигия"].includes(field.label)
+                            ["Привелигия"].includes(field.label)
                                 ? label.description
                                 : label.name
                         );
@@ -609,7 +610,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                                     disabled={disabled_fields.includes(field.label)}
                                                 />
                                                 <span>
-                                                    {["Роль", "Привелигия"].includes(field.label)
+                                                    {["Привелигия"].includes(field.label)
                                                         ? label.description
                                                         : label.name}
                                                 </span>

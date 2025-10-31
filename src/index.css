@@ -380,7 +380,7 @@ button:disabled {
 .custom-table tr:hover,
 #table-delete-button:hover,
 #table-edit-button:hover {
-  background-color: var(--table-header-bg);
+  background-color: var(--table-header-bg) !important;
   transition: background-color 0.3s ease;
 }
 
@@ -584,6 +584,7 @@ button:disabled {
   padding: 2px;
   border-radius: 4px;
   border: 1px solid var(--input-border);
+  width: 100%;
 }
 
 .user-info-buttons {
@@ -704,7 +705,6 @@ button:disabled {
 }
 
 option {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -747,7 +747,7 @@ option {
   display: flex;
   gap: 32px;
   padding: 20px;
-  overflow: auto;
+  overflow: visible;
   max-width: min(1200px, 90vw);
 }
 
@@ -1228,6 +1228,7 @@ option {
   z-index: 1000;       /* ensures it appears above everything */
   padding: 8px 12px;
   border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .dropdown-option {
@@ -1334,7 +1335,6 @@ option {
 
 .multi-select-values {
     flex: 1;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--black);
@@ -1366,7 +1366,6 @@ option {
     padding: 6px 10px;
     gap: 8px;
     cursor: pointer;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -1447,4 +1446,8 @@ button:not(.user-info-close-button) {
   padding: 6px;
   display: flex;
   align-items: center;
+}
+
+.report-dropdown-header {
+  cursor: pointer;
 }

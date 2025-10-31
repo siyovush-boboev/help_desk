@@ -197,12 +197,7 @@ export default function DataTable({
                                 let field_content = ""
                                 if (Array.isArray(item[field]) && item[field].length > 0){
                                     const role_strings = [];
-                                    item[field].forEach(id => {
-                                        if (colName.toLowerCase().includes("рол"))
-                                            role_strings.push(pageData[colName][id]?.description || "");
-                                        else
-                                            role_strings.push(pageData[colName][id]?.name || "");
-                                    });
+                                    item[field].forEach(id => { role_strings.push(pageData[colName][id]?.name || ""); });
                                     field_content = role_strings.join(", ");
                                 }
                                 else if (item[field]){
@@ -220,7 +215,7 @@ export default function DataTable({
                         });
 
                         return (
-                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_red ? "rgba(255, 184, 184, 1)" : make_green ? "rgba(175, 253, 195, 1)" : "inherit"}} row-id={item.id}>
+                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_green ? "rgba(175, 253, 195, 1)" : make_red ? "rgba(255, 184, 184, 1)" : "inherit"}} row-id={item.id}>
                                 {main_page && <td></td>}
                                 {tds}
                             </tr>

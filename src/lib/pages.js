@@ -227,7 +227,10 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "status_id", label: "Статус"}
+    ]
   },
   order_rule: {
     singular: "Правило заявки",
@@ -244,7 +247,13 @@ export const TABLE_PAGES_CONFIG = {
       "Должность": "position_type_name",
       "Статус": "status_id",
       "Действия": null
-    }
+    },
+    filters: [
+      {id: "order_type_id", label: "Тип заявки"},
+      {id: "department_id", label: "Департамент"},
+      {id: "otdel_id", label: "Отдел"},
+      {id: "status_id", label: "Статус"}
+    ]
   },
   equipment_type: {
     singular: "Тип оборудования",

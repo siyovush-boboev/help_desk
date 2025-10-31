@@ -143,7 +143,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                                                 {filter.label === "Статус" && 
                                                     <img src={BASE_URL + value?.["icon_small"]} alt="" className="status-icon"></img>
                                                 }
-                                                <span>{["Роль", "Привелигия"].includes(filter.label) ? value.description : value.name}</span>
+                                                <span>{["Привелигия"].includes(filter.label) ? value.description : value.name}</span>
                                             </label>
                                         ))}
                                     </div>
