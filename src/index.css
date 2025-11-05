@@ -251,7 +251,8 @@ svg {
 
 .controls button,
 .controls input,
-.controls select {
+.controls select,
+.connect-btn {
   background-color: var(--white);
   color: var(--black);
   border: none;
@@ -1041,6 +1042,10 @@ option {
     overflow: auto;
     gap: 28px;
   }
+
+  .modal-content {
+    justify-content: flex-start;
+  }
 }
 
 .loader-wrapper {
@@ -1454,4 +1459,82 @@ button:not(.user-info-close-button) {
   justify-content: space-between;
   width: 100%;
   background-color: var(--white);
+}
+
+.settings-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.settings-divider {
+  margin: 1.5rem 0;
+}
+
+.connect-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.connect-btn:hover:not(:disabled) {
+  background-color: #007ab8;
+  color: var(--white);
+}
+
+.connect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-text {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+.telegram-section {
+  margin-top: 1rem;
+}
+
+.bot-link {
+  color: #0088cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bot-link:hover {
+  text-decoration: underline;
+}
+
+.token-container {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  user-select: all;
+}
+
+.token-container > code {
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border-radius: 6px;
+  background: #f4f4f4;
+}
+
+.token-container > code:hover {
+  background: #eaeaea;
+}
+
+.copy-emoji {
+  margin-left: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.copy-hint {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
