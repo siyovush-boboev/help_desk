@@ -33,6 +33,7 @@ export default function Orders() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
+    const is_my_orders_page = searchParams.get("participant") === "me";
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -47,7 +48,7 @@ export default function Orders() {
     }, [searchParams]);
 
     const handleSearch = (term) => {
-        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
+        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
     };
 
     const handleSort = (column, direction) => {
@@ -67,6 +68,7 @@ export default function Orders() {
             withPagination: true,
             page: 1,
             limit,
+            ...(is_my_orders_page ? { participant: "me" } : {}),
         });
     };
 
@@ -107,7 +109,7 @@ export default function Orders() {
                         });
                     }
                     setShowClosed(zakritoSelected);
-                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery });
+                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery, ...(is_my_orders_page ? { participant: "me" } : {}) });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -183,10 +185,10 @@ export default function Orders() {
                 totalPages={data?.pagination?.total_pages || 1}
                 limit={limit || data?.pagination?.limit || 20}
                 onPageChange={(page) => {
-                    setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
                 }}
                 onPageSizeChange={(size) => {
-                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
                 }}
             />
         </>
