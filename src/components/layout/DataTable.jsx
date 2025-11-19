@@ -53,7 +53,7 @@ export default function DataTable({
     if ("pagination" in data)
         data = data["list"]
 
-    const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка"];
+    const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка", "Телефон", "E-mail", "Заявитель", "Исполнитель"];
 
     const onHeaderClick = (e) => {
         const up = "▲", down = "▼";
@@ -97,7 +97,7 @@ export default function DataTable({
                             if (searchParams[`sort[${columns[col]}]`]) {
                                 direction = searchParams[`sort[${columns[col]}]`];
                             }
-                            return <th key={col} onClick={onHeaderClick} style={banned_cols_for_sorting.includes(col) ? {} : {cursor: "pointer"}}>{col}{direction && (direction === "ASC" ? "▲" : "▼")}</th>
+                            return <th key={col} onClick={onHeaderClick} title="Нажмите чтобы отсортировать" style={banned_cols_for_sorting.includes(col) ? {} : {cursor: "pointer"}}>{col}{direction && (direction === "ASC" ? "▲" : "▼")}</th>
                         })}
                     </tr>
                 </thead>

@@ -113,7 +113,7 @@ export default function Settings() {
                             >
                                 @{TELEGRAM_BOT_USERNAME}
                             </a>{" "}
-                            и отправьте ему этот токен:
+                            и отправьте ему этот код:
                         </p>
 
                         <div className="token-container" onClick={handleCopy}>

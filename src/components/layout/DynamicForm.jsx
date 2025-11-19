@@ -389,7 +389,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if ((fieldName === "type" && page_name === "position") || (page_name === "order_rule" && fieldName === "position_type")) {
                 preloadOptions = preloadData?.["position_type_id"];
-                console.log("nig options:", preloadData);
             }
             if (fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
                 preloadOptions = preloadOG[TABLE_PAGES_CONFIG["status"].singular];

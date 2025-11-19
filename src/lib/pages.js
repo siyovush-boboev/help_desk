@@ -33,8 +33,8 @@ export const TABLE_PAGES_CONFIG = {
     filters: [
       {id: "status_id", label: "Статус"},
       {id: "priority_id", label: "Приоритет"},
-      {id: "user_id", label: "Заявитель"},
-      {id: "executor_id", label: "Исполнитель"},
+      // {id: "user_id", label: "Заявитель"},
+      // {id: "executor_id", label: "Исполнитель"},
       {id: "department_id", label: "Департамент"},
       {id: "otdel_id", label: "Отдел"},
       {id: "branch_id", label: "Филиал"},
@@ -51,11 +51,10 @@ export const TABLE_PAGES_CONFIG = {
       "Имя": "fio",
       "Департамент": "department_id",
       "Отдел": "otdel_id",
-      "Роль": "role_ids",
+      "Филиал": "branch_id",
       "Телефон": "phone_number",
       "E-mail": "email",
       "Должность": "position_id",
-      "Статус": "status_id",
       "Действия": null
     },
     filters: [
@@ -64,7 +63,6 @@ export const TABLE_PAGES_CONFIG = {
       {id: "role_id", label: "Роль"},
       {id: "branch_id", label: "Филиал"},
       {id: "office_id", label: "Офис ЦБО"},
-      {id: "position_id", label: "Должность"}
     ]
   },
   status: {
@@ -344,9 +342,9 @@ export const FORM_CONFIG = {
   },
   user: {
     fio: { label: "Имя", type: "text", required: true, width: "100%" },
-    department_id: { label: "Департамент", type: "select", required: true },
+    department_id: { label: "Департамент", type: "select", required: false },
     otdel_id: { label: "Отдел", type: "select", required: false },
-    branch_id: { label: "Филиал", type: "select", required: true },
+    branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     role_ids: { label: "Роль", type: "multiselect", required: true },
     position_id: { label: "Должность", type: "select", required: true },
@@ -426,9 +424,9 @@ FORM_CONFIG["main"] = FORM_CONFIG["order"];
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id", "executor_id", "position_id"],
+    department_id: ["otdel_id", "executor_id", "position_id", "position_id"],
     otdel_id: ["executor_id"],
-    branch_id: ["office_id", "equipment_id"],
+    branch_id: ["office_id", "equipment_id", "position_id"],
     office_id: ["equipment_id"],
     equipment_type_id: ["equipment_id"]
   },

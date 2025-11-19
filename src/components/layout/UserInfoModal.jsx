@@ -196,7 +196,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
             setEditMode(false);
         } catch (err) {
             console.error("Ошибка при обновлении данных:", err);
-            console.log("error", err);
+            console.log(err);
             setError(err?.response?.data?.message || err.message || "Не удалось обновить данные. Попробуйте позже.");
         } finally {
             setLogoutLoading(false);

@@ -78,7 +78,6 @@ export default function Reports() {
             }
 
             if (!clickedInsideAny) {
-                console.log("hndl clk outsd func");
                 setOpenDropdowns({});
             }
         };
@@ -88,8 +87,6 @@ export default function Reports() {
     }, [openDropdowns]);    
     
     const toggleDropdown = (e, filterId) => {
-        console.log("toggle func");
-        console.log(e.target);
         setOpenDropdowns(prev => ({
             // ...prev,
             [filterId]: !prev[filterId],
