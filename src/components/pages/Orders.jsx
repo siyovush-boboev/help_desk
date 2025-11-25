@@ -17,7 +17,7 @@ export default function Orders() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const navigate = useNavigate();
     if (!permissions.includes(`${PAGE_NAME}:view`)) {
-        navigate("/main");
+        navigate("/dashboard");
     }
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});

@@ -15,7 +15,7 @@ export default function Reports() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const navigate = useNavigate();
     if (!permissions.includes(`${PAGE_NAME}:view`)) {
-        navigate("/main");
+        navigate("/dashboard");
     }
     const [preload, setPreload] = useState({});
     const [error, setError] = useState("");

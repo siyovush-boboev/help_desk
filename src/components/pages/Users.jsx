@@ -16,7 +16,7 @@ export default function Users() {
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const navigate = useNavigate();
     if (!(permissions.includes(`${PAGE_NAME}:update`) || permissions.includes(`${PAGE_NAME}:create`) || permissions.includes(`${PAGE_NAME}:delete`))) {
-        navigate("/main");
+        navigate("/dashboard");
     }
     const [data, setData] = useState([]);
     const [preload, setPreload] = useState({});

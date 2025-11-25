@@ -31,8 +31,8 @@ function AppRoutes() {
         <Route path="/password-change" element={<PasswordChange />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />}>
-            <Route index element={<Navigate to="main" replace />} />
-            <Route path="main" element={<Main />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<Main />} />
             <Route path="order" element={<Orders />} />
             <Route path="user" element={<Users />} />
             <Route path="report" element={<Reports />} />

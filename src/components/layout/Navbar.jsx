@@ -26,7 +26,7 @@ export default function Navbar() {
             icon: ICONS[key] || null,
             label: TABLE_PAGES_CONFIG[key]?.plural || key,
             href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + 
-                (!["report", "setting"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
+                (!["report", "setting", "dashboard"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
         };
         return acc;
     }, {});
@@ -70,11 +70,11 @@ export default function Navbar() {
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
 
             {permissions.includes("order:view") && 
-                <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
+                <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="order" />
             }
 
             {permissions.includes("order:view") && 
-                <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="order" />
+                <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
             }
 
             {(permissions.includes("user:update") || permissions.includes("user:create") 

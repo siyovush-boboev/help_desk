@@ -1,9 +1,9 @@
 export const TABLE_PAGES_CONFIG = {
   main: {
-    singular: "Главная",
-    plural: "Главная",
-    resource: "main",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
+    singular: "Дашборд",
+    plural: "Дашборд",
+    resource: "dashboard",
+    preload: ["status"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -315,7 +315,7 @@ export const FORM_CONFIG = {
     order_type_id: { label: "Тип заявки", type: "select", required: true },
     name: { label: "Наименование заявки", type: "text", required: true, min: 5, width: "100%" },
     comment: { label: "Описание", type: "textarea", required: false, min: 3, width: "100%" },
-    department_id: { label: "Департамент", type: "select", required: true, width: "33%" },
+    department_id: { label: "Департамент", type: "select", required: false, width: "33%" },
     otdel_id: { label: "Отдел", type: "select", required: false, width: "33%" },
     executor_id: { label: "Исполнитель", type: "select", required: false, width: "33%" },
     status_id: { label: "Статус", type: "select", required: true, width: "33%" },

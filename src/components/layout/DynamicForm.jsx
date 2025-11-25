@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
-import { API_BASE_URL, priority_colors } from "../../lib/constants";
+import { API_BASE_URL, BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
 import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons";
@@ -122,6 +122,13 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }, [itemData?.id, page_name]);
 
     const handleFormSubmit = async (data) => {
+        if (page_name === "order" || page_name === "main") {
+            const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][data["order_type_id"]]["name"];
+            if (!itemData && (!order_type_title.toLowerCase().startsWith("оборуд")) && !(data["department_id"] || data["branch_id"]) ) {
+                setErr("Для данного типа заявки необходимо указать Департамент или Филиал");
+                return;
+            }
+        }
         try {
             setIsSubmitting(true);
             await onSubmit(data); // call the real submit fn
@@ -322,7 +329,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][orderType]["name"];
                     // if order_type_id is not "Оборудование" then remove those fields
                     if (!order_type_title.toLowerCase().startsWith("оборуд")){
-                        const fields_to_remove = ["branch_id", "office_id", "equipment_type_id", "equipment_id", "address"];
+                        const fields_to_remove = ["equipment_type_id", "equipment_id", "address"];
                         if (fields_to_remove.includes(fieldName)){
                             return;
                         }
@@ -408,9 +415,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             <option value="">
                                 Выберите {field.label.toLowerCase()}
                             </option>
-                            {Object.entries(preloadOptions).map(([id, name]) => (
-                                <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[name["name"]] || 'inherit' } : {}}>
-                                    {["Привелигия"].includes(field.label) ? name["description"] : name["name"]}
+                            {Object.entries(preloadOptions).map(([id, values]) => (
+                                <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[values["name"]] || 'inherit' } : {}}>
+                                    {["Привелигия"].includes(field.label) ? values["description"] : values["name"]}
                                 </option>
                             ))}
                         </select>

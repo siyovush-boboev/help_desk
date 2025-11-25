@@ -126,20 +126,22 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
             mainRes.data.pagination = main_data.pagination;
             main_data = main_data["list"];
         }
-        main_data = main_data.map(item => {
-            if ("executor" in item && item.executor && typeof item.executor === "object") {
-                item.executor_id = item.executor.id;
-                item.executor_name = item.executor.name || item.executor.fio || item.executor_id;
-                delete item.executor;
-            }
-            // same with creator
-            if ("creator" in item && item.creator && typeof item.creator === "object") {
-                item.creator_id = item.creator.id;
-                item.creator_name = item.creator.name || item.creator.fio || item.creator_id;
-                delete item.creator;
-            }
-            return item;
-        });
+        if (Array.isArray(main_data)) {
+            main_data = main_data.map(item => {
+                if ("executor" in item && item.executor && typeof item.executor === "object") {
+                    item.executor_id = item.executor.id;
+                    item.executor_name = item.executor.name || item.executor.fio || item.executor_id;
+                    delete item.executor;
+                }
+                // same with creator
+                if ("creator" in item && item.creator && typeof item.creator === "object") {
+                    item.creator_id = item.creator.id;
+                    item.creator_name = item.creator.name || item.creator.fio || item.creator_id;
+                    delete item.creator;
+                }
+                return item;
+            });
+        }
         mainRes.data.body = main_data;
         setData(mainRes.data);
     } catch (err) {

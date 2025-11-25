@@ -77,7 +77,7 @@ export default function PasswordChange() {
                         setAccessToken(data.accessToken);
                         localStorage.setItem("permissions", JSON.stringify(data.permissions));
                         setAuthFailed(false);
-                        navigate("/main");
+                        navigate("/dashboard");
                     }
                 } catch (e) {
                     setAuthFailed(true);

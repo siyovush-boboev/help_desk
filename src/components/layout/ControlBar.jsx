@@ -61,7 +61,7 @@ export default function ControlBar({
                 </button>
             )}
 
-            <button onClick={() => refk(prev => prev + 1)}>Обновить таблицу</button>
+            <button onClick={() => refk(prev => prev + 1)}>Обновить данные</button>
 
             {Object.keys(equipmentTypes).length > 0 && (
                 <select

@@ -112,7 +112,7 @@ export default function Collections() {
 
     const navigate = useNavigate();
     if (!(permissions.includes(`${collectionName}:update`) || permissions.includes(`${collectionName}:create`) || permissions.includes(`${collectionName}:delete`))) {
-        navigate("/main");
+        navigate("/dashboard");
         return;
     }
     
