@@ -4,11 +4,33 @@ import ControlBar from "../layout/ControlBar";
 import { loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers";
 import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
 import { ModalContext } from "../../lib/contexts/ModalContext";
-import { ExclaimIcon, ClockIcon, ApplicationsDarkIcon, CheckMarkIcon, ShieldIcon, WatchIcon, UsersIcon } from "../ui/icons";
+import { ExclaimIcon, ClockIcon, ApplicationsDarkIcon, CheckMarkIcon, ShieldIcon, WatchIcon, UsersDarkIcon, ThunderIcon, ArrowUpIcon, ArrowDownIcon } from "../ui/icons";
 
 
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
+
+
+function StatBlock( {title, children} ){
+    const contents = {
+        last_activity: ["Недавняя активность"],
+        top_categories: ["Топ категорий заявок"],
+        count_by_status: ["Количество по статусам", "Текущее состояние заявок"],
+        departments: ["Статистика по департаментам банка", "Распределение заявок и производительность по департаментам"],
+    };
+
+    const title_ru = contents?.[title]?.[0] || title;
+
+    return (
+        <div className="stat-item">
+            <div className="stat-title">
+                <p>{title_ru}</p>
+                {contents?.[title]?.[1] && <p>{contents[title][1]}</p>}
+            </div>
+            {children}
+        </div>
+    );
+}
 
 
 function Alert( {type, count} ){
@@ -50,7 +72,8 @@ function KPIBlock( {title, trend_score, trend_text=""}){
         sla_compliance: ["Соблюдение SLA", <ShieldIcon />],
         avg_response_time: ["Среднее время ответа", <WatchIcon />],
         avg_resolve_time: ["Среднее время решения", <ClockIcon />],
-        fcr_rate: ["Уровень первого контакта", <UsersIcon />],
+        fcr_rate: ["Уровень первого контакта", <ThunderIcon />],
+        active_agents: ["Активные агенты", <UsersDarkIcon />],
     };
 
     const title_ru = contents?.[title]?.[0] || title;
@@ -62,9 +85,81 @@ function KPIBlock( {title, trend_score, trend_text=""}){
                 {contents?.[title]?.[1]}
             </div>
             <div className="kpi-trend">
-                <p>{trend_score}</p>
-                <p>{trend_text}</p>
+                <p className="kpi-trend-score">{trend_score}</p>
+                <p>
+                    {trend_text.startsWith("+") ? <ArrowUpIcon /> : trend_text.startsWith("-") ? <ArrowDownIcon /> : null}
+                    &nbsp;
+                    {trend_text}
+                </p>
             </div>
+        </div>
+    );
+}
+
+
+function DepartmentsStatBlock({ blocks }) {
+    return (
+        blocks.map((block, index) => (
+            <div key={index} className="departments-stat-item">
+                
+                <div>
+                    <p>{block.name}</p>
+                    <small className="orders-count">{block.total_count} заявок</small>
+                </div>
+
+                <div className="departments-stat-counters">
+                    <div className="departments-stat-counters-item"><p>Открытые:</p><span>{block.open_count}</span></div>
+                    <div className="departments-stat-counters-item"><p>Решенные:</p><span>{block.resolved_count}</span></div>
+                    <div className="departments-stat-counters-item"><p>Критические:</p><span>{block.critical_count}</span></div>
+                </div>
+
+                <div className="solved-section">
+                    <span>
+                        <p>Доля решенных</p>
+                        <p>{block.solved_percent}%</p>
+                    </span>
+                    <div className="progress-bar">
+                        <div
+                            className="progress-bar-fill"
+                            style={{ width: `${block.solved_percent}%` }}
+                        />
+                    </div>
+                </div>
+
+            </div>
+        ))
+    );
+}
+
+
+function ActivityBlock( {activities} ){
+    return (
+        <div className="activities-container">
+            {
+                activities.map((activity, index) => (
+                    <div key={index} className="activity-item">
+                        <p>{activity.order_name}</p>
+                        <small>{activity.date} {activity.author_name.length > 24 ? activity.author_name.slice(0, 22) + "..." : activity.author_name}</small>
+                        <p>{activity.text.slice(0, 55) + (activity.text.length > 55 ? "..." : "")}</p>
+                    </div>
+                ))
+            }
+        </div>
+    );
+}
+
+
+function CategoriesBlock( {categories} ){
+    return (
+        <div className="categories-container">
+            {
+                categories.map((category, index) => (
+                    <div key={index} className="category-item">
+                        <p>{category.group_name}</p>
+                        <code>{category.count}</code>
+                    </div>
+                ))
+            }
         </div>
     );
 }
@@ -79,7 +174,7 @@ export default function Main() {
     const [preloadLoaded, setPreloadLoaded] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
-    // console.log("Permissions from main comp:", permissions);
+    const [activeTab, setActiveTab] = useState(0);
 
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
@@ -103,6 +198,12 @@ export default function Main() {
 
     // unpack data from API
     const { alerts, kpis } = data["body"];
+    const tabs = {
+        "Обзор": ["last_activity", "top_categories", "count_by_status"],
+        "Департаменты": ["departments"],
+        "Тренды": [],
+        "Производительность": [],
+    };
 
     return (
         <>
@@ -129,7 +230,37 @@ export default function Main() {
                 }
             </div>
 
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <div className="tabs-switch">
+                {Object.keys(tabs).map((tab, index) => (
+                <p
+                    key={index}
+                    className={activeTab === index ? "active" : ""}
+                    onClick={() => setActiveTab(index)}
+                >
+                    {tab}
+                </p>
+                ))}
+            </div>
+
+            <div className="stats-container">
+                {
+                    tabs[Object.keys(tabs)[activeTab]].map((stat, index) => (
+                        <StatBlock key={index} title={stat}>
+                            {
+                            stat === "departments" ? (
+                                <DepartmentsStatBlock blocks={data["body"][stat]} />
+                            ) : stat === "last_activity" ? 
+                                <ActivityBlock activities={data["body"][stat]} />
+                              : stat === "top_categories" || stat === "count_by_status" ? <CategoriesBlock categories={data["body"][stat]} />
+                              : (
+                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero assumenda cupiditate voluptatibus vitae animi officiis molestias ipsum quo aliquid quis!</p>
+                            )}
+                        </StatBlock>
+                ))
+                }
+            </div>
+
+            {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
         </>
     );
 }

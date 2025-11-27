@@ -26,7 +26,7 @@ export default function Navbar() {
             icon: ICONS[key] || null,
             label: TABLE_PAGES_CONFIG[key]?.plural || key,
             href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + 
-                (!["report", "setting", "dashboard"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
+                (!["report", "setting", "main"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
         };
         return acc;
     }, {});

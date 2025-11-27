@@ -3,7 +3,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Дашборд",
     plural: "Дашборд",
     resource: "dashboard",
-    preload: ["status"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
     columns: {
       "№": null,
       "Наименование": "name",
