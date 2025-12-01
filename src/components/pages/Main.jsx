@@ -10,6 +10,65 @@ import { ExclaimIcon, ClockIcon, ApplicationsDarkIcon, CheckMarkIcon, ShieldIcon
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const COLORS = [
+  "#4285F4",
+  "#34A853",
+  "#FBBC05",
+  "#EA4335",
+  "#A142F4",
+  "#F44292",
+  "#2BB7DA",
+  "#9AA0A6",
+];
+
+function StatusPieChart({ dataFromApi }) {
+  if (!dataFromApi || dataFromApi.length === 0) return null;
+
+  const total = dataFromApi.reduce((sum, item) => sum + item.count, 0);
+
+  const dataWithPercent = dataFromApi.map((item) => ({
+    ...item,
+    percent: ((item.count / total) * 100).toFixed(1),
+  }));
+
+  return (
+    <div style={{ height: "300px" }}>
+      <ResponsiveContainer>
+        <PieChart>
+            <Pie
+            data={dataWithPercent}
+            dataKey="count"
+            nameKey="group_name"
+            cx="50%"
+            cy="50%"
+            outerRadius={120}
+            label={({ name, percent }) => `${name}: ${(
+                percent
+            )}%`} // labels inside slices
+            >
+            {dataWithPercent.map((entry, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+            </Pie>
+
+            <Tooltip
+            formatter={(value, name, props) => {
+                return [`${value}`, `${props.payload.group_name}`];
+            }}
+            />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 function StatBlock( {title, children} ){
     const contents = {
@@ -251,7 +310,8 @@ export default function Main() {
                                 <DepartmentsStatBlock blocks={data["body"][stat]} />
                             ) : stat === "last_activity" ? 
                                 <ActivityBlock activities={data["body"][stat]} />
-                              : stat === "top_categories" || stat === "count_by_status" ? <CategoriesBlock categories={data["body"][stat]} />
+                              : stat === "top_categories" ? <CategoriesBlock categories={data["body"][stat]} />
+                              : stat === "count_by_status" ? <StatusPieChart dataFromApi={data["body"][stat]} />
                               : (
                                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero assumenda cupiditate voluptatibus vitae animi officiis molestias ipsum quo aliquid quis!</p>
                             )}

@@ -1624,7 +1624,6 @@ button:not(.user-info-close-button) {
   padding: 4px;
   border-radius: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .tabs-switch > p {
@@ -1639,6 +1638,7 @@ button:not(.user-info-close-button) {
 .tabs-switch > p.active {
   background-color: var(--white);
   color: var(--black);
+  transition: background-color 0.1s ease;
 }
 
 .stats-container {
@@ -1656,7 +1656,21 @@ button:not(.user-info-close-button) {
   border-radius: 8px;
   flex: 1;
   gap: 12px;
-  min-width: 300px;
+  min-width: 320px;
+}
+
+.stat-item:has(.categories-container) {
+  flex: 0;
+}
+
+.stat-item:has(.recharts-responsive-container) {
+  min-width: min(100%, 600px);
+  overflow: auto;
+}
+
+.recharts-responsive-container {
+  min-width: 600px !important;
+  overflow: auto;
 }
 
 .stat-title > p:first-child,
@@ -1771,6 +1785,8 @@ button:not(.user-info-close-button) {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 6px;
+  overflow: hidden;
+  word-break: break-all;
 }
 
 .activity-item > small {

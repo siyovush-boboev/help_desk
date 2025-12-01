@@ -179,6 +179,13 @@ export default function DataTable({
                                     if (val.includes("T"))
                                         formatted = val.slice(0, val.indexOf("T") + 6).replace("T", " ");
                                     formatted = formatted.replace(/-/g, ".");
+                                    // reverse date format from YYYY.MM.DD to DD.MM.YYYY
+                                    const parts = formatted.split(" ");
+                                    const dateParts = parts[0].split(".");
+                                    if (dateParts.length === 3) {
+                                        const reversedDate = [dateParts[2], dateParts[1], dateParts[0]].join(".");
+                                        formatted = reversedDate + (parts[1] ? " " + parts[1] : "");
+                                    }
                                     return <td key={i + colName}>{formatted}</td>;
                                 }
                                 return <td key={i + colName}></td>;
