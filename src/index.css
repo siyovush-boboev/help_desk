@@ -1573,7 +1573,6 @@ button:not(.user-info-close-button) {
   border: 1px solid #d4bd46;
 }
 
-/* --- GRID CONTAINER --- */
 .kpi-container {
   display: grid;
   /* 4 columns on large screens */
@@ -1584,15 +1583,14 @@ button:not(.user-info-close-button) {
   box-sizing: border-box;
 }
 
-/* --- CARD --- */
 .kpi-item {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
-  height: 150px;                /* SAME HEIGHT for all cards */
-  min-width: 320px;             /* Minimum allowed card width */
-  max-width: 420px;             /* Maximum allowed card width */
+  height: 150px;
+  min-width: 320px;
+  max-width: 420px;
 
   padding: 1rem;
   border: 1px solid #ccc;
@@ -1635,6 +1633,10 @@ button:not(.user-info-close-button) {
   padding: 6px;
 }
 
+.tabs-switch > p:hover {
+  background-color: #ddd;
+}
+
 .tabs-switch > p.active {
   background-color: var(--white);
   color: var(--black);
@@ -1670,7 +1672,6 @@ button:not(.user-info-close-button) {
 
 .recharts-responsive-container {
   min-width: 600px !important;
-  overflow: auto;
 }
 
 .stat-title > p:first-child,
@@ -1737,9 +1738,9 @@ button:not(.user-info-close-button) {
 }
 
 .category-item > :nth-child(2) {
-  background-color: #e0e0e0;
+  border: 2px solid var(--table-header-bg);
   border-radius: 12px;
-  padding: 6px;
+  padding: 4px;
 }
 
 .category-item:hover {

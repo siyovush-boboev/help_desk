@@ -147,8 +147,8 @@ export default function DataTable({
                             }
                             else if (colName === "Наименование заявки") {
                                 return (
-                                    <td key={i + colName}>
-                                        <a href="#" onClick={(e) => { e.preventDefault(); onEdit(item.id); }}>
+                                    <td key={i + colName} onClick={(e) => { e.preventDefault(); onEdit(item.id); }}>
+                                        <a href="#">
                                             {item[field]}
                                         </a>
                                     </td>
@@ -159,8 +159,8 @@ export default function DataTable({
                                 // const name = user_full_name?.split(" ").slice(0, 2).join(" ") || "";
                                 const user_id = item[colName === "Заявитель" ? "creator_id" : "executor_id"];
                                 return (
-                                    <td key={i + colName}>
-                                        <a href="#" onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
+                                    <td key={i + colName} onClick={(e) => { e.preventDefault(); onShowUser(user_id); }}>
+                                        <a href="#">
                                             {user_full_name}
                                         </a>
                                     </td>

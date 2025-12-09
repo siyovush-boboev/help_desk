@@ -5,19 +5,11 @@ import { loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helper
 import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
 import { ModalContext } from "../../lib/contexts/ModalContext";
 import { ExclaimIcon, ClockIcon, ApplicationsDarkIcon, CheckMarkIcon, ShieldIcon, WatchIcon, UsersDarkIcon, ThunderIcon, ArrowUpIcon, ArrowDownIcon } from "../ui/icons";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
-
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
 const COLORS = [
   "#4285F4",
   "#34A853",
@@ -28,6 +20,7 @@ const COLORS = [
   "#2BB7DA",
   "#9AA0A6",
 ];
+
 
 function StatusPieChart({ dataFromApi }) {
   if (!dataFromApi || dataFromApi.length === 0) return null;
@@ -158,7 +151,7 @@ function KPIBlock( {title, trend_score, trend_text=""}){
 
 function DepartmentsStatBlock({ blocks }) {
     return (
-        blocks.map((block, index) => (
+        blocks?.map((block, index) => (
             <div key={index} className="departments-stat-item">
                 
                 <div>
@@ -195,7 +188,7 @@ function ActivityBlock( {activities} ){
     return (
         <div className="activities-container">
             {
-                activities.map((activity, index) => (
+                activities?.map((activity, index) => (
                     <div key={index} className="activity-item">
                         <p>{activity.order_name}</p>
                         <small>{activity.date} {activity.author_name.length > 24 ? activity.author_name.slice(0, 22) + "..." : activity.author_name}</small>
@@ -212,7 +205,7 @@ function CategoriesBlock( {categories} ){
     return (
         <div className="categories-container">
             {
-                categories.map((category, index) => (
+                categories?.map((category, index) => (
                     <div key={index} className="category-item">
                         <p>{category.group_name}</p>
                         <code>{category.count}</code>
@@ -260,8 +253,8 @@ export default function Main() {
     const tabs = {
         "Обзор": ["last_activity", "top_categories", "count_by_status"],
         "Департаменты": ["departments"],
-        "Тренды": [],
-        "Производительность": [],
+        // "Тренды": [],
+        // "Производительность": [],
     };
 
     return (
@@ -293,7 +286,7 @@ export default function Main() {
                 {Object.keys(tabs).map((tab, index) => (
                 <p
                     key={index}
-                    className={activeTab === index ? "active" : ""}
+                    className={activeTab === index && "active"}
                     onClick={() => setActiveTab(index)}
                 >
                     {tab}

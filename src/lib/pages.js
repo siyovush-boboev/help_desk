@@ -112,12 +112,14 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Отдел",
     plural: "Отделы",
     resource: "otdel",
-    preload: ["department", "status"],
+    preload: ["department", "status", "branch", "otdel"],
     columns: {
       "CHECKMARK": null,
       "№": null,
       "Наименование": "name",
       "Департамент": "department_id",
+      "Отдел": "otdel_id",
+      "Филиал": "branch_id",
       "Статус": "status_id",
       "Действия": null
     },
@@ -195,24 +197,15 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Должность",
     plural: "Должности",
     resource: "position",
-    preload: ["status", "department", "otdel", "branch", "office", "position_type"],
+    preload: ["status", "position_type"],
     columns: {
       "CHECKMARK": null,
       "№": null,
       "Наименование": "name",
-      "Департамент": "department_id",
-      "Отдел": "otdel_id",
-      "Филиал": "branch_id",
       "Статус": "status_id",
       "Тип": "type",
       "Действия": null
-    },
-    filters: [
-      {id: "department_id", label: "Департамент"},
-      {id: "otdel_id", label: "Отдел"},
-      {id: "branch_id", label: "Филиал"},
-      {id: "status_id", label: "Статус"}
-    ]
+    }
   },
   order_type: {
     singular: "Тип заявки",
@@ -234,7 +227,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Правило заявки",
     plural: "Правила заявок",
     resource: "order_rule",
-    preload: ["order_type", "department", "otdel", "position", "status", "position_type"],
+    preload: ["order_type", "department", "otdel", "position", "status", "position_type", "branch", "office"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -242,6 +235,8 @@ export const TABLE_PAGES_CONFIG = {
       "Тип заявки": "order_type_id",
       "Департамент": "department_id",
       "Отдел": "otdel_id",
+      "Филиал": "branch_id",
+      "Офис ЦБО": "office_id",
       "Должность": "position_type_name",
       "Статус": "status_id",
       "Действия": null
@@ -335,8 +330,10 @@ export const FORM_CONFIG = {
   order_rule: {
     name: { label: "Наименование", type: "text", required: true },
     order_type_id: { label: "Тип заявки", type: "select", required: true },
-    department_id: { label: "Департамент", type: "select", required: true },
+    department_id: { label: "Департамент", type: "select", required: false },
     otdel_id: { label: "Отдел", type: "select", required: false },
+    branch_id: { label: "Филиал", type: "select", required: false },
+    office_id: { label: "Офис ЦБО", type: "select", required: false },
     position_type: { label: "Должность", type: "select", required: true },
     status_id: { label: "Статус", type: "select", required: true },
   },
@@ -372,7 +369,9 @@ export const FORM_CONFIG = {
   },
   otdel: {
     name: { label: "Наименование", type: "text", required: true, width: "100%" },
-    department_id: { label: "Департамент", type: "select", required: true },
+    department_id: { label: "Департамент", type: "select", required: false },
+    otdel_id: { label: "Отдел", type: "select", required: false },
+    branch_id: { label: "Филиал", type: "select", required: false },
     status_id: { label: "Статус", type: "select", required: true },
   },
   branch: {
@@ -400,12 +399,8 @@ export const FORM_CONFIG = {
     description: { label: "Описание", type: "textarea", required: false, width: "100%" },
   },
   position: {
-    name: { label: "Наименование", type: "text", required: true },
+    name: { label: "Наименование", type: "text", required: true, width: "100%" },
     status_id: { label: "Статус", type: "select", required: true },
-    department_id: { label: "Департамент", type: "select", required: false },
-    otdel_id: { label: "Отдел", type: "select", required: false },
-    branch_id: { label: "Филиал", type: "select", required: false },
-    office_id: { label: "Офис ЦБО", type: "select", required: false },
     type: { label: "Тип", type: "select", required: false },
   },
   equipment_type: {
@@ -424,9 +419,9 @@ FORM_CONFIG["main"] = FORM_CONFIG["order"];
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id", "executor_id", "position_id", "position_id"],
+    department_id: ["otdel_id", "executor_id"],
     otdel_id: ["executor_id"],
-    branch_id: ["office_id", "equipment_id", "position_id"],
+    branch_id: ["office_id", "equipment_id"],
     office_id: ["equipment_id"],
     equipment_type_id: ["equipment_id"]
   },
