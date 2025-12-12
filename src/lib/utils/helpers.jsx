@@ -440,7 +440,7 @@ export function getDefaultValues(itemData = null, config = {}, preloadData = {})
 
     if (itemData) {
         for (let key in config) {
-            if (itemData[key] !== undefined) {
+            if (itemData[key] !== undefined && itemData[key] !== null) {
                 if (config[key].type === "multiselect") {
                     defaults[key] = itemData[key].map(String);
                 } else if (itemData[key] && (config[key].type === "date" || config[key].type === "datetime-local")) {

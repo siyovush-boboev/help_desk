@@ -338,7 +338,8 @@ export const FORM_CONFIG = {
     status_id: { label: "Статус", type: "select", required: true },
   },
   user: {
-    fio: { label: "Имя", type: "text", required: true, width: "100%" },
+    fio: { label: "Имя", type: "text", required: true },
+    username: { label: "Логин", type: "search_select", required: false },
     department_id: { label: "Департамент", type: "select", required: false },
     otdel_id: { label: "Отдел", type: "select", required: false },
     branch_id: { label: "Филиал", type: "select", required: false },

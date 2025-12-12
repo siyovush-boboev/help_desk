@@ -715,11 +715,31 @@ option {
   width: calc(50% - 16px);
   max-width: 100%;
   max-height: 250px;
-  overflow: visible;
   display: flex;
-  position: relative;
+  position: relative; /* To allow positioning the error message inside this container */
   flex-direction: column;
   flex-grow: 1;
+}
+
+.edit-form-field > label {
+  margin-bottom: 4px;
+}
+
+/* .edit-form-field input {
+  padding-bottom: 24px;
+  position: relative;
+} */
+
+.edit-form-field > p {
+  color: red;
+  background-color: yellow;
+  padding: 4px;
+  border-radius: 4px;
+  position: absolute; /* Make the error message float */
+  bottom: -24px; /* Adjust this to place the error message directly under the input field */
+  left: 0;
+  width: 100%; /* Align error message with the input field */
+  z-index: 1000;
 }
 
 .edit-form-field textarea {
@@ -727,22 +747,11 @@ option {
   resize: vertical;
 }
 
-.edit-form-field > label {
-  margin-bottom: 4px;
-}
-
-.edit-form-field>p,
-.error-message > p {
-  color: red;
-  background-color: yellow;
-  padding: 4px;
-  border-radius: 4px;
-}
-
+/* 
 .error-message {
   display: flex;
   justify-content: center;
-}
+} */
 
 .form-container {
   display: flex;
@@ -1792,4 +1801,28 @@ button:not(.user-info-close-button) {
 
 .activity-item > small {
   color: var(--text-secondary);
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--white);
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text-color);
+  z-index: 1000000;
+}
+
+.search-results li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-results li:hover {
+  background-color: #f1f1f1;
 }

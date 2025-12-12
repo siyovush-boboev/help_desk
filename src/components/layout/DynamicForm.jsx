@@ -6,6 +6,7 @@ import { API_BASE_URL, BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
 import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons";
+import SearchSelect from "../ui/SearchSelect";
 
 
 export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false, page_name=null }) {
@@ -422,9 +423,26 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             ))}
                         </select>
                         {errors[fieldName] && (
-                            <p>{errors[fieldName].message}</p>
+                            <p className="field-error" >{errors[fieldName].message}</p>
                         )}
                     </div>
+                );
+            }
+
+            if (field.type === "search_select") {
+                return (
+                    <SearchSelect
+                        field={field}
+                        register={register}
+                        errors={errors}
+                        setValue={setValue}
+                        disabled_fields={disabled_fields}
+                        fieldName={fieldName}
+                        onOptionChange={onOptionChange}
+                        preloadOptions={preloadOptions}
+                        API_BASE_URL={API_BASE_URL}
+                        defaultValue={itemData?.[fieldName] || ""}
+                    />
                 );
             }
 
@@ -591,7 +609,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </div>
 
                             {errors[fieldName] && (
-                                <p>{errors[fieldName].message}</p>
+                                <p className="field-error" >{errors[fieldName].message}</p>
                             )}
                             </div>
                         );
@@ -707,7 +725,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         </div>
 
                         {errors[fieldName] && (
-                            <p>{errors[fieldName].message}</p>
+                            <p className="field-error" >{errors[fieldName].message}</p>
                         )}
                     </div>
                 );
@@ -731,7 +749,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             multiple={field.type === "file_list"}
                         />
                         {errors[fieldName] && (
-                            <p>{errors[fieldName].message}</p>
+                            <p className="field-error" >{errors[fieldName].message}</p>
                         )}
                     </div>
                 );
@@ -753,7 +771,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             </span>
                         </label>
                         {errors[fieldName] && (
-                            <p>{errors[fieldName].message}</p>
+                            <p className="field-error" >{errors[fieldName].message}</p>
                         )}
                     </div>
                 );
@@ -784,7 +802,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         />
                     )}
                     {errors[fieldName] && (
-                        <p>{errors[fieldName].message}</p>
+                        <p className="field-error" >{errors[fieldName].message}</p>
                     )}
                 </div>
             );
