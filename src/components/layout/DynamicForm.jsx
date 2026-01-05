@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
@@ -125,8 +126,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const handleFormSubmit = async (data) => {
         if (page_name === "order" || page_name === "main") {
             const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][data["order_type_id"]]["name"];
-            if (!itemData && (!order_type_title.toLowerCase().startsWith("оборуд")) && !(data["department_id"] || data["branch_id"]) ) {
-                setErr("Для данного типа заявки необходимо указать Департамент или Филиал");
+            if (!itemData && (!order_type_title.toLowerCase().startsWith("оборуд")) && !(data["department_id"] || data["branch_id"] || data["otdel_id"] || data["office_id"]) ) {
+                setErr("Для данного типа заявки необходимо указать один из этих полей: Департамент, Отдел, Филиал, Офис ЦБО");
                 return;
             }
         }
@@ -243,7 +244,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
-                    setValue(dependentField, option_to_select_id);
+                    // setValue(dependentField, option_to_select_id);
                     if (DEPENDANT_FIELDS.asc[dependentField])
                         asc(dependentField);
                 }
@@ -326,6 +327,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     return;
                 if (itemData && fieldName === "order_type_id")
                     return;
+                if (itemData && !orderType){
+                    setOrderType(itemData["order_type_id"]);
+                }
                 if (orderType){
                     const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][orderType]["name"];
                     // if order_type_id is not "Оборудование" then remove those fields

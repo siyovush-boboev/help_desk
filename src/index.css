@@ -747,11 +747,9 @@ option {
   resize: vertical;
 }
 
-/* 
 .error-message {
-  display: flex;
-  justify-content: center;
-} */
+  text-align: center;
+}
 
 .form-container {
   display: flex;

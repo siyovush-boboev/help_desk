@@ -20,15 +20,15 @@ export const TABLE_PAGES_CONFIG = {
     columns: {
       "CHECKMARK": null,
       "№": null,
-      "Оборудование": "equipment_id",
-      "Тип оборудования": "equipment_type_id",
+      "Наименование заявки": "name",
       "Статус": "status_id",
       "Приоритет": "priority_id",
-      "Наименование заявки": "name",
       "Заявитель": null,
       "Дата создания": "created_at",
       "Исполнитель": null,
       "Срок": "duration",
+      "Оборудование": "equipment_id",
+      "Тип оборудования": "equipment_type_id",
     },
     filters: [
       {id: "status_id", label: "Статус"},
