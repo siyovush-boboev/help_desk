@@ -55,6 +55,7 @@ export const TABLE_PAGES_CONFIG = {
       "Телефон": "phone_number",
       "E-mail": "email",
       "Должность": "position_id",
+      "Статус": "status_id",
       "Действия": null
     },
     filters: [

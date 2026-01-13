@@ -26,7 +26,7 @@ export default function Header() {
 
                 const res = await axiosInstance.get(`${API_BASE_URL}/auth/me`);
                 const data = res.data.body;
-                const {
+                let {
                     id,
                     fio,
                     position_name,
@@ -38,6 +38,7 @@ export default function Header() {
                     phone_number,
                     photo_url,
                 } = data;
+                photo_url = BASE_URL + photo_url;
 
                 setUserDetails({
                     id,
@@ -98,7 +99,7 @@ export default function Header() {
                     }
                     <div className="user-avatar">
                         <img
-                            src={userDetails["photo_url"] ? (BASE_URL + userDetails["photo_url"]) : person_svg}
+                            src={userDetails["photo_url"] ? (userDetails["photo_url"]) : person_svg}
                             alt=""
                             className="user-logo"
                             style={!userDetails["photo_url"] ? { width: "30px", height: "30px" } : { width: "100%", height: "100%" }}

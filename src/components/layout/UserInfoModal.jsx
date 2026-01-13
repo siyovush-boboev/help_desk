@@ -153,7 +153,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                 changedFields[key] = value;
             }
         }
-        if (!Object.keys(changedFields).length) {
+        if (!(Object.keys(changedFields).length || selectedFile)) {
             setEditMode(false);
             return;
         }
@@ -168,7 +168,8 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
         if (data2send){
             formData.append("data", JSON.stringify(data2send));
         }
-
+        console.log(formData);
+        console.log(data2send);
         try {
             const url = `${API_BASE_URL}/auth/me`;
             setLogoutLoading(true);
@@ -231,7 +232,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                     <div className="user-full-size-pic">
                         {userData.photo_url &&
                             <img
-                                src={selectedFile ? URL.createObjectURL(selectedFile) : BASE_URL + userData.photo_url}
+                                src={selectedFile ? URL.createObjectURL(selectedFile) : userData.photo_url}
                                 alt=""
                             />
                         }
