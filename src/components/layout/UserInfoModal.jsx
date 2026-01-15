@@ -7,8 +7,9 @@ import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { UserInfoCloseIcon } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
 import { isValidCredsInput, capitalizeName } from "../../lib/utils/helpers";
+import { set } from "zod";
 
-export default function UserInfoModal({ userId, onClose, data = null, details_state=null }) {
+export default function UserInfoModal({ userId, onClose, data = null, details_state = null }) {
     const [userData, setUserData] = useState(data);
     const [loading, setLoading] = useState(true);
     const [logoutLoading, setLogoutLoading] = useState(false);
@@ -63,10 +64,8 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                 setLoading(false);
             }
         };
-        if (!data)
-            fetchUser();
-        else
-            setLoading(false);
+        if (!data) fetchUser();
+        else setLoading(false);
     }, [userId, data]);
 
     const handleLogout = async () => {
@@ -129,47 +128,50 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     const handleSave = async () => {
         setError(null);
         editedFields.fio = capitalizeName([editedFields.last_name, editedFields.first_name, editedFields.middle_name].join(" "));
-        const {fio, email, phone_number } = editedFields;
-        if (!(editedFields.first_name || editedFields.last_name || editedFields.middle_name)){
+        const { fio, email, phone_number } = editedFields;
+        if (!(editedFields.first_name || editedFields.last_name || editedFields.middle_name)) {
             setError("Введите ФИО");
             return;
         }
         const email_error = isValidCredsInput(email, "email", false);
-        if (email_error){
+        if (email_error) {
             setError(email_error);
             return;
         }
         const phone_error = isValidCredsInput(phone_number, "phone", false);
-        if (phone_error){
+        if (phone_error) {
             setError(phone_error);
             return;
         }
         // iterate and add only changed fields
         const changedFields = {};
         for (const [key, value] of Object.entries(editedFields)) {
-            if (["last_name", "first_name", "middle_name"].includes(key)){
+            if (["last_name", "first_name", "middle_name"].includes(key)) {
                 continue;
             } else if (value !== userData[key]) {
                 changedFields[key] = value;
             }
         }
-        if (!(Object.keys(changedFields).length || selectedFile)) {
-            setEditMode(false);
-            return;
-        }
+        // if (Object.keys(changedFields).length === 0 || (selectedFile === null && userData.photo_url)) {
+        //     setEditMode(false);
+        //     return;
+        // }
+        console.log(userData.photo_url, selectedFile, changedFields);
         const formData = new FormData();
         const data2send = {};
         for (const [key, value] of Object.entries(changedFields)) {
             data2send[key] = value;
         }
-        if (selectedFile) {
+
+        if (selectedFile === null) {
+            data2send["photo_url"] = null;
+        } else {
             formData.append("photoFile", selectedFile);
         }
-        if (data2send){
+
+        if (Object.keys(data2send).length > 0) {
             formData.append("data", JSON.stringify(data2send));
         }
-        console.log(formData);
-        console.log(data2send);
         try {
             const url = `${API_BASE_URL}/auth/me`;
             setLogoutLoading(true);
@@ -184,7 +186,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                 fio,
                 email,
                 phone_number,
-                photo_url: selectedFile ? URL.createObjectURL(selectedFile) : userData.photo_url,
+                photo_url: selectedFile ? URL.createObjectURL(selectedFile) : null,
             });
             const [userDetails, setUserDetails] = details_state;
             setUserDetails({
@@ -192,12 +194,11 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                 fio,
                 email,
                 phone_number,
-                photo_url: selectedFile ? URL.createObjectURL(selectedFile) : userData.photo_url,
-            })            
+                photo_url: selectedFile ? URL.createObjectURL(selectedFile) : null,
+            });
             setEditMode(false);
         } catch (err) {
             console.error("Ошибка при обновлении данных:", err);
-            console.log(err);
             setError(err?.response?.data?.message || err.message || "Не удалось обновить данные. Попробуйте позже.");
         } finally {
             setLogoutLoading(false);
@@ -218,6 +219,22 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
             fileInputRef.current.value = null;
         }
         setError(null);
+        if (userData.photo_url) {
+            document.querySelector(".user-full-size-pic img").src = userData.photo_url;
+        }
+    };
+
+    const handleDeletePhoto = () => {
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
+        document.querySelector(".user-full-size-pic img").src = "";
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setSelectedFile(file);
     };
 
     return (
@@ -230,22 +247,39 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
 
                 <div className="user-info-main-content">
                     <div className="user-full-size-pic">
-                        {userData.photo_url &&
+                        {(userData.photo_url || selectedFile) &&
                             <img
                                 src={selectedFile ? URL.createObjectURL(selectedFile) : userData.photo_url}
                                 alt=""
                             />
                         }
-                        {editMode && (
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setSelectedFile(e.target.files[0])}
-                                ref={fileInputRef}
-                            />
-                        )}
+                        <div className="profile-pic-update-buttons">
+                            {editMode && (
+                                <button 
+                                    className="btn-upload-photo btn-cancel"
+                                    onClick={() => fileInputRef.current.click()}
+                                >
+                                    {fileInputRef.current.value || userData.photo_url ? "Изменить" : "Загрузить"}
+                                </button>
+                            )}
+                            {editMode && userData.photo_url && (
+                                <button
+                                    className="btn-delete-photo btn-cancel" 
+                                    onClick={handleDeletePhoto}
+                                >
+                                    Удалить
+                                </button>
+                            )}
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={ (e) => { handleFileChange(e); } }
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                        />
                     </div>
-                    <form className="user-text-info" id="edit-user-form" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                    <form className="user-text-info" id="edit-user-form">
                         {infoBlocks.map((b) => {
                             const editable = ["last_name", "first_name", "middle_name", "email", "phone_number"].includes(b.id);
                             return (
@@ -277,7 +311,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                                 <>
                                     {editMode ? (
                                         <>
-                                            <button className="btn-save" type="submit" form="edit-user-form">Сохранить</button>
+                                            <button className="btn-save" type="submit" form="edit-user-form" onClick={() => { handleSave(); }}>Сохранить</button>
                                             <button className="btn-cancel" onClick={handleCancel}>Отмена</button>
                                         </>
                                     ) : (

@@ -350,7 +350,7 @@ export const FORM_CONFIG = {
     position_id: { label: "Должность", type: "select", required: true },
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail / Логин", type: "email", required: true },
-    photoFile: { label: "Фото", type: "file", required: false },
+    // photoFile: { label: "Фото", type: "file", required: false },
     status_id: { label: "Статус", type: "select", required: false },
   },
   individual_permissions: {

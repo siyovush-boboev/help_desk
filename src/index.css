@@ -1047,7 +1047,7 @@ option {
 
   .user-info-main-content {
     overflow: auto;
-    gap: 28px;
+    gap: 36px;
   }
 
   .modal-content {
@@ -1836,4 +1836,9 @@ button:not(.user-info-close-button) {
   width: 260px;
   height: 360px;
   cursor: pointer;
+}
+
+.profile-pic-update-buttons{
+  display: flex;
+  align-items: center;
 }
