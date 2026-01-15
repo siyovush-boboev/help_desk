@@ -241,7 +241,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 let origin_label = origin_select.previousSibling.textContent.trim();
                 if (origin_label === "Заявитель" || origin_label === "Исполнитель")
                     origin_label = "Пользователь";
-                const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
+                // const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
                     // setValue(dependentField, option_to_select_id);

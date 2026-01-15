@@ -191,6 +191,12 @@ export default function Orders() {
                     setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
                 }}
             />
+
+            {!data?.body?.length && 
+                <div className="create_order_text" onClick={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}>
+                    <p>Создайте заявку</p>
+                </div>
+            }
         </>
     );
 }

@@ -48,6 +48,7 @@ export const TABLE_PAGES_CONFIG = {
     permissions_resource: "user/permission",
     preload: ["department", "otdel", "branch", "office", "role", "status", "position", "permission"],
     columns: {
+      "№": null,
       "Имя": "fio",
       "Департамент": "department_id",
       "Отдел": "otdel_id",

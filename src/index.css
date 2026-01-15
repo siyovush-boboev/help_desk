@@ -1824,3 +1824,16 @@ button:not(.user-info-close-button) {
 .search-results li:hover {
   background-color: #f1f1f1;
 }
+
+.create_order_text {
+  text-align: center;
+  margin: 0 auto;
+  color: var(--primary-color);
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 260px;
+  height: 360px;
+  cursor: pointer;
+}

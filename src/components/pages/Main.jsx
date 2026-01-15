@@ -69,6 +69,7 @@ function StatBlock( {title, children} ){
         top_categories: ["Топ категорий заявок"],
         count_by_status: ["Количество по статусам", "Текущее состояние заявок"],
         departments: ["Статистика по департаментам банка", "Распределение заявок и производительность по департаментам"],
+        branches: ["Статистика по филиалам банка", "Распределение заявок и производительность по филиалам"],
     };
 
     const title_ru = contents?.[title]?.[0] || title;
@@ -191,7 +192,7 @@ function ActivityBlock( {activities} ){
                 activities?.map((activity, index) => (
                     <div key={index} className="activity-item">
                         <p>{activity.order_name}</p>
-                        <small>{activity.date} {activity.author_name.length > 24 ? activity.author_name.slice(0, 22) + "..." : activity.author_name}</small>
+                        <small>{activity.date} {activity.author_name.length > 32 ? activity.author_name.slice(0, 30) + "..." : activity.author_name}</small>
                         <p>{activity.text.slice(0, 55) + (activity.text.length > 55 ? "..." : "")}</p>
                     </div>
                 ))
@@ -253,6 +254,7 @@ export default function Main() {
     const tabs = {
         "Обзор": ["last_activity", "top_categories", "count_by_status"],
         "Департаменты": ["departments"],
+        "Филиалы": ["branches"],
         // "Тренды": [],
         // "Производительность": [],
     };
@@ -299,15 +301,14 @@ export default function Main() {
                     tabs[Object.keys(tabs)[activeTab]].map((stat, index) => (
                         <StatBlock key={index} title={stat}>
                             {
-                            stat === "departments" ? (
+                            stat === "departments" || stat === "branches" ? (
                                 <DepartmentsStatBlock blocks={data["body"][stat]} />
                             ) : stat === "last_activity" ? 
                                 <ActivityBlock activities={data["body"][stat]} />
                               : stat === "top_categories" ? <CategoriesBlock categories={data["body"][stat]} />
                               : stat === "count_by_status" ? <StatusPieChart dataFromApi={data["body"][stat]} />
-                              : (
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero assumenda cupiditate voluptatibus vitae animi officiis molestias ipsum quo aliquid quis!</p>
-                            )}
+                              : null
+                            }
                         </StatBlock>
                 ))
                 }

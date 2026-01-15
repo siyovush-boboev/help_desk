@@ -38,7 +38,9 @@ export default function Header() {
                     phone_number,
                     photo_url,
                 } = data;
-                photo_url = BASE_URL + photo_url;
+                if (photo_url){
+                    photo_url = BASE_URL + photo_url;
+                }
 
                 setUserDetails({
                     id,
@@ -93,7 +95,7 @@ export default function Header() {
                     {loading && <div className="loader-black user-text"></div>}
                     {!loading &&
                         <div className="user-text">
-                            <h4>{userDetails.fio}</h4>
+                            <h4>{userDetails.fio.split(" ").slice(0, 2).join(" ")}</h4>
                             <p>{userDetails.position}</p>
                         </div>
                     }
