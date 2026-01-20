@@ -424,8 +424,8 @@ export const DEPENDANT_FIELDS = {
   desc: {
     department_id: ["otdel_id", "executor_id"],
     otdel_id: ["executor_id"],
-    branch_id: ["office_id", "equipment_id"],
-    office_id: ["equipment_id"],
+    branch_id: ["office_id", "equipment_id", "executor_id"],
+    office_id: ["equipment_id", "executor_id"],
     equipment_type_id: ["equipment_id"]
   },
 };

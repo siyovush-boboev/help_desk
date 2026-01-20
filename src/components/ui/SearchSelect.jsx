@@ -2,12 +2,59 @@ import { useState, useEffect } from 'react';
 import axios from "../../lib/contexts/axiosInstance";
 import { API_BASE_URL } from "../../lib/constants";
 
-const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fieldName, defaultValue }) => {
+
+const fieldData = {
+  username: {
+    url: "/ad-users?",
+    propname: "username",
+  },
+  executor_id: {
+    url: "/user?",
+    propname: "fio",
+  },
+}
+
+
+function getProperty(obj, propName) {
+  return obj[propName];
+}
+
+
+function getURL(field_name, params = {}) {
+  let url = `${API_BASE_URL}`;
+
+  url += fieldData?.[field_name]?.url || "";
+
+  if (Object.keys(params).length === 0)
+    return url;
+
+  for (const [key, value] of Object.entries(params)) {
+    url += `${key}=${value}&`;
+  }
+  return url.slice(0, -1);
+}
+
+
+function ParseResults({results, field_name, handler}) {
+  let propName = fieldData?.[field_name]?.propname;
+  if (!propName)
+    return;
+  return (<>
+    {results.map((item) => (
+      <li key={getProperty(item, propName)} onClick={() => handler(getProperty(item, propName))}>
+        {getProperty(item, propName)}
+      </li>
+    ))}
+  </>);
+}
+
+
+const SearchSelect = ({ field, register, errors, setErrors, setValue, disabled_fields, fieldName, defaultValue }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState(null);
-  const [isSelected, setIsSelected] = useState(false);  // Track if a username is selected
+  const [isSelected, setIsSelected] = useState(false);  // Track if a value is selected
 
   // Set the initial value of searchQuery if it was already prefilled (i.e., user is editing)
   useEffect(() => {
@@ -20,7 +67,7 @@ const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fiel
 
   // Debounced API search
   useEffect(() => {
-    if (isSelected) return;  // Skip search if a username is already selected
+    if (isSelected) return;  // Skip search if a value is already selected
 
     if (searchQuery.length < 4) {
       setResults([]);
@@ -43,11 +90,12 @@ const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fiel
   const fetchSearchResults = async (query) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/ad-users?search=${query}`);
+      const response = await axios.get(getURL(fieldName, { search: query }));
       console.log('Search results:', response);
       setResults(response?.data?.body);
     } catch (error) {
       console.error('Error fetching search results', error);
+      setErrors(error?.response?.data?.message || 'Ошибка при отправке поискового запроса');
     } finally {
       setIsLoading(false);
     }
@@ -60,20 +108,20 @@ const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fiel
     setIsSelected(false);  // Reset selection state when user types
   };
 
-  const handleSelection = (username) => {
-    setSearchQuery(username);
+  const handleSelection = (value) => {
+    setSearchQuery(value);
     setResults([]);
-    setValue(fieldName, username, { shouldValidate: true });
+    setValue(fieldName, value, { shouldValidate: true });
     setIsSelected(true);  // Mark that a selection has been made
   };
 
   const validateUsername = (value) => {
     if (
-        !results.some(user => user.username.toLowerCase().includes(value.toLowerCase()))
-         && !isSelected
-         && (defaultValue && value !== defaultValue)
+      !results.some(item => item[fieldData?.[fieldName]?.propname].toLowerCase().includes(value.toLowerCase()))
+      && !isSelected
+      && (defaultValue && value !== defaultValue)
     ) {
-      return 'Выберите логин из результатов поиска. (минимум 4 символа)';
+      return 'Выберите из результатов поиска';
     }
     return true;
   };
@@ -91,7 +139,7 @@ const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fiel
           validate: validateUsername,
         })}
         onChange={handleInputChange}
-        placeholder={`Введите ${field.label}`}
+        placeholder={"Введите минимум 4 символа"}
       />
       {errors[fieldName] && <p>{errors[fieldName].message}</p>}
 
@@ -101,13 +149,14 @@ const SearchSelect = ({ field, register, errors, setValue, disabled_fields, fiel
 
       {results?.length > 0 && searchQuery.length >= 4 && !isSelected && (
         <ul className="search-results">
-          {results.map((user) => (
-            <li key={user.username} onClick={() => handleSelection(user.username)}>
-              {user.username}
-            </li>
-          ))}
+          <ParseResults
+            results={results}
+            field_name={fieldName}
+            handler={handleSelection}
+          />
         </ul>
       )}
+
     </div>
   );
 };

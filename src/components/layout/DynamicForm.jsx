@@ -439,12 +439,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         field={field}
                         register={register}
                         errors={errors}
+                        setErrors={setErr}
                         setValue={setValue}
                         disabled_fields={disabled_fields}
                         fieldName={fieldName}
-                        onOptionChange={onOptionChange}
-                        preloadOptions={preloadOptions}
-                        API_BASE_URL={API_BASE_URL}
                         defaultValue={itemData?.[fieldName] || ""}
                     />
                 );
