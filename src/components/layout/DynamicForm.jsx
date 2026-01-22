@@ -1,9 +1,8 @@
-
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
-import { API_BASE_URL, BASE_URL, priority_colors } from "../../lib/constants";
+import { API_BASE_URL, priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
 import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons";
@@ -30,7 +29,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const [IndividualPrivileges, setIndividualPrivileges] = useState({});
 
     const [openDropdowns, setOpenDropdowns] = useState({});
-    const dropdownRef = useRef(null);
+    const dropdownRefs = useRef({});
+
 
     // Toggle dropdown open/close
     const toggleDropdown = (fieldId) => {
@@ -40,18 +40,18 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         });
     };
 
-    // Click outside to close
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setOpenDropdowns({});
-            }
-        };
+    const handleClickOutside = (e) => {
+        const clickedInsideSomeDropdown = Object.values(dropdownRefs.current)
+        .some(ref => ref && ref.contains(e.target));
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        if (!clickedInsideSomeDropdown) {
+        setOpenDropdowns({});
+        }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const {
@@ -61,7 +61,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         formState: { errors },
     } = useForm({
         defaultValues: getDefaultValues(itemData, config, preloadData),
-        mode: "onChange",
+        mode: "onSubmit",
     });
 
     useEffect(() => {
@@ -233,7 +233,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             return;
         }
 
-        const origin_id = Number(origin_val);
+        // const origin_id = Number(origin_val);
         setTriggeredFields(prev => new Set(prev.add(fieldName)));
 
         const asc = (fieldName) => {
@@ -642,7 +642,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 {field.required && <span style={{ color: 'red' }}> *</span>}
                             </label>
 
-                            <div className="multi-select-dropdown" ref={dropdownRef}>
+                            <div className="multi-select-dropdown" ref={(el) => { if (el) dropdownRefs.current[fieldName] = el; }}>
                                 <div className="multi-select-header" onClick={() => toggleDropdown(fieldName)}>
                                     <span className="multi-select-values">{displayText}</span>
                                     <span className="multi-select-arrow">{openDropdowns[fieldName] ? "▲" : "▼"}</span>
@@ -809,12 +809,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 </div>
             );
         })
-
+    let status_field_key = null;
+    let status_name = null;
+    if ((page_name === "order" || page_name === "main") && itemData) {
+        status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+        status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
+    }
     const form_element = 
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
             {form_content}
             <div className="modal-buttons">
-                {!((page_name === "order" || page_name === "main") && !itemData && orderType === "") &&
+                {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")) ) ) &&
                     <button id="confirmBtn" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Загрузка..." : "Сохранить"}
                     </button>

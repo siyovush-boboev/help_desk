@@ -71,7 +71,7 @@ export default function OrderHistory({ history, data, status_preload }) {
                 }
 
                 // Check for status changed line and update icon here too
-                if (line.startsWith("Статус изменен на:")) {
+                if (line.includes(":") && line.toLowerCase().includes("статус")) {
                     const match = line.match(/«(.+?)»/);
                     if (match) {
                         const statusName = match[1].trim();

@@ -52,7 +52,7 @@ export default function Pagination({
             <div>
                 <span>Всего записей: {totalItems}</span>
                 <span>
-                    &nbsp;| Показывать по:&nbsp;
+                    | Показывать по:&nbsp;
                     <select id="rows-per-page" value={limit} onChange={handleSizeChange} aria-label="Количество строк на странице">
                         {pageSizeOptions.map((opt) => (
                             <option key={opt} value={opt}>

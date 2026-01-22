@@ -1,24 +1,3 @@
-            // if (filter.label === "Заявитель" || filter.label === "Исполнитель") {
-            //     const allUsers = preload["Пользователь"] || {};
-
-            //     const adminIds = Object.values(allUsers)
-            //         .filter(u => admin_roles.includes(u.role_name?.toLowerCase()))
-            //         .map(u => u.id);
-
-            //     const executorIds = Object.values(allUsers)
-            //         .filter(u => executor_roles.includes(u.role_name?.toLowerCase()))
-            //         .map(u => u.id);
-
-            //     const limitToAdmins = filter.label === "Заявитель";
-            //     allOptions = Object.fromEntries(
-            //         Object.entries(allUsers).filter(([, user]) =>
-            //             limitToAdmins ? adminIds.includes(user.id) : executorIds.includes(user.id)
-            //         )
-            //     );
-            // }
-            // import { admin_roles, executor_roles, priority_colors, BASE_URL } from "../../lib/constants";
-
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { DEPENDANT_FIELDS } from "../../lib/pages";
 import { priority_colors, BASE_URL } from "../../lib/constants";

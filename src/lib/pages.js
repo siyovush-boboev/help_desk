@@ -55,7 +55,7 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Телефон": "phone_number",
       "E-mail": "email",
-      "Должность": "position_id",
+      "Должность": "position_ids",
       "Статус": "status_id",
       "Действия": null
     },
@@ -311,7 +311,7 @@ export const FORM_CONFIG = {
   order: {
     order_type_id: { label: "Тип заявки", type: "select", required: true },
     name: { label: "Наименование заявки", type: "text", required: true, min: 5, width: "100%" },
-    comment: { label: "Описание", type: "textarea", required: false, min: 3, width: "100%" },
+    comment: { label: "Комментарий", type: "textarea", required: false, min: 3, width: "100%" },
     department_id: { label: "Департамент", type: "select", required: false, width: "33%" },
     otdel_id: { label: "Отдел", type: "select", required: false, width: "33%" },
     executor_id: { label: "Исполнитель", type: "select", required: false, width: "33%" },
@@ -347,7 +347,7 @@ export const FORM_CONFIG = {
     branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     role_ids: { label: "Роль", type: "multiselect", required: true },
-    position_id: { label: "Должность", type: "select", required: true },
+    position_ids: { label: "Должность", type: "multiselect", required: true },
     phone_number: { label: "Телефон", type: "text", required: true },
     email: { label: "E-mail / Логин", type: "email", required: true },
     // photoFile: { label: "Фото", type: "file", required: false },

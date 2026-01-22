@@ -5,6 +5,7 @@ import {
   Navigate
 } from "react-router-dom";
 import { AuthProvider } from "./lib/contexts/AuthContext.jsx";
+import ModalProvider from "./components/layout/ModalProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Dashboard from "./components/pages/Dashboard";
@@ -17,7 +18,6 @@ import Reports from "./components/pages/Reports";
 import Settings from "./components/pages/Settings";
 // import PasswordReset from "./components/pages/PasswordReset";
 import PasswordChange from "./components/pages/PasswordChange";
-import ModalProvider from "./components/layout/ModalProvider";
 
 import "./index.css";
 
