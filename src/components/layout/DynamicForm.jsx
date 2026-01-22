@@ -315,7 +315,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     }
 
     const form_content = 
-        Object.entries(config).map(([fieldName, field]) => {
+        Object.entries(config).map(([fieldName, field], index) => {
             let preload_title = field.label || fieldName;
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
@@ -357,44 +357,36 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
 
                 // divide statuses into these:
-                const openStatuses = {};
-                const closedStatuses = {};
+                const openStatus = {};
+                const closedStatus = {};
                 const type1Statuses = {};
                 const type3Statuses = {};
-                const currStatuses = {};
-                const otherStatuses = {};
+                const currStatusObj = {};
                 if ( Object.keys(currStatus).length !== 0)
-                    currStatuses[currStatusId] = currStatus;
+                    currStatusObj[currStatusId] = currStatus;
 
                 Object.entries(statuses).forEach(([id, item]) => {
-                    if (item.name === "Открыто") {
-                        openStatuses[id] = item;
-                    } else if (item.name === "Закрыто") {
-                        closedStatuses[id] = item;
+                    if (item.name.toLowerCase().includes("открыт")) {
+                        openStatus[id] = item;
+                    } else if (item.name.toLowerCase().includes("закрыт")) {
+                        closedStatus[id] = item;
                     } else if (item.type === 1) {
                         type1Statuses[id] = item;
                     } else if (item.type === 3) {
                         type3Statuses[id] = item;
-                    } else {
-                        otherStatuses[id] = item;
                     }
                 });
 
-                preloadData[status_field_key] = {...currStatuses, ...otherStatuses};
-                if ((!itemData) || (itemData && itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, };
+                preloadData[status_field_key] = {...currStatusObj};
+                if (permissions.includes("scope:all")){
+                    preloadData[status_field_key] = {...preloadData[status_field_key], ...statuses, };
+                } else if ((!itemData) || (itemData && itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
+                    preloadData[status_field_key] = {...preloadData[status_field_key], ...type3Statuses };
                     if (itemData)
-                        preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatuses, ...type3Statuses, };
-                }
-                else if (permissions.includes("scope:all")) {
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatuses, ...closedStatuses, ...type3Statuses, };
-                }
-                // user (dep head)
-                else if (permissions.includes("order:update") && permissions.includes("order:delegate")) {
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...type3Statuses, };
-                }
-                // executor
-                else if (permissions.includes("order:update")) {
+                        preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatus, };
+                    else
+                        preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatus, };
+                } else {
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
                 }
             }
@@ -627,9 +619,13 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 : label.name
                         );
 
-                    const displayText = selectedLabels.length > 0
+                    let displayText = selectedLabels.length > 0
                         ? selectedLabels.join(", ")
                         : "Выбрать...";
+                    
+                    if (displayText.length > 64 && field.width !== "100%" && index !== Object.keys(config).length - 1) {
+                        displayText = displayText.slice(0, 64) + "...";
+                    }
 
                     return (
                         <div

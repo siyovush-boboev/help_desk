@@ -678,7 +678,6 @@ button:disabled {
   flex-wrap: wrap;
   padding: 20px 12px;
   gap: 12px;
-  overflow: auto;
 }
 
 #editForm input:not([type="checkbox"]),
