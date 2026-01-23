@@ -202,7 +202,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         const selectElem = document.querySelector(`select[name="${fname}"]`);
                         if (!selectElem) return true;
                         const curr_val = selectElem.value;
-                        if (curr_val === "") return true; // if not selected, dont filter by this field                            
+                        if (curr_val === "") return true; // if not selected, dont filter by this field
+                        if (fname.endsWith("_id") && val[fname + "s"]) {
+                            return val[fname + "s"].includes(Number(curr_val));
+                        }
                         return val[fname] === Number(curr_val);
                     });
                 })
@@ -346,6 +349,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "select" && fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
                 const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+                preloadData[status_field_key] = preloadOG[status_field_key];
                 const statuses = preloadData[status_field_key];
                 if (!statuses) return;
 
@@ -378,9 +382,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 });
 
                 preloadData[status_field_key] = {...currStatusObj};
-                if (permissions.includes("scope:all")){
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...statuses, };
-                } else if ((!itemData) || (itemData && itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, "")))){
+                if ((!itemData) || (itemData && (itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, ""))))){
                     preloadData[status_field_key] = {...preloadData[status_field_key], ...type3Statuses };
                     if (itemData)
                         preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatus, };
@@ -393,9 +395,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
             if ((fieldName === "type" && page_name === "position") || (page_name === "order_rule" && fieldName === "position_type")) {
                 preloadOptions = preloadData?.["position_type_id"];
-            }
-            if (fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
-                preloadOptions = preloadOG[TABLE_PAGES_CONFIG["status"].singular];
             }
             if (field.type === "select") {
                 return (
@@ -427,21 +426,23 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "search_select") {
                 return (
-                    <SearchSelect
-                        field={field}
-                        register={register}
-                        errors={errors}
-                        setErrors={setErr}
-                        setValue={setValue}
-                        disabled_fields={disabled_fields}
-                        fieldName={fieldName}
-                        defaultValue={itemData?.[fieldName] || ""}
-                    />
+                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+                        <SearchSelect
+                            field={field}
+                            register={register}
+                            errors={errors}
+                            setErrors={setErr}
+                            setValue={setValue}
+                            disabled_fields={disabled_fields}
+                            fieldName={fieldName}
+                            defaultValue={itemData?.[fieldName] || ""}
+                        />
+                    </div>
                 );
             }
 
             if (field.type === "multiselect") {
-                let options = preloadData?.[field.label] || {};
+                let options = preloadOptions; // preloadData?.[field.label] || {}
 
                 if (field.label === "Привелигия") {
                     if (page_name === "user")
@@ -820,7 +821,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         {isSubmitting ? "Загрузка..." : "Сохранить"}
                     </button>
                 }
-                <button id="cancelBtn" onClick={onClose}>Отмена</button>
+                <button id="cancelBtn" onClick={onClose}>
+                    {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")) ) )
+                      ? "Отмена" : "Закрыть"}
+                </button>
             </div>
         </form>;
 

@@ -51,7 +51,7 @@ export const TABLE_PAGES_CONFIG = {
       "№": null,
       "Имя": "fio",
       "Департамент": "department_id",
-      "Отдел": "otdel_id",
+      "Отдел": "otdel_ids",
       "Филиал": "branch_id",
       "Телефон": "phone_number",
       "E-mail": "email",
@@ -343,7 +343,7 @@ export const FORM_CONFIG = {
     fio: { label: "Имя", type: "text", required: true },
     phone_number: { label: "Телефон", type: "text", required: true },
     department_id: { label: "Департамент", type: "select", required: false },
-    otdel_id: { label: "Отдел", type: "select", required: false },
+    otdel_ids: { label: "Отдел", type: "multiselect", required: false },
     branch_id: { label: "Филиал", type: "select", required: false },
     office_id: { label: "Офис ЦБО", type: "select", required: false },
     // photoFile: { label: "Фото", type: "file", required: false },
@@ -422,7 +422,7 @@ FORM_CONFIG["main"] = FORM_CONFIG["order"];
 
 export const DEPENDANT_FIELDS = {
   desc: {
-    department_id: ["otdel_id", "executor_id"],
+    department_id: ["otdel_ids", "executor_id", "otdel_id"],
     otdel_id: ["executor_id"],
     branch_id: ["office_id", "equipment_id", "executor_id"],
     office_id: ["equipment_id", "executor_id"],

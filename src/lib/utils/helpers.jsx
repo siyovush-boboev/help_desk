@@ -188,7 +188,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             if (!itemData) {
                 delete new_data[key];
             } else if (
-                // (key !== "otdel_id") && (
+                // (key !== "otdel_ids") && (
                     !itemData[key] ||
                     (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
                     (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)

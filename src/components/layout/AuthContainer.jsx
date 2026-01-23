@@ -3,11 +3,16 @@ import login_logo from '../../assets/images/login-logo.webp';
 
 export default function Login({ children, header_text }) {
     return (
-        <div className="main-login-container">
+        <main className="main-login-container">
             <div className="login-card">
                 {/* Left Side (Logo & App name) */}
                 <div className="login-left">
-                    <img src={login_logo} alt="Company Logo" />
+                    <img
+                        src={login_logo}
+                        alt="Login"
+                        fetchPriority="high"
+                        decoding="async"
+                    />
                 </div>
 
                 {/* Right Side (Login Form) */}
@@ -16,6 +21,6 @@ export default function Login({ children, header_text }) {
                     {children}
                 </div>
             </div>
-        </div>
+        </main>
     );
 };

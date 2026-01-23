@@ -71,7 +71,6 @@ export default function Collections() {
     };
     
     const handleSort = (column, direction) => {
-        console.log("Sorting by:", column, direction);
         const currentParams = Object.fromEntries(searchParams);
         
         // Remove any keys like "sort[...]" from current params

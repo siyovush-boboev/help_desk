@@ -74,26 +74,25 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
     // Close dropdowns when clicking outside of the dropdown and options container
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (modalRef.current && !modalRef.current.contains(e.target)) {
-                // Check if the click is outside the modal or the specific dropdown's options container
-                const isOutsideDropdown = Object.values(dropdownRefs.current).every(ref => ref && !ref.contains(e.target));
-                if (isOutsideDropdown) {
-                    setOpenDropdowns({});
-                }
+            const clickedInsideSomeDropdown = Object.values(dropdownRefs.current)
+            .some(ref => ref && ref.contains(e.target));
+
+            if (!clickedInsideSomeDropdown) {
+            setOpenDropdowns({});
             }
         };
 
-        document.addEventListener("click", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
         return () => {
-            document.removeEventListener("click", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
 
     return (
-        <div className="form-container" ref={modalRef}>
+        <div className="form-container">
             <div>
                 <p><OrderIcon />Фильтры</p>
-                <div className="filters-list">
+                <div className="filters-list" ref={modalRef}>
                     {filters.map((filter) => {
                         const options = filteredOptions[filter.id]
                             || preload[filter.label.replace("Заявитель", "Пользователь").replace("Исполнитель", "Пользователь")]
@@ -101,7 +100,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                         const selected = selectedValues[filter.id] || [];
 
                         return (
-                            <div className="filter-dropdown" key={filter.id}>
+                            <div className="filter-dropdown" key={filter.id} ref={el => { if (el) dropdownRefs.current[filter.id] = el; }}>
                                 <div className="dropdown-header" onClick={() => toggleDropdown(filter.id)}>
                                     <span>{filter.label}</span>
                                     <span className="dropdown-arrow">{openDropdowns[filter.id] ? "▲" : "▼"}</span>

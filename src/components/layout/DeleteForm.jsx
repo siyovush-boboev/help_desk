@@ -19,17 +19,15 @@ export default function DeleteForm({ data, onClose, id = null, url, trigger_tabl
         prepped_data.push(id);
 
     function deleteItem(itemId) {
-        axios.delete(`/${url}/${itemId}`).then(() => {console.log(`Deleted item with id: ${itemId}`); trigger_table_reload();})
+        axios.delete(`/${url}/${itemId}`).then(() => trigger_table_reload())
             .catch((error) => console.error(`Error deleting item with id ${itemId}:`, error));
     }
 
     const handleDelete = (e) => {
         if (prepped_data.length !== 0) {
-            console.log("Deleting items:", prepped_data);
             prepped_data.forEach((itemId) => { deleteItem(itemId); });
         }
         else if (id) {
-            console.log("Deleting item with id:", id);
             deleteItem(id);
         }
         e.stopPropagation();

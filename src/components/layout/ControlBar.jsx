@@ -73,7 +73,6 @@ export default function ControlBar({
                         else delete new_filters["equipment_type_id"];
                         onFilterApply(new_filters);
                     }}
-                    defaultValue=""
                     value={filtersFromUrl["equipment_type_id"] ? filtersFromUrl["equipment_type_id"][0] : ""}
                 >
                     <option value="">Все типы оборудования</option>

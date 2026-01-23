@@ -33,8 +33,8 @@ function StatusPieChart({ dataFromApi }) {
   }));
 
   return (
-    <div style={{ height: "300px" }}>
-      <ResponsiveContainer>
+    <div style={{ height: 300, width: "100%" }}>
+    <ResponsiveContainer width="100%" height={300} minHeight={300}>
         <PieChart>
             <Pie
             data={dataWithPercent}
@@ -288,7 +288,7 @@ export default function Main() {
                 {Object.keys(tabs).map((tab, index) => (
                 <p
                     key={index}
-                    className={activeTab === index && "active"}
+                    className={activeTab === index ? "active" : ""}
                     onClick={() => setActiveTab(index)}
                 >
                     {tab}

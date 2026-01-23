@@ -7,7 +7,6 @@ import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { UserInfoCloseIcon } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
 import { isValidCredsInput, capitalizeName } from "../../lib/utils/helpers";
-import { set } from "zod";
 
 export default function UserInfoModal({ userId, onClose, data = null, details_state = null }) {
     const [userData, setUserData] = useState(data);
@@ -156,7 +155,6 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
         //     setEditMode(false);
         //     return;
         // }
-        console.log(userData.photo_url, selectedFile, changedFields);
         const formData = new FormData();
         const data2send = {};
         for (const [key, value] of Object.entries(changedFields)) {

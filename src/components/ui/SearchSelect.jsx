@@ -63,7 +63,7 @@ const SearchSelect = ({ field, register, errors, setErrors, setValue, disabled_f
       const initialUsername = defaultValue;  // Initial value from form state
       setSearchQuery(initialUsername);
     }
-  }, [field, fieldName, register]);
+  }, [field, fieldName, register, defaultValue]);
 
   // Debounced API search
   useEffect(() => {
@@ -91,7 +91,6 @@ const SearchSelect = ({ field, register, errors, setErrors, setValue, disabled_f
     setIsLoading(true);
     try {
       const response = await axios.get(getURL(fieldName, { search: query }));
-      console.log('Search results:', response);
       setResults(response?.data?.body);
     } catch (error) {
       console.error('Error fetching search results', error);
@@ -127,7 +126,7 @@ const SearchSelect = ({ field, register, errors, setErrors, setValue, disabled_f
   };
 
   return (
-    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+    <>
       <label>
         {field.label}
         {field.required && <span style={{ color: 'red' }}> *</span>}
@@ -157,7 +156,7 @@ const SearchSelect = ({ field, register, errors, setErrors, setValue, disabled_f
         </ul>
       )}
 
-    </div>
+    </>
   );
 };
 

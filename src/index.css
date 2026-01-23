@@ -1,7 +1,7 @@
 @font-face {
   font-family: "Inter";
-  src: url("assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf") format("truetype");
-  font-weight: 400;
+  src: url("assets/fonts/Inter/InterVariable.woff2") format("woff2-variations");
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -17,7 +17,6 @@
   --table-border: #d7d7d7;
   --table-header-bg: #f0f0f0;
   --input-border: #ccc;
-  --input-focus: #4a90e2;
   --avatar-bg: #e5e5e5;
   --modal-bg: rgba(0, 0, 0, 0.5);
   --modal-blur: blur(6px);
@@ -35,14 +34,7 @@
   box-sizing: border-box;
 }
 
-body,
-header,
-main,
-nav,
-.logo,
-.user-info,
-.main-content,
-.sandwitch {
+body {
   background-color: var(--background-color);
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
@@ -352,7 +344,7 @@ button:disabled {
 #login:focus,
 #password:focus {
   box-shadow: 0 0 10px rgba(6, 158, 161, 0.6);
-  border: 1px solid var(--input-focus) !important;
+  border: 1px solid var(--primary-color) !important;
   outline: none;
 }
 

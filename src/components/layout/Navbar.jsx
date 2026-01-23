@@ -70,7 +70,7 @@ export default function Navbar() {
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
 
             {permissions.includes("order:view") && 
-                <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="order" />
+                <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="my_orders" />
             }
 
             {permissions.includes("order:view") && 
