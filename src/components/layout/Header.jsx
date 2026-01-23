@@ -96,7 +96,7 @@ export default function Header() {
                     {!loading &&
                         <div className="user-text">
                             <h4>{userDetails.fio.split(" ").slice(0, 2).join(" ")}</h4>
-                            <p>{userDetails.position}</p>
+                            <p>{userDetails.position_name}</p>
                         </div>
                     }
                     <div className="user-avatar">

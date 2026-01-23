@@ -30,13 +30,23 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
     const [openDropdowns, setOpenDropdowns] = useState({});
     const dropdownRefs = useRef({});
+    const [searchTerms, setSearchTerms] = useState({});
 
+    const handleSearchChange = (fieldName, value) => {
+        setSearchTerms(prev => ({
+            ...prev,
+            [fieldName]: value,
+        }));
+    };
 
-    // Toggle dropdown open/close
-    const toggleDropdown = (fieldId) => {
-        setOpenDropdowns((prev) => {
-            const isOpen = !!prev[fieldId];
-            return isOpen ? {} : { [fieldId]: true }; // Close others
+    const toggleDropdown = (fieldName) => {
+        setOpenDropdowns(prev => {
+            const isOpen = !!prev[fieldName];
+            if (isOpen) {
+                setSearchTerms(prev => ({ ...prev, [fieldName]: "" }));
+                return {};
+            }
+            return { [fieldName]: true };
         });
     };
 
@@ -647,29 +657,47 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
                                 {openDropdowns[fieldName] && (
                                     <div className="multi-select-options">
-                                        {Object.entries(options).map(([val, label]) => (
-                                            <label key={val} className="multi-select-option">
-                                                <input
-                                                    type="checkbox"
-                                                    value={val}
-                                                    {...register(fieldName, getValidationRules(field))}
-                                                    defaultChecked={selectedValues.includes(Number(val))}
-                                                    disabled={disabled_fields.includes(field.label)}
-                                                />
-                                                <span>
-                                                    {["Привелигия"].includes(field.label)
-                                                        ? label.description
-                                                        : label.name}
-                                                </span>
-                                            </label>
-                                        ))}
+                                        <input
+                                            type="text"
+                                            className="multi-select-search"
+                                            placeholder="Поиск..."
+                                            value={searchTerms[fieldName] || ""}
+                                            onChange={(e) => handleSearchChange(fieldName, e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+
+                                        {Object.entries(options)
+                                            .filter(([, label]) => {
+                                                const search = (searchTerms[fieldName] || "").toLowerCase();
+
+                                                const text = ["Привелигия"].includes(field.label)
+                                                    ? label.description
+                                                    : label.name;
+
+                                                return text.toLowerCase().includes(search);
+                                            })
+                                            .map(([val, label]) => (
+                                                <label key={val} className="multi-select-option">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={val}
+                                                        {...register(fieldName, getValidationRules(field))}
+                                                        disabled={disabled_fields.includes(field.label)}
+                                                    />
+                                                    <span>
+                                                        {["Привелигия"].includes(field.label)
+                                                            ? label.description
+                                                            : label.name}
+                                                    </span>
+                                                </label>
+                                            ))}
+
+                                        {Object.entries(options).length === 0 && (
+                                            <div className="multi-select-empty">Ничего не найдено</div>
+                                        )}
                                     </div>
                                 )}
                             </div>
-
-                            {errors[fieldName] && (
-                                <p className="error-message">{errors[fieldName].message}</p>
-                            )}
                         </div>
                     );
                 }
