@@ -35,7 +35,7 @@ function getURL(field_name, params = {}) {
 }
 
 
-function ParseResults({results, field_name, handler}) {
+function ParseResults({ results, field_name, handler }) {
   let propName = fieldData?.[field_name]?.propname;
   if (!propName)
     return;

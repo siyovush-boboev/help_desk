@@ -14,8 +14,8 @@ export default function ControlBar({
     onFilter,
     onCreate,
     onSearch,
-    equipmentProps = [{}, {}, () => {}],
-    refk = () => {},
+    equipmentProps = [{}, {}, () => { }],
+    refk = () => { },
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
@@ -43,9 +43,9 @@ export default function ControlBar({
                         onKeyDown={handleSearchKeyDown}
                     />
                     {showClear &&
-                    <button id="clear-button" onClick={onClearSearch}>
-                        <ClearIcon />
-                    </button>}
+                        <button id="clear-button" onClick={onClearSearch}>
+                            <ClearIcon />
+                        </button>}
                 </div>
             )}
 

@@ -1,7 +1,36 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { DEPENDANT_FIELDS } from "../../lib/pages";
+import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { priority_colors, BASE_URL } from "../../lib/constants";
 import { OrderIcon } from "../ui/icons";
+
+
+function getOptionsWithoutInactive(preload) {
+    // go thru all objects in preload and if it has status_id and
+    // its status name in lowercase starts with "неактив" then remove it
+    // Step 1: Get the status group
+    const statusKey = TABLE_PAGES_CONFIG["status"].singular.trim();
+    const statusGroup = JSON.parse(localStorage.getItem(`preload_status`))["data"] || {};
+
+    // // Step 2: Find all status IDs that are "неактив"
+    const inactiveStatusIds = Object.entries(statusGroup)
+        .filter(([, status]) => status?.name?.toLowerCase()?.startsWith("неактив"))
+        .map(([id]) => id); // IDs are strings
+
+    // Step 3: Loop through preload and remove items with those statuses
+    Object.entries(preload).forEach(([key, items]) => {
+        if (key === statusKey) return; // Skip the status group itself
+
+        Object.entries(items).forEach(([id, item]) => {
+            const itemStatusId = String(item.status_id); // Ensure string for comparison
+            // if status is inactive and we are not editing this very item, remove it
+            if (inactiveStatusIds.includes(itemStatusId)) {
+                delete preload[key][id];
+            }
+        });
+    });
+    return preload;
+}
+
 
 export default function FiltersModal({ filters, preload, defaultFilters, onApply, onClose }) {
     const [selectedValues, setSelectedValues] = useState(defaultFilters || {});
@@ -11,6 +40,10 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
 
     // To track individual dropdown options
     const dropdownRefs = useRef({});
+
+    useEffect(() => {
+        getOptionsWithoutInactive(preload);
+    }, [preload])
 
     useEffect(() => {
         const newFilteredOptions = {};
@@ -75,10 +108,10 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
     useEffect(() => {
         const handleClickOutside = (e) => {
             const clickedInsideSomeDropdown = Object.values(dropdownRefs.current)
-            .some(ref => ref && ref.contains(e.target));
+                .some(ref => ref && ref.contains(e.target));
 
             if (!clickedInsideSomeDropdown) {
-            setOpenDropdowns({});
+                setOpenDropdowns({});
             }
         };
 
@@ -118,7 +151,7 @@ export default function FiltersModal({ filters, preload, defaultFilters, onApply
                                                     checked={selected.includes(key)}
                                                     onChange={() => handleCheckboxChange(filter.id, key)}
                                                 />
-                                                {filter.label === "Статус" && 
+                                                {filter.label === "Статус" &&
                                                     <img src={BASE_URL + value?.["icon_small"]} alt="" className="status-icon"></img>
                                                 }
                                                 <span>{["Привелигия"].includes(filter.label) ? value.description : value.name}</span>

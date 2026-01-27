@@ -61,13 +61,13 @@ export default function PasswordReset() {
                 <AuthInput
                     name={"creds"}
                     value={credentials}
-                    set_func={(val) => {setCredentials(val);setError("");}}
+                    set_func={(val) => { setCredentials(val); setError(""); }}
                     placeholder={"Введите ваш email или номер телефона"}
                     required={true}
                 />
 
                 <p className="login-error">{error}&nbsp;</p>
-                
+
                 <button type="submit" className="btn-submit" disabled={credentials.trim() === ""}>
                     Продолжить
                 </button>

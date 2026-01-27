@@ -70,7 +70,7 @@ export default function PasswordChange() {
                     const res = await axios.post(API_BASE_URL + "/auth/login", { login, password }, { withCredentials: true });
                     const data = await res.data.body;
 
-                    if (res.data.status === false){
+                    if (res.data.status === false) {
                         setErr(res.data.message || "Ошибка при входе");
                     }
                     else {

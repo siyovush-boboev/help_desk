@@ -253,7 +253,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                         }
                         <div className="profile-pic-update-buttons">
                             {editMode && (
-                                <button 
+                                <button
                                     className="btn-upload-photo btn-cancel"
                                     onClick={() => fileInputRef.current.click()}
                                 >
@@ -262,7 +262,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                             )}
                             {editMode && userData.photo_url && (
                                 <button
-                                    className="btn-delete-photo btn-cancel" 
+                                    className="btn-delete-photo btn-cancel"
                                     onClick={handleDeletePhoto}
                                 >
                                     Удалить
@@ -272,7 +272,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={ (e) => { handleFileChange(e); } }
+                            onChange={(e) => { handleFileChange(e); }}
                             ref={fileInputRef}
                             style={{ display: 'none' }}
                         />

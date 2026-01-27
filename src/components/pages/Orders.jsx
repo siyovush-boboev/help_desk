@@ -191,7 +191,7 @@ export default function Orders() {
                 }}
             />
 
-            {!data?.body?.length && 
+            {!data?.body?.length &&
                 <div className="create_order_text" onClick={() => on_create_func(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}>
                     <p>Создайте заявку</p>
                 </div>

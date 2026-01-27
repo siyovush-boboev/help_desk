@@ -33,11 +33,11 @@ const Login = () => {
             const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password }, { withCredentials: true });
             const data = await res.data.body;
 
-            if (data.reset_token){
+            if (data.reset_token) {
                 setErr(data.message);
                 navigate(`/password-change?login=${encodeURIComponent(username)}&token=${encodeURIComponent(data.reset_token)}`);
             }
-            else if (res.data.status === false){
+            else if (res.data.status === false) {
                 setErr(res.data.message || "Ошибка при входе");
             }
             else {
@@ -77,7 +77,7 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     required={true}
                     inputRef={passwordRef}
-                    
+
                 >
                     {password && (
                         <button

@@ -25,7 +25,7 @@ export default function Navbar() {
         acc[key] = {
             icon: ICONS[key] || null,
             label: TABLE_PAGES_CONFIG[key]?.plural || key,
-            href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` + 
+            href: `/${TABLE_PAGES_CONFIG[key]?.resource || ""}` +
                 (!["report", "setting", "main"].includes(key) ? `?${PAGINATION_URL_PARAMS}` : ""),
         };
         return acc;
@@ -38,11 +38,11 @@ export default function Navbar() {
     };
 
     MAIN_NAVBAR_LINKS["order"].label = "Все заявки";
-    
+
     const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
         ([key]) => !NAVBAR_PAGES.includes(key)
     );
-    
+
     let COLLECTION_LINKS = collectionPages
         .map(([, config]) => ({
             label: config.plural,
@@ -51,7 +51,7 @@ export default function Navbar() {
 
     // filter collection_links, check if user has permission to edit/delete/create items in that collection
     // if not, do not show that link in the navbar
-    const filteredCollectionLinks = COLLECTION_LINKS.filter(({ label,  }) => {
+    const filteredCollectionLinks = COLLECTION_LINKS.filter(({ label, }) => {
         const pageKey = Object.keys(TABLE_PAGES_CONFIG).find(
             key => TABLE_PAGES_CONFIG[key].plural === label
         );
@@ -69,38 +69,38 @@ export default function Navbar() {
         <nav onClick={navbarClickHandler}>
             <NavbarLink {...MAIN_NAVBAR_LINKS["main"]} key="main" />
 
-            {permissions.includes("order:view") && 
+            {permissions.includes("order:view") &&
                 <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="my_orders" />
             }
 
-            {permissions.includes("order:view") && 
+            {permissions.includes("order:view") &&
                 <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />
             }
 
-            {(permissions.includes("user:update") || permissions.includes("user:create") 
-              || permissions.includes("user:delete")) && 
-                  <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />
+            {(permissions.includes("user:update") || permissions.includes("user:create")
+                || permissions.includes("user:delete")) &&
+                <NavbarLink {...MAIN_NAVBAR_LINKS["user"]} key="user" />
             }
 
             {COLLECTION_LINKS.length > 0 && (
-                    <div className="navbar-link dropdown-container">
-                        <div className="dropdown-toggler">
-                            <CollectionIcon />
-                            &nbsp;&nbsp;<p>Справочник ▼</p>
-                        </div>
-
-                        {COLLECTION_LINKS.map(({ label, href }) => (
-                            <NavbarLink
-                                key={label}
-                                label={label}
-                                href={href}
-                            />
-                        ))}
-
+                <div className="navbar-link dropdown-container">
+                    <div className="dropdown-toggler">
+                        <CollectionIcon />
+                        &nbsp;&nbsp;<p>Справочник ▼</p>
                     </div>
+
+                    {COLLECTION_LINKS.map(({ label, href }) => (
+                        <NavbarLink
+                            key={label}
+                            label={label}
+                            href={href}
+                        />
+                    ))}
+
+                </div>
             )}
 
-            {permissions.includes("report:view") && 
+            {permissions.includes("report:view") &&
                 <NavbarLink {...MAIN_NAVBAR_LINKS["report"]} key="report" />
             }
 

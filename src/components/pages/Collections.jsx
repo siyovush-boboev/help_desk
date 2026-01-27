@@ -30,7 +30,7 @@ export default function Collections() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
-    
+
     const filtersFromUrl = useMemo(() => {
         const filters = {};
         for (const [key, value] of searchParams.entries()) {
@@ -50,11 +50,11 @@ export default function Collections() {
             setLoading(false);
             return;
         }
-        
+
         setData([]); setPreload({}); setError(""); setPreloadLoaded(false); setLoading(true);
-        
+
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
-        .then(() => setPreloadLoaded(true));
+            .then(() => setPreloadLoaded(true));
     }, [collectionName, config]);
 
     useEffect(() => {
@@ -65,14 +65,14 @@ export default function Collections() {
         }
         loadDataTable(setData, setLoading, setError, config, filtersFromUrl);
     }, [collectionName, searchParams, filtersFromUrl, config, refreshKey]);
-    
+
     const handleSearch = (term) => {
         setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
     };
-    
+
     const handleSort = (column, direction) => {
         const currentParams = Object.fromEntries(searchParams);
-        
+
         // Remove any keys like "sort[...]" from current params
         const filteredParams = Object.fromEntries(
             Object.entries(currentParams).filter(([key]) => !key.startsWith("sort["))
@@ -87,7 +87,7 @@ export default function Collections() {
             limit,
         });
     };
-    
+
 
     const onFilterApply = (newFilters) => {
         const flat = {};
@@ -114,7 +114,7 @@ export default function Collections() {
         navigate("/dashboard");
         return;
     }
-    
+
     if (error) return <div className="loader-wrapper"><p>{error}</p></div>;
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
 
@@ -140,12 +140,12 @@ export default function Collections() {
                 initialSearchValue={searchQuery}
                 onFilter={onFilter}
                 onCreate={() => {
-                        onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey, collectionName);
-                    }
+                    onCreate(setModalContent, closeModal, preload, FORM_CONFIG[collectionName], config["resource"], null, false, setRefreshKey, collectionName);
+                }
                 }
                 equipmentProps={collectionName === "equipment" && preload["Тип оборудования"]
-                     ? [preload["Тип оборудования"], filtersFromUrl, onFilterApply]
-                     : [{}, {}, () => {}]
+                    ? [preload["Тип оборудования"], filtersFromUrl, onFilterApply]
+                    : [{}, {}, () => { }]
                 }
                 refk={setRefreshKey}
             />

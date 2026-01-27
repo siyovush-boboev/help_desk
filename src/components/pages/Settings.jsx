@@ -93,8 +93,8 @@ export default function Settings() {
                             {loading
                                 ? "Загрузка..."
                                 : cooldownLeft > 0
-                                ? `Попробуйте подключить Telegram через ${formatCooldown(cooldownLeft)}`
-                                : <><TelegramIcon />&nbsp;Подключить Telegram</>
+                                    ? `Попробуйте подключить Telegram через ${formatCooldown(cooldownLeft)}`
+                                    : <><TelegramIcon />&nbsp;Подключить Telegram</>
                             }
                         </button>
                         {error && <p className="error-text">{error}</p>}
@@ -119,7 +119,7 @@ export default function Settings() {
                         <div className="token-container" onClick={handleCopy}>
                             <code>{token}</code>
                             <CopyIcon />
-                       </div>
+                        </div>
                         <small className="copy-hint">Нажмите, чтобы скопировать</small>
                     </div>
                 )}

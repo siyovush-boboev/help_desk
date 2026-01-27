@@ -11,7 +11,7 @@ const instance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "ngrok-skip-browser-warning": "true",
-  },  
+  },
   withCredentials: true,
 });
 
@@ -43,7 +43,7 @@ instance.interceptors.request.use(
       "password/reset",
     ];
     // Не трогаем запросы логина и обновления токена
-    if (exclude_paths.some((path) => config.url?.includes(path))){
+    if (exclude_paths.some((path) => config.url?.includes(path))) {
       return config;
     }
 
@@ -60,7 +60,7 @@ instance.interceptors.request.use(
       // }
     }
 
-    if (token){
+    if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
       config.headers["ngrok-skip-browser-warning"] = "true";
     }

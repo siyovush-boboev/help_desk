@@ -47,7 +47,7 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
                 let resource = TABLE_PAGES_CONFIG?.[key]?.["resource"];
                 let singularKey = TABLE_PAGES_CONFIG?.[key]?.singular || key;
                 let cacheKey = `preload_${resource}`;
-                if (key === "position_type"){
+                if (key === "position_type") {
                     resource = "position/types";
                     singularKey = "position_type_id";
                     cacheKey = "preload_position_type_id";
@@ -108,10 +108,11 @@ export const loadDataTable = async (setData, setLoading, setError, config, param
 
         const queryString = Object.entries(params)
             .filter(([, val]) => val !== undefined && val !== null && val !== "")
-            .map(([key, val]) => { 
+            .map(([key, val]) => {
                 if (Array.isArray(val))
                     return `filter[${encodeURIComponent(key)}]=${encodeURIComponent(val.join(","))}`;
-                return `${encodeURIComponent(key)}=${encodeURIComponent(val)}` })
+                return `${encodeURIComponent(key)}=${encodeURIComponent(val)}`
+            })
             .join("&");
 
         const url = `/${config.resource}${queryString ? `?${queryString}` : ""}`;
@@ -168,7 +169,7 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 }
 
 
-export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field=false, setRefreshKey=null) {
+export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field = false, setRefreshKey = null) {
     if (has_file_field)
         new_data["_files"] = {};
 
@@ -179,7 +180,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             }
             delete new_data[key];
 
-        // Handle empty values (nulls, empty arrays/objects)
+            // Handle empty values (nulls, empty arrays/objects)
         } else if (
             !val ||
             (Array.isArray(val) && val.length === 0) ||
@@ -189,9 +190,9 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 delete new_data[key];
             } else if (
                 // (key !== "otdel_ids") && (
-                    !itemData[key] ||
-                    (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
-                    (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
+                !itemData[key] ||
+                (Array.isArray(itemData[key]) && itemData[key].length === 0) ||
+                (typeof itemData[key] === "object" && Object.keys(itemData[key]).length === 0)
                 // )
             ) {
                 console.log("shii gettin deleted");
@@ -201,14 +202,14 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 new_data[key] = Array.isArray(val) ? [] : null;
             }
 
-        // Convert to number if its an id
+            // Convert to number if its an id
         } else if (
             (typeof itemData?.[key] === "number" && !isNaN(itemData[key])) ||
             key.slice(-3) === "_id"
         ) {
             new_data[key] = Number(val);
 
-        // Convert array of numeric strings to numbers
+            // Convert array of numeric strings to numbers
         } else if (
             Array.isArray(val) &&
             val.length > 0 &&
@@ -216,7 +217,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         ) {
             new_data[key] = val.map(Number);
 
-        // Format date/duration strings
+            // Format date/duration strings
         } else if (val && (key.includes("date") || key.includes("duration"))) {
             let formatted = String(val);
             if (formatted.includes("T")) {
@@ -224,7 +225,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             }
             new_data[key] = formatted;
 
-        // Trim strings
+            // Trim strings
         } else if (typeof val === "string") {
             new_data[key] = val.trim();
         }
@@ -236,8 +237,8 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
         if (!itemData) {
             // CREATE NEW
             console.log("Creating new item:", new_data);
-            if (url.includes("user/permission") && new_data["permissions"]){
-                const permissions_data = {"has_access_ids": [], "no_access_ids": []};
+            if (url.includes("user/permission") && new_data["permissions"]) {
+                const permissions_data = { "has_access_ids": [], "no_access_ids": [] };
                 const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
                 Object.values(all_permissions).forEach(permission => {
                     if (new_data["permissions"].includes(permission.id)) {
@@ -249,12 +250,12 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
             }
-            if (!url.includes("role") && new_data["permissions"]){
+            if (!url.includes("role") && new_data["permissions"]) {
                 delete new_data["permissions"];
             }
             // check if we have files
             if (has_file_field) {
-                const _files = {...new_data["_files"]};
+                const _files = { ...new_data["_files"] };
                 delete new_data["_files"];
 
                 const formData = new FormData();
@@ -283,12 +284,12 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
             new_data.id = itemData.id;  // for correct update url
 
             const changedFields = {};
-            const changedFiles = {...new_data["_files"]};
+            const changedFiles = { ...new_data["_files"] };
             delete new_data["_files"];
 
-            if (url.includes("user/permission") && new_data["permissions"]){
+            if (url.includes("user/permission") && new_data["permissions"]) {
                 console.log("new_data: ", new_data);
-                const permissions_data = {"has_access_ids": [], "no_access_ids": []};
+                const permissions_data = { "has_access_ids": [], "no_access_ids": [] };
                 const all_permissions = JSON.parse(localStorage.getItem("preload_permission"))?.data || {};
                 Object.values(all_permissions).forEach(permission => {
                     if (new_data["permissions"].includes(permission.id)) {
@@ -300,7 +301,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                 new_data["has_access_ids"] = permissions_data["has_access_ids"];
                 new_data["no_access_ids"] = permissions_data["no_access_ids"];
             }
-            if (!url.includes("role") && new_data["permissions"]){
+            if (!url.includes("role") && new_data["permissions"]) {
                 delete new_data["permissions"];
             }
             for (const key in new_data) {
@@ -360,7 +361,7 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
     }
 }
 
-export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey=null, page_name=null) {
+export function onCreate(setModalContent, closeModal, preload, FORM_CONFIG, url, itemData = null, show_history = false, setRefreshKey = null, page_name = null) {
     let has_file_field = Object.values(FORM_CONFIG).some(field => field.type.toLowerCase().includes("file"));
     setModalContent(
         <DynamicForm
@@ -393,24 +394,24 @@ export function hide_credentials(credentials, method) {
 }
 
 
-export function isValidCredsInput(input, cred_type=null, blank=true){
+export function isValidCredsInput(input, cred_type = null, blank = true) {
     const trimmed = input.trim();
-    if (trimmed === ""){
+    if (trimmed === "") {
         if (!blank) return "Поле не может быть пустым";
         return "";
     }
 
-    if (cred_type === "email" || !cred_type){
+    if (cred_type === "email" || !cred_type) {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (emailRegex.test(trimmed)) return "";
         if (trimmed.includes('@') || cred_type) return 'Неверный формат email';
     }
 
-    if (cred_type === "phone" || !cred_type){
+    if (cred_type === "phone" || !cred_type) {
         if (/[^+\d\s]/.test(trimmed)) return 'Недопустимые символы в номере';
         if ((trimmed.match(/\+/g) || []).length > 1) return 'Только один "+" разрешён';
         if (trimmed.includes('+') && !trimmed.startsWith('+')) return '"+ должен быть в начале';
-    
+
         const digitsOnly = trimmed.replace(/\s/g, '').replace(/^\+/, '');
         if (digitsOnly.length < 9 || digitsOnly.length > 12) return 'Номер должен содержать от 9 до 12 цифр';
         if (trimmed.startsWith("+") && digitsOnly.length < 12) return 'Номер должен содержать 12 цифр, после знака "+"';
@@ -507,30 +508,74 @@ export const getValidationRules = (field) => {
     return rules;
 };
 
+
 export function getDisabledFields(itemData, config, preloadData, permissions) {
-    let new_disabled_fields = [];
+    const disabledFields = [];
     const mode = itemData ? "update" : "create";
 
+    const hasPermission = (perm) => permissions.includes(perm);
+
+    // 1. Immediately lock everything if status is "Закрыто"
+    if (mode === "update" && itemData?.status_id) {
+        const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+        const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
+
+        if (status_name === "Закрыто") {
+            return Object.values(config).map(field => field.label);
+        }
+    }
+
+    // 2. Scope access check
+    let hasScopeAccess = false;
+
+    if (mode === "create") {
+        hasScopeAccess = hasPermission("order:create");
+    } else {
+        const userOtdelId = localStorage.getItem("user_otdel_id");
+        const userBranchId = localStorage.getItem("user_branch_id");
+        const userDepartmentId = localStorage.getItem("user_department_id");
+
+        if (hasPermission("scope:all")) {
+            hasScopeAccess = true;
+        } else if (
+            hasPermission("order:update_in_otdel_scope") &&
+            itemData?.otdel_id &&
+            String(itemData.otdel_id) === String(userOtdelId)
+        ) {
+            hasScopeAccess = true;
+        } else if (
+            hasPermission("order:update_in_branch_scope") &&
+            itemData?.branch_id &&
+            String(itemData.branch_id) === String(userBranchId)
+        ) {
+            hasScopeAccess = true;
+        } else if (
+            hasPermission("order:update_in_department_scope") &&
+            itemData?.department_id &&
+            String(itemData.department_id) === String(userDepartmentId)
+        ) {
+            hasScopeAccess = true;
+        }
+    }
+
+    // 3. Per-field permission check (always applied)
     Object.entries(config).forEach(([fieldName, field]) => {
         const label = field.label || fieldName;
-        if (!permissions.includes(`order:${mode}:${fieldName}`)){
-            new_disabled_fields.push(label);
+
+        const hasFieldPermission = hasPermission(`order:${mode}:${fieldName}`);
+
+        if (!hasScopeAccess || !hasFieldPermission) {
+            disabledFields.push(label);
         }
     });
 
-    if (itemData && itemData.status_id) {
-        const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-        const status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
-        if (status_name === "Закрыто")
-            new_disabled_fields = Object.values(config).map(field => field.label);
-    }
-    return new_disabled_fields;
+    return disabledFields;
 }
 
 
 export function capitalizeName(str) {
-  if (!str) return "";
-  return str.split(" ").map(word => word.split("-")
+    if (!str) return "";
+    return str.split(" ").map(word => word.split("-")
         .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
         .join("-")).join(" ");
 }
@@ -555,8 +600,8 @@ export const cleanString = (str) => str.replace(/[^a-zA-Z0-9]/g, "_");
 export const downloadFile = async (url, filename, setError) => {
     try {
         // Make the GET request with responseType as 'blob'
-        const response = await axios.get(url, { 
-            responseType: 'blob' 
+        const response = await axios.get(url, {
+            responseType: 'blob'
         });
 
         // Create a new Blob from the response data

@@ -31,14 +31,14 @@ export const TABLE_PAGES_CONFIG = {
       "Тип оборудования": "equipment_type_id",
     },
     filters: [
-      {id: "status_id", label: "Статус"},
-      {id: "priority_id", label: "Приоритет"},
+      { id: "status_id", label: "Статус" },
+      { id: "priority_id", label: "Приоритет" },
       // {id: "user_id", label: "Заявитель"},
       // {id: "executor_id", label: "Исполнитель"},
-      {id: "department_id", label: "Департамент"},
-      {id: "otdel_id", label: "Отдел"},
-      {id: "branch_id", label: "Филиал"},
-      {id: "office_id", label: "Офис ЦБО"}
+      { id: "department_id", label: "Департамент" },
+      { id: "otdel_id", label: "Отдел" },
+      { id: "branch_id", label: "Филиал" },
+      { id: "office_id", label: "Офис ЦБО" }
     ]
   },
   user: {
@@ -60,11 +60,11 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "department_id", label: "Департамент"},
-      {id: "otdel_id", label: "Отдел"},
-      {id: "role_id", label: "Роль"},
-      {id: "branch_id", label: "Филиал"},
-      {id: "office_id", label: "Офис ЦБО"},
+      { id: "department_id", label: "Департамент" },
+      { id: "otdel_id", label: "Отдел" },
+      { id: "role_id", label: "Роль" },
+      { id: "branch_id", label: "Филиал" },
+      { id: "office_id", label: "Офис ЦБО" },
     ]
   },
   status: {
@@ -107,7 +107,7 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус"}
+      { id: "status_id", label: "Статус" }
     ]
   },
   otdel: {
@@ -126,8 +126,8 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "department_id", label: "Департамент"},
-      {id: "status_id", label: "Статус"}
+      { id: "department_id", label: "Департамент" },
+      { id: "status_id", label: "Статус" }
     ]
   },
   branch: {
@@ -147,7 +147,7 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус"},
+      { id: "status_id", label: "Статус" },
     ]
   },
   office: {
@@ -166,8 +166,8 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "branch_id", label: "Филиал"},
-      {id: "status_id", label: "Статус"}
+      { id: "branch_id", label: "Филиал" },
+      { id: "status_id", label: "Статус" }
     ]
   },
   role: {
@@ -222,7 +222,7 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "status_id", label: "Статус"}
+      { id: "status_id", label: "Статус" }
     ]
   },
   order_rule: {
@@ -244,15 +244,15 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "order_type_id", label: "Тип заявки"},
-      {id: "department_id", label: "Департамент"},
-      {id: "otdel_id", label: "Отдел"},
-      {id: "status_id", label: "Статус"}
+      { id: "order_type_id", label: "Тип заявки" },
+      { id: "department_id", label: "Департамент" },
+      { id: "otdel_id", label: "Отдел" },
+      { id: "status_id", label: "Статус" }
     ]
   },
   equipment_type: {
     singular: "Тип оборудования",
-    plural: "Типы оборудований",
+    plural: "Типы оборудования",
     resource: "equipment_type",
     preload: [],
     columns: {
@@ -279,10 +279,10 @@ export const TABLE_PAGES_CONFIG = {
       "Действия": null
     },
     filters: [
-      {id: "equipment_type_id", label: "Тип оборудования"},
-      {id: "status_id", label: "Статус"},
-      {id: "branch_id", label: "Филиал"},
-      {id: "office_id", label: "Офис ЦБО"},
+      { id: "equipment_type_id", label: "Тип оборудования" },
+      { id: "status_id", label: "Статус" },
+      { id: "branch_id", label: "Филиал" },
+      { id: "office_id", label: "Офис ЦБО" },
     ]
   },
   report: {
@@ -291,11 +291,11 @@ export const TABLE_PAGES_CONFIG = {
     resource: "report",
     preload: ["user", "order_type", "priority"],
     filters: [
-      {id: "date_from", label: "Начальная дата"},
-      {id: "date_to", label: "Конечная дата"},
-      {id: "order_type_ids", label: "Тип заявки"},
-      {id: "priority_ids", label: "Приоритет"},
-      {id: "executor_ids", label: "Пользователь"},
+      { id: "date_from", label: "Начальная дата" },
+      { id: "date_to", label: "Конечная дата" },
+      { id: "order_type_ids", label: "Тип заявки" },
+      { id: "priority_ids", label: "Приоритет" },
+      { id: "executor_ids", label: "Пользователь" },
     ],
   },
   setting: {
@@ -410,12 +410,12 @@ export const FORM_CONFIG = {
     name: { label: "Наименование", type: "text", required: true },
   },
   equipment: {
-      name: { label: "Номер оборудования", type: "text", required: true },
-      address: { label: "Адрес оборудования", type: "text", required: false, width: "100%" },
-      branch_id: { label: "Филиал", type: "select", required: true },
-      office_id: { label: "Офис ЦБО", type: "select", required: true },
-      equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
-      status_id: { label: "Статус", type: "select", required: true },
+    name: { label: "Номер оборудования", type: "text", required: true },
+    address: { label: "Адрес оборудования", type: "text", required: false, width: "100%" },
+    branch_id: { label: "Филиал", type: "select", required: true },
+    office_id: { label: "Офис ЦБО", type: "select", required: true },
+    equipment_type_id: { label: "Тип оборудования", type: "select", required: true },
+    status_id: { label: "Статус", type: "select", required: true },
   },
 };
 FORM_CONFIG["main"] = FORM_CONFIG["order"];

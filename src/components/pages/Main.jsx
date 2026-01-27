@@ -11,59 +11,59 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 const COLORS = [
-  "#4285F4",
-  "#34A853",
-  "#FBBC05",
-  "#EA4335",
-  "#A142F4",
-  "#F44292",
-  "#2BB7DA",
-  "#9AA0A6",
+    "#4285F4",
+    "#34A853",
+    "#FBBC05",
+    "#EA4335",
+    "#A142F4",
+    "#F44292",
+    "#2BB7DA",
+    "#9AA0A6",
 ];
 
 
 function StatusPieChart({ dataFromApi }) {
-  if (!dataFromApi || dataFromApi.length === 0) return null;
+    if (!dataFromApi || dataFromApi.length === 0) return null;
 
-  const total = dataFromApi.reduce((sum, item) => sum + item.count, 0);
+    const total = dataFromApi.reduce((sum, item) => sum + item.count, 0);
 
-  const dataWithPercent = dataFromApi.map((item) => ({
-    ...item,
-    percent: ((item.count / total) * 100).toFixed(1),
-  }));
+    const dataWithPercent = dataFromApi.map((item) => ({
+        ...item,
+        percent: ((item.count / total) * 100).toFixed(1),
+    }));
 
-  return (
-    <div style={{ height: 300, width: "100%" }}>
-    <ResponsiveContainer width="100%" height={300} minHeight={300}>
-        <PieChart>
-            <Pie
-            data={dataWithPercent}
-            dataKey="count"
-            nameKey="group_name"
-            cx="50%"
-            cy="50%"
-            outerRadius={120}
-            label={({ name, percent }) => `${name}: ${(
-                percent
-            )}%`} // labels inside slices
-            >
-            {dataWithPercent.map((entry, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-            </Pie>
+    return (
+        <div style={{ height: 300, width: "100%" }}>
+            <ResponsiveContainer width="100%" height={300} minHeight={300}>
+                <PieChart>
+                    <Pie
+                        data={dataWithPercent}
+                        dataKey="count"
+                        nameKey="group_name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={120}
+                        label={({ name, percent }) => `${name}: ${(
+                            percent
+                        )}%`} // labels inside slices
+                    >
+                        {dataWithPercent.map((entry, index) => (
+                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
 
-            <Tooltip
-            formatter={(value, name, props) => {
-                return [`${value}`, `${props.payload.group_name}`];
-            }}
-            />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
+                    <Tooltip
+                        formatter={(value, name, props) => {
+                            return [`${value}`, `${props.payload.group_name}`];
+                        }}
+                    />
+                </PieChart>
+            </ResponsiveContainer>
+        </div>
+    );
 }
 
-function StatBlock( {title, children} ){
+function StatBlock({ title, children }) {
     const contents = {
         last_activity: ["Недавняя активность"],
         top_categories: ["Топ категорий заявок"],
@@ -86,7 +86,7 @@ function StatBlock( {title, children} ){
 }
 
 
-function Alert( {type, count} ){
+function Alert({ type, count }) {
     const contents = {
         critical: {
             color: "red",
@@ -117,7 +117,7 @@ function Alert( {type, count} ){
 }
 
 
-function KPIBlock( {title, trend_score, trend_text=""}){
+function KPIBlock({ title, trend_score, trend_text = "" }) {
     const contents = {
         total_orders: ["Всего заявок", <ApplicationsDarkIcon />],
         open_orders: ["Открытые заявки", <ClockIcon />],
@@ -154,7 +154,7 @@ function DepartmentsStatBlock({ blocks }) {
     return (
         blocks?.map((block, index) => (
             <div key={index} className="departments-stat-item">
-                
+
                 <div>
                     <p>{block.name}</p>
                     <small className="orders-count">{block.total_count} заявок</small>
@@ -185,7 +185,7 @@ function DepartmentsStatBlock({ blocks }) {
 }
 
 
-function ActivityBlock( {activities} ){
+function ActivityBlock({ activities }) {
     return (
         <div className="activities-container">
             {
@@ -202,7 +202,7 @@ function ActivityBlock( {activities} ){
 }
 
 
-function CategoriesBlock( {categories} ){
+function CategoriesBlock({ categories }) {
     return (
         <div className="categories-container">
             {
@@ -245,7 +245,7 @@ export default function Main() {
     const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
     if (preload[status_field_key]) {
         preload[status_field_key] = Object.fromEntries(
-            Object.entries(preload[status_field_key]).filter(([, item]) => [1,3].includes(item.type))
+            Object.entries(preload[status_field_key]).filter(([, item]) => [1, 3].includes(item.type))
         );
     }
 
@@ -286,13 +286,13 @@ export default function Main() {
 
             <div className="tabs-switch">
                 {Object.keys(tabs).map((tab, index) => (
-                <p
-                    key={index}
-                    className={activeTab === index ? "active" : ""}
-                    onClick={() => setActiveTab(index)}
-                >
-                    {tab}
-                </p>
+                    <p
+                        key={index}
+                        className={activeTab === index ? "active" : ""}
+                        onClick={() => setActiveTab(index)}
+                    >
+                        {tab}
+                    </p>
                 ))}
             </div>
 
@@ -301,16 +301,16 @@ export default function Main() {
                     tabs[Object.keys(tabs)[activeTab]].map((stat, index) => (
                         <StatBlock key={index} title={stat}>
                             {
-                            stat === "departments" || stat === "branches" ? (
-                                <DepartmentsStatBlock blocks={data["body"][stat]} />
-                            ) : stat === "last_activity" ? 
-                                <ActivityBlock activities={data["body"][stat]} />
-                              : stat === "top_categories" ? <CategoriesBlock categories={data["body"][stat]} />
-                              : stat === "count_by_status" ? <StatusPieChart dataFromApi={data["body"][stat]} />
-                              : null
+                                stat === "departments" || stat === "branches" ? (
+                                    <DepartmentsStatBlock blocks={data["body"][stat]} />
+                                ) : stat === "last_activity" ?
+                                    <ActivityBlock activities={data["body"][stat]} />
+                                    : stat === "top_categories" ? <CategoriesBlock categories={data["body"][stat]} />
+                                        : stat === "count_by_status" ? <StatusPieChart dataFromApi={data["body"][stat]} />
+                                            : null
                             }
                         </StatBlock>
-                ))
+                    ))
                 }
             </div>
 

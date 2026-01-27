@@ -9,7 +9,7 @@ import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons"
 import SearchSelect from "../ui/SearchSelect";
 
 
-export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false, page_name=null }) {
+export default function DynamicForm({ config, preloadData, onSubmit, onClose, itemData = null, show_history = false, page_name = null }) {
     const [dynamicOptions, setDynamicOptions] = useState({});
     const [, setTriggeredFields] = useState(new Set());
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,17 +51,17 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     };
 
     useEffect(() => {
-    const handleClickOutside = (e) => {
-        const clickedInsideSomeDropdown = Object.values(dropdownRefs.current)
-        .some(ref => ref && ref.contains(e.target));
+        const handleClickOutside = (e) => {
+            const clickedInsideSomeDropdown = Object.values(dropdownRefs.current)
+                .some(ref => ref && ref.contains(e.target));
 
-        if (!clickedInsideSomeDropdown) {
-        setOpenDropdowns({});
-        }
-    };
+            if (!clickedInsideSomeDropdown) {
+                setOpenDropdowns({});
+            }
+        };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const {
@@ -114,7 +114,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const has_access = res.data.body.has_access;
                 setSelected(new Set(has_access.map(item => item.id).map(String)));
 
-                if ("Привелигия" in preloadOG){
+                if ("Привелигия" in preloadOG) {
                     const merged_privileges = [...res.data.body.has_access, ...res.data.body.no_access];
                     // make an object of privileges where the key is the id from that privilege
                     const privilegesObj = merged_privileges.reduce((acc, privilege) => {
@@ -136,7 +136,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     const handleFormSubmit = async (data) => {
         if (page_name === "order" || page_name === "main") {
             const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][data["order_type_id"]]["name"];
-            if (!itemData && (!order_type_title.toLowerCase().startsWith("оборуд")) && !(data["department_id"] || data["branch_id"] || data["otdel_id"] || data["office_id"]) ) {
+            if (!itemData && (!order_type_title.toLowerCase().startsWith("оборуд")) && !(data["department_id"] || data["branch_id"] || data["otdel_id"] || data["office_id"])) {
                 setErr("Для данного типа заявки необходимо указать один из этих полей: Департамент, Отдел, Филиал, Офис ЦБО");
                 return;
             }
@@ -201,7 +201,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
         const filter_with_all_field_names = (fieldName, dependentField, rawOptions) => {
             const allFieldnames = [fieldName];
-            for (const field_name in DEPENDANT_FIELDS.desc){
+            for (const field_name in DEPENDANT_FIELDS.desc) {
                 if (DEPENDANT_FIELDS.desc[field_name].includes(dependentField) && !allFieldnames.includes(field_name))
                     allFieldnames.push(field_name);
             }
@@ -319,7 +319,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const itemStatusId = String(item.status_id); // Ensure string for comparison
                 // if status is inactive and we are not editing this very item, remove it
                 if (inactiveStatusIds.includes(itemStatusId)
-                && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
+                    && (!editing_obj || (editing_obj && editing_obj[key] !== item.id))) {
                     delete preload[key][id];
                 }
             });
@@ -327,12 +327,12 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         return preload;
     }
 
-    const form_content = 
+    const form_content =
         Object.entries(config).map(([fieldName, field], index) => {
             let preload_title = field.label || fieldName;
             if (preload_title === "Исполнитель" || preload_title === "Заявитель")
                 preload_title = "Пользователь";
-            preloadData = {...preloadOG};
+            preloadData = { ...preloadOG };
             preloadData = getOptionsWithoutInactive(preloadData, itemData);
 
             if (page_name === "order" || page_name === "main") {
@@ -340,15 +340,15 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     return;
                 if (itemData && fieldName === "order_type_id")
                     return;
-                if (itemData && !orderType){
+                if (itemData && !orderType) {
                     setOrderType(itemData["order_type_id"]);
                 }
-                if (orderType){
+                if (orderType) {
                     const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][orderType]["name"];
                     // if order_type_id is not "Оборудование" then remove those fields
-                    if (!order_type_title.toLowerCase().startsWith("оборуд")){
+                    if (!order_type_title.toLowerCase().startsWith("оборуд")) {
                         const fields_to_remove = ["equipment_type_id", "equipment_id", "address"];
-                        if (fields_to_remove.includes(fieldName)){
+                        if (fields_to_remove.includes(fieldName)) {
                             return;
                         }
                     } else if (order_type_title.toLowerCase().startsWith("администр")) {
@@ -365,7 +365,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
                 const default_status_id = Object.keys(preloadData["Статус"]).find(
                     id => preloadData["Статус"][id].name.toLowerCase().startsWith("открыт")
-                    || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
+                        || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
                 );
                 const currStatusId = `${itemData?.["status_id"] || default_status_id}`;
                 const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
@@ -376,7 +376,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 const type1Statuses = {};
                 const type3Statuses = {};
                 const currStatusObj = {};
-                if ( Object.keys(currStatus).length !== 0)
+                if (Object.keys(currStatus).length !== 0)
                     currStatusObj[currStatusId] = currStatus;
 
                 Object.entries(statuses).forEach(([id, item]) => {
@@ -391,15 +391,15 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     }
                 });
 
-                preloadData[status_field_key] = {...currStatusObj};
-                if ((!itemData) || (itemData && (itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, ""))))){
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...type3Statuses };
+                preloadData[status_field_key] = { ...currStatusObj };
+                if ((!itemData) || (itemData && (itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, ""))))) {
+                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...type3Statuses };
                     if (itemData)
-                        preloadData[status_field_key] = {...preloadData[status_field_key], ...closedStatus, };
+                        preloadData[status_field_key] = { ...preloadData[status_field_key], ...closedStatus, };
                     else
-                        preloadData[status_field_key] = {...preloadData[status_field_key], ...openStatus, };
+                        preloadData[status_field_key] = { ...preloadData[status_field_key], ...openStatus, };
                 } else {
-                    preloadData[status_field_key] = {...preloadData[status_field_key], ...type1Statuses, };
+                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...type1Statuses, };
                 }
             }
             let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
@@ -408,7 +408,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
             if (field.type === "select") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
                         <label>
                             {field.label}
                             {field.required && <span style={{ color: 'red' }}> *</span>}
@@ -416,7 +416,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                         <select
                             disabled={disabled_fields.includes(field.label)}
                             {...register(fieldName, getValidationRules(field))}
-                            onChange={(e) => {onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true });}}
+                            onChange={(e) => { onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true }); }}
                         >
                             <option value="">
                                 Выберите {field.label.toLowerCase()}
@@ -525,7 +525,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                                 checked={selected.has(id)}
                                 disabled={disabled_fields.includes(field.label)}
                                 onChange={() => togglePermission(id)}
-                                />
+                            />
 
                             {item?.status === "denied" && <LockedIcon />}
                             {item?.source === "individual" && <UnlockedIcon />}
@@ -544,51 +544,51 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     const matchesSearch = (item, search) =>
                         item.description.toLowerCase().includes(search.toLowerCase().trim());
 
-                        return (
-                            <div className="privileges-wrapper">
+                    return (
+                        <div className="privileges-wrapper">
                             {/* Sticky Header */}
                             <div className="privileges-header">
                                 <div className="search-block">
-                                <p>Недоступные</p>
-                                <input
-                                    type="text"
-                                    placeholder="Поиск..."
-                                    value={availableSearch}
-                                    onChange={(e) => setAvailableSearch(e.target.value)}
-                                    className="privilege-search"
-                                />
+                                    <p>Недоступные</p>
+                                    <input
+                                        type="text"
+                                        placeholder="Поиск..."
+                                        value={availableSearch}
+                                        onChange={(e) => setAvailableSearch(e.target.value)}
+                                        className="privilege-search"
+                                    />
                                 </div>
 
                                 <div className="button-block">
-                                <button
-                                    type="button"
-                                    onClick={moveAllToSelected}
-                                    disabled={disabled_fields.includes(field.label)}
-                                    className="privilege-button"
-                                    title="Добавить все"
-                                >
-                                    {">>>"}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={moveAllToAvailable}
-                                    disabled={disabled_fields.includes(field.label)}
-                                    className="privilege-button"
-                                    title="Удалить все"
-                                >
-                                    {"<<<"}
-                                </button>
+                                    <button
+                                        type="button"
+                                        onClick={moveAllToSelected}
+                                        disabled={disabled_fields.includes(field.label)}
+                                        className="privilege-button"
+                                        title="Добавить все"
+                                    >
+                                        {">>>"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={moveAllToAvailable}
+                                        disabled={disabled_fields.includes(field.label)}
+                                        className="privilege-button"
+                                        title="Удалить все"
+                                    >
+                                        {"<<<"}
+                                    </button>
                                 </div>
 
                                 <div className="search-block">
-                                <p>Доступные</p>
-                                <input
-                                    type="text"
-                                    placeholder="Поиск..."
-                                    value={assignedSearch}
-                                    onChange={(e) => setAssignedSearch(e.target.value)}
-                                    className="privilege-search"
-                                />
+                                    <p>Доступные</p>
+                                    <input
+                                        type="text"
+                                        placeholder="Поиск..."
+                                        value={assignedSearch}
+                                        onChange={(e) => setAssignedSearch(e.target.value)}
+                                        className="privilege-search"
+                                    />
                                 </div>
                             </div>
 
@@ -596,28 +596,28 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             <div className="privileges-columns">
                                 {/* Left: Available */}
                                 <div className="privilege-column">
-                                {Object.entries(ordered_groups).map(([, group]) =>
-                                    Object.entries(group)
-                                    .filter(([id, item]) => !isChecked(id) && matchesSearch(item, availableSearch))
-                                    .map(([id, item]) => renderCheckbox(id, item))
-                                )}
+                                    {Object.entries(ordered_groups).map(([, group]) =>
+                                        Object.entries(group)
+                                            .filter(([id, item]) => !isChecked(id) && matchesSearch(item, availableSearch))
+                                            .map(([id, item]) => renderCheckbox(id, item))
+                                    )}
                                 </div>
 
                                 {/* Right: Assigned */}
                                 <div className="privilege-column">
-                                {Object.entries(ordered_groups).map(([, group]) =>
-                                    Object.entries(group)
-                                    .filter(([id, item]) => isChecked(id) && matchesSearch(item, assignedSearch))
-                                    .map(([id, item]) => renderCheckbox(id, item))
-                                )}
+                                    {Object.entries(ordered_groups).map(([, group]) =>
+                                        Object.entries(group)
+                                            .filter(([id, item]) => isChecked(id) && matchesSearch(item, assignedSearch))
+                                            .map(([id, item]) => renderCheckbox(id, item))
+                                    )}
                                 </div>
                             </div>
 
                             {errors[fieldName] && (
                                 <p className="field-error" >{errors[fieldName].message}</p>
                             )}
-                            </div>
-                        );
+                        </div>
+                    );
                 } else {
                     // For showing selected values in the header
                     const selectedValues = itemData?.[fieldName] || [];
@@ -633,7 +633,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     let displayText = selectedLabels.length > 0
                         ? selectedLabels.join(", ")
                         : "Выбрать...";
-                    
+
                     if (displayText.length > 64 && field.width !== "100%" && index !== Object.keys(config).length - 1) {
                         displayText = displayText.slice(0, 64) + "...";
                     }
@@ -757,14 +757,14 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     </div>
                 );
             }
-            
+
             if ((field.type === "file" || field.type === "file_list") && fieldName === "file") {
                 return null; // skip rendering this field cuz its inside the comment textarea
             }
 
             if (field.type === "file" || field.type === "file_list") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
                         <label>
                             {field.label}
                             {field.required && <span style={{ color: 'red' }}> *</span>}
@@ -784,7 +784,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
 
             if (field.type === "checkbox") {
                 return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
                         <label className="checkbox-item">
                             <input
                                 type="checkbox"
@@ -805,7 +805,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             }
 
             return (
-                <div key={fieldName} className="edit-form-field" style={field.width ? {width: `calc(${field.width} - 14px)`} : {}}>
+                <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
                     <label>
                         {field.label}
                         {field.required && <span style={{ color: 'red' }}> *</span>}
@@ -823,8 +823,8 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                             disabled={disabled_fields.includes(field.label)}
                             onInput={
                                 field.label.toLowerCase() === "имя"
-                                ? (e) => {const capitalized = capitalizeName(e.target.value);e.target.value = capitalized;} 
-                                : undefined
+                                    ? (e) => { const capitalized = capitalizeName(e.target.value); e.target.value = capitalized; }
+                                    : undefined
                             }
                         />
                     )}
@@ -840,18 +840,18 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         status_field_key = TABLE_PAGES_CONFIG["status"].singular;
         status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
     }
-    const form_element = 
+    const form_element =
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
             {form_content}
             <div className="modal-buttons">
-                {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")) ) ) &&
+                {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")))) &&
                     <button id="confirmBtn" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Загрузка..." : "Сохранить"}
                     </button>
                 }
                 <button id="cancelBtn" onClick={onClose}>
-                    {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")) ) )
-                      ? "Отмена" : "Закрыть"}
+                    {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт"))))
+                        ? "Отмена" : "Закрыть"}
                 </button>
             </div>
         </form>;
@@ -864,13 +864,13 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     <div className="first-comment">
                         <p>Описание:</p>
                         <p>{firstComment}</p>
-                        <hr style={{color: "white"}}></hr>
+                        <hr style={{ color: "white" }}></hr>
                     </div>
                 }
                 {form_element}
                 <div className="error-message">{err && <p>{err}</p>}</div>
             </div>
-            {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]}/>}
+            {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]} />}
         </div>
     );
 }

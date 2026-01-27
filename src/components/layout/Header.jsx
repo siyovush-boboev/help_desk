@@ -38,7 +38,7 @@ export default function Header() {
                     phone_number,
                     photo_url,
                 } = data;
-                if (photo_url){
+                if (photo_url) {
                     photo_url = BASE_URL + photo_url;
                 }
 
@@ -55,6 +55,8 @@ export default function Header() {
                     photo_url
                 });
                 localStorage.setItem("user_department_id", JSON.stringify(department_id));
+                localStorage.setItem("user_otdel_id", JSON.stringify(id));
+                localStorage.setItem("user_branch_id", JSON.stringify(id));
                 localStorage.setItem("user_id", JSON.stringify(id));
             } catch (err) {
                 console.error("Failed to load header data:", err);

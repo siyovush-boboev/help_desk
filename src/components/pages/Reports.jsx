@@ -43,7 +43,7 @@ export default function Reports() {
                 date_from: convertRFCtoLocalDatetimeInput(dateFrom), // Format date as YYYY-MM-DDTHH:MM
                 date_to: convertRFCtoLocalDatetimeInput(dateTo)
             });
-            
+
             setSearchParams({
                 ...Object.fromEntries(searchParams),
                 date_from: convertRFCtoLocalDatetimeInput(dateFrom),
@@ -84,8 +84,8 @@ export default function Reports() {
 
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
-    }, [openDropdowns]);    
-    
+    }, [openDropdowns]);
+
     const toggleDropdown = (e, filterId) => {
         setOpenDropdowns(prev => ({
             // ...prev,
@@ -99,7 +99,7 @@ export default function Reports() {
         FILTER_CONFIG.forEach((filter) => {
             if (!searchParams.has(filter.id)) {
                 filters[filter.id] = filter.defaultValue ? [filter.defaultValue] : [];
-            }    
+            }
         });
         for (const [key, value] of searchParams.entries()) {
             const match = key.match(/^(.+?)$/);
@@ -107,10 +107,10 @@ export default function Reports() {
                 filters[match[1]] = value.split(",");
             } else {
                 filters[key] = value;
-            }    
+            }
         }
         return filters;
-    }, [searchParams]);    
+    }, [searchParams]);
 
     const updateFilter = (id, value) => {
         const newParams = new URLSearchParams(searchParams.toString());
@@ -119,14 +119,14 @@ export default function Reports() {
                 newParams.set(id, value.join(","));
             } else {
                 newParams.delete(id);
-            }    
+            }
         } else if (value) {
             newParams.set(id, value);
         } else {
             newParams.delete(id);
-        }    
+        }
         setSearchParams(newParams);
-    };    
+    };
 
     const handleCheckboxChange = (filterId, val) => {
         const prevVals = new Set(filtersFromUrl[filterId] || []);
@@ -210,7 +210,7 @@ export default function Reports() {
                                         key={key}
                                         className="dropdown-option"
                                         style={id === "priority_ids" ? { color: priority_colors[opt.name] || 'inherit' } : {}}
-                                        >
+                                    >
                                         <input
                                             type="checkbox"
                                             checked={value.includes(String(opt.id))}

@@ -14,27 +14,27 @@ export default function OrderHistory({ history, data, status_preload }) {
 
     if (history.length === 0)
         return <div className="order-history-wrapper">
-                   <p>Жизненный цикл</p>
-                   <div className="order-history" ref={orderHistoryRef}>
-                       <p>🤷‍♂️ История пуста</p>
-                   </div>
-               </div>;
+            <p>Жизненный цикл</p>
+            <div className="order-history" ref={orderHistoryRef}>
+                <p>🤷‍♂️ История пуста</p>
+            </div>
+        </div>;
 
     if (history[0] === "loading msg")
         return <div className="order-history-wrapper">
-                    <p>Жизненный цикл</p>
-                    <div className="order-history" ref={orderHistoryRef}>
-                        <p>⏳ загрузка истории заявки...</p>
-                    </div>
-                </div>;
+            <p>Жизненный цикл</p>
+            <div className="order-history" ref={orderHistoryRef}>
+                <p>⏳ загрузка истории заявки...</p>
+            </div>
+        </div>;
 
     if (history[0] === "error msg")
         return <div className="order-history-wrapper">
-                    <p>Жизненный цикл</p>
-                    <div className="order-history" ref={orderHistoryRef}>
-                        <p>Ошибка загрузки истории</p>
-                    </div>
-                </div>;
+            <p>Жизненный цикл</p>
+            <div className="order-history" ref={orderHistoryRef}>
+                <p>Ошибка загрузки истории</p>
+            </div>
+        </div>;
 
     // prepare history entries with files
     const attachment_line_suffix = "Прикреплен файл: ";
@@ -61,12 +61,12 @@ export default function OrderHistory({ history, data, status_preload }) {
                     const fileName = line.replace(attachment_line_suffix, "");
                     const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
                     return (
-                    <>
-                        {attachment_line_suffix}
-                        <a key={fileName} href={BASE_URL + file_url} target="_blank" rel="noopener noreferrer">
-                        {fileName}
-                        </a>
-                    </>
+                        <>
+                            {attachment_line_suffix}
+                            <a key={fileName} href={BASE_URL + file_url} target="_blank" rel="noopener noreferrer">
+                                {fileName}
+                            </a>
+                        </>
                     );
                 }
 
@@ -86,7 +86,7 @@ export default function OrderHistory({ history, data, status_preload }) {
         });
 
         // After lines processed, assign new icon (or keep old if none found)
-        if (newIcon){
+        if (newIcon) {
             entry.icon = newIcon;
             prev_icon = newIcon;
         }

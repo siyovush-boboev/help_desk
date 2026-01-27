@@ -43,10 +43,10 @@ export default function DataTable({
     onSort = () => { },
     main_page = false,
     showClosed = false,
-    showEdit=false,
-    showDelete=false,
-    showPermissionsEdit=false,
-    onPermissionsEdit=() => { },
+    showEdit = false,
+    showDelete = false,
+    showPermissionsEdit = false,
+    onPermissionsEdit = () => { },
 }) {
     const main_page_sums = { "Открыто": 0, "Закрыто": 0, "total": 0 };
 
@@ -82,14 +82,14 @@ export default function DataTable({
                     <tr>
                         {main_page && <th>-</th>}
                         {Object.keys(columns).map((col) => {
-                            if (col === "CHECKMARK"){
+                            if (col === "CHECKMARK") {
                                 if (!showDelete) return;
                                 return <th key={col}><SelectAllCheckbox /></th>
                             };
-                            if (col === "Действия" && !showEdit && !showDelete){
+                            if (col === "Действия" && !showEdit && !showDelete) {
                                 return;
                             }
-                            if (main_page){
+                            if (main_page) {
                                 return <th key={col}>{col}</th>;
                             }
                             // find the column that is currently being sorted
@@ -97,7 +97,7 @@ export default function DataTable({
                             if (searchParams[`sort[${columns[col]}]`]) {
                                 direction = searchParams[`sort[${columns[col]}]`];
                             }
-                            return <th key={col} onClick={onHeaderClick} title="Нажмите чтобы отсортировать" style={banned_cols_for_sorting.includes(col) ? {} : {cursor: "pointer"}}>{col}{direction && (direction === "ASC" ? "▲" : "▼")}</th>
+                            return <th key={col} onClick={onHeaderClick} title="Нажмите чтобы отсортировать" style={banned_cols_for_sorting.includes(col) ? {} : { cursor: "pointer" }}>{col}{direction && (direction === "ASC" ? "▲" : "▼")}</th>
                         })}
                     </tr>
                 </thead>
@@ -112,14 +112,14 @@ export default function DataTable({
                             if (colName === "Статус") {
                                 const status_id = `${item[field]}`;
                                 const status = pageData[colName]?.[status_id];
-                                if (status?.name === "Закрыто"){
+                                if (status?.name === "Закрыто") {
                                     hideRow = !showClosed;
                                     make_green = true;
                                 }
                                 const icon = <img src={BASE_URL + status?.["icon_small"]} alt="" className="status-icon" />;
                                 return <td key={i + colName}>
-                                           <div className="status-cell">{icon} {status?.name || ""}</div>
-                                       </td>;
+                                    <div className="status-cell">{icon} {status?.name || ""}</div>
+                                </td>;
                             }
                             else if (colName === "Иконка") {
                                 const icon = item[field] ? <img src={BASE_URL + item[field]} alt="" /> : "Нет иконки";
@@ -202,27 +202,27 @@ export default function DataTable({
                                     colName = "position_type_id";
                                 }
                                 let field_content = ""
-                                if (Array.isArray(item[field]) && item[field].length > 0){
+                                if (Array.isArray(item[field]) && item[field].length > 0) {
                                     const role_strings = [];
                                     item[field].forEach(id => { role_strings.push(pageData[colName][id]?.name || ""); });
                                     field_content = role_strings.join(", ");
                                 }
-                                else if (item[field]){
+                                else if (item[field]) {
                                     field_content = pageData[colName]?.[item[field]]?.name;
                                 }
-                                else if (field in item || field.replace("_id", "") in item){
+                                else if (field in item || field.replace("_id", "") in item) {
                                     field_content = item[field.replace("_id", "")]?.["name"]
                                 }
-                                return  <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
-                                            {field_content || ""}
-                                        </td>;
+                                return <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
+                                    {field_content || ""}
+                                </td>;
                             }
 
                             return <td key={i + colName}>{item[field] || ""}</td>;
                         });
 
                         return (
-                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_green ? "rgba(175, 253, 195, 1)" : make_red ? "rgba(255, 184, 184, 1)" : "inherit"}} row-id={item.id}>
+                            <tr key={i} style={{ display: hideRow ? "none" : "table-row", backgroundColor: make_green ? "rgba(175, 253, 195, 1)" : make_red ? "rgba(255, 184, 184, 1)" : "inherit" }} row-id={item.id}>
                                 {main_page && <td></td>}
                                 {tds}
                             </tr>

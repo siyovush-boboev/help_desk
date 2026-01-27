@@ -12,7 +12,7 @@ import {
 export const AuthProvider = ({ children }) => {
     const [accessToken, setAccessTokenState] = useState(null);
     // const [loading, setLoading] = useState(false);
-    const [loading, ] = useState(false);
+    const [loading,] = useState(false);
     const [authFailed, setAuthFailed] = useState(false);
 
     // useEffect(() => {
