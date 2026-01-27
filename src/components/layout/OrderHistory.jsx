@@ -16,7 +16,7 @@ export default function OrderHistory({ history, data, status_preload }) {
         return <div className="order-history-wrapper">
             <p>Жизненный цикл</p>
             <div className="order-history" ref={orderHistoryRef}>
-                <p>🤷‍♂️ История пуста</p>
+                <p>История пуста</p>
             </div>
         </div>;
 

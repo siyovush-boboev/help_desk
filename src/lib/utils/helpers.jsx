@@ -531,25 +531,41 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
     if (mode === "create") {
         hasScopeAccess = hasPermission("order:create");
     } else {
+        const userId = localStorage.getItem("user_id");
         const userOtdelId = localStorage.getItem("user_otdel_id");
         const userBranchId = localStorage.getItem("user_branch_id");
         const userDepartmentId = localStorage.getItem("user_department_id");
 
-        if (hasPermission("scope:all")) {
+        // Creator / Executor always allowed
+        if (
+            userId &&
+            (String(itemData?.creator_id) === String(userId) ||
+             String(itemData?.executor_id) === String(userId))
+        ) {
             hasScopeAccess = true;
-        } else if (
+        }
+        // Global access
+        else if (hasPermission("scope:all")) {
+            hasScopeAccess = true;
+        }
+        // Otdel scope
+        else if (
             hasPermission("order:update_in_otdel_scope") &&
             itemData?.otdel_id &&
             String(itemData.otdel_id) === String(userOtdelId)
         ) {
             hasScopeAccess = true;
-        } else if (
+        }
+        // Branch scope
+        else if (
             hasPermission("order:update_in_branch_scope") &&
             itemData?.branch_id &&
             String(itemData.branch_id) === String(userBranchId)
         ) {
             hasScopeAccess = true;
-        } else if (
+        }
+        // Department scope
+        else if (
             hasPermission("order:update_in_department_scope") &&
             itemData?.department_id &&
             String(itemData.department_id) === String(userDepartmentId)
@@ -561,7 +577,6 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
     // 3. Per-field permission check (always applied)
     Object.entries(config).forEach(([fieldName, field]) => {
         const label = field.label || fieldName;
-
         const hasFieldPermission = hasPermission(`order:${mode}:${fieldName}`);
 
         if (!hasScopeAccess || !hasFieldPermission) {
