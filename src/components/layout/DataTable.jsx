@@ -53,7 +53,7 @@ export default function DataTable({
     if ("pagination" in data)
         data = data["list"]
 
-    const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка", "Телефон", "E-mail", "Заявитель", "Исполнитель"];
+    const banned_cols_for_sorting = ["CHECKMARK", "№", "Действия", "Иконка", "Отдел", "Должность"];
 
     const onHeaderClick = (e) => {
         const up = "▲", down = "▼";

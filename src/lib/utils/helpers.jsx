@@ -532,7 +532,8 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
         hasScopeAccess = hasPermission("order:create");
     } else {
         const userId = localStorage.getItem("user_id");
-        const userOtdelId = localStorage.getItem("user_otdel_id");
+        const userOtdelIds = JSON.parse(localStorage.getItem("user_otdel_ids") || "[]");
+        const userOfficeId = localStorage.getItem("user_office_id");
         const userBranchId = localStorage.getItem("user_branch_id");
         const userDepartmentId = localStorage.getItem("user_department_id");
 
@@ -548,11 +549,19 @@ export function getDisabledFields(itemData, config, preloadData, permissions) {
         else if (hasPermission("scope:all")) {
             hasScopeAccess = true;
         }
-        // Otdel scope
+        // Otdel scope (array match)
         else if (
             hasPermission("order:update_in_otdel_scope") &&
             itemData?.otdel_id &&
-            String(itemData.otdel_id) === String(userOtdelId)
+            userOtdelIds.map(String).includes(String(itemData.otdel_id))
+        ) {
+            hasScopeAccess = true;
+        }
+        // Office scope
+        else if (
+            hasPermission("order:update_in_office_scope") &&
+            itemData?.office_id &&
+            String(itemData.office_id) === String(userOfficeId)
         ) {
             hasScopeAccess = true;
         }

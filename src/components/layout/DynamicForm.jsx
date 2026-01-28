@@ -163,9 +163,19 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             setOrderType(origin_val);
             const rule = Object.values(preloadData[TABLE_PAGES_CONFIG["order_rule"]["singular"]]).find(innerObj => innerObj[fieldName] === origin_val);;
             if (rule) {
-                setValue("department_id", rule.department_id);
-                setValue("otdel_id", rule.otdel_id);
-                setDisabledFields(() => [...disabled_fields, "Департамент", "Отдел", "Исполнитель", "Срок"]);
+                const fields_to_check = ["department_id", "otdel_id", "branch_id", "office_id"];
+                const fields_to_disable = [];
+                // set values from rule
+                fields_to_check.forEach(field => {
+                    if (rule[field]) {
+                        setValue(field, rule[field]);
+                        // find the field label and add it to fields_to_disable
+                        const field_label = config[field]?.label;
+                        fields_to_disable.push(field_label);
+                    }
+                })
+                setDisabledFields([...disabled_fields, ...fields_to_disable]);
+                console.log("Disabled fields:", [...disabled_fields, ...fields_to_disable]);
                 onOptionChange("otdel_id");
             } else {
                 setDisabledFields(getDisabledFields(itemData, config, preloadData, permissions));
@@ -224,8 +234,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         };
 
         // If empty string (reset trigger)
-        if (origin_val === "") {
+        if (origin_val === "" && (itemData?.[fieldName])) {
             if (DEPENDANT_FIELDS.desc[fieldName]) {
+                console.log("resetting", fieldName, itemData[fieldName]);
                 DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                     let dependentLabel = config[dependentField]?.label || dependentField;
                     if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
@@ -246,7 +257,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             return;
         }
 
-        // const origin_id = Number(origin_val);
+        const origin_id = Number(origin_val);
         setTriggeredFields(prev => new Set(prev.add(fieldName)));
 
         const asc = (fieldName) => {
@@ -254,10 +265,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 let origin_label = origin_select.previousSibling.textContent.trim();
                 if (origin_label === "Заявитель" || origin_label === "Исполнитель")
                     origin_label = "Пользователь";
-                // const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
+                const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
-                    // setValue(dependentField, option_to_select_id);
+                    setValue(dependentField, option_to_select_id);
                     if (DEPENDANT_FIELDS.asc[dependentField])
                         asc(dependentField);
                 }
@@ -327,530 +338,524 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         return preload;
     }
 
-    const form_content =
-        Object.entries(config).map(([fieldName, field], index) => {
-            let preload_title = field.label || fieldName;
-            if (preload_title === "Исполнитель" || preload_title === "Заявитель")
-                preload_title = "Пользователь";
-            preloadData = { ...preloadOG };
-            preloadData = getOptionsWithoutInactive(preloadData, itemData);
+    const form_content = Object.entries(config).map(([fieldName, field], index) => {
+        let preload_title = field.label || fieldName;
+        if (preload_title === "Исполнитель" || preload_title === "Заявитель")
+            preload_title = "Пользователь";
+        preloadData = { ...preloadOG };
+        preloadData = getOptionsWithoutInactive(preloadData, itemData);
 
-            if (page_name === "order" || page_name === "main") {
-                if (!itemData && !orderType && fieldName !== "order_type_id")
-                    return;
-                if (itemData && fieldName === "order_type_id")
-                    return;
-                if (itemData && !orderType) {
-                    setOrderType(itemData["order_type_id"]);
-                }
-                if (orderType) {
-                    const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][orderType]["name"];
-                    // if order_type_id is not "Оборудование" then remove those fields
-                    if (!order_type_title.toLowerCase().startsWith("оборуд")) {
-                        const fields_to_remove = ["equipment_type_id", "equipment_id", "address"];
-                        if (fields_to_remove.includes(fieldName)) {
-                            return;
-                        }
-                    } else if (order_type_title.toLowerCase().startsWith("администр")) {
-                        setDisabledFields([...disabled_fields, "department_id", "otdel_id"]);
+        if (page_name === "order" || page_name === "main") {
+            if (!itemData && !orderType && fieldName !== "order_type_id")
+                return;
+            if (itemData && fieldName === "order_type_id")
+                return;
+            if (itemData && !orderType) {
+                setOrderType(itemData["order_type_id"]);
+            }
+            if (orderType) {
+                const order_type_title = preloadData[TABLE_PAGES_CONFIG["order_type"]["singular"]][orderType]["name"];
+                // if order_type_id is not "Оборудование" then remove those fields
+                if (!order_type_title.toLowerCase().startsWith("оборуд")) {
+                    const fields_to_remove = ["equipment_type_id", "equipment_id", "address"];
+                    if (fields_to_remove.includes(fieldName)) {
+                        return;
                     }
+                } else if (order_type_title.toLowerCase().startsWith("администр")) {
+                    setDisabledFields([...disabled_fields, "department_id", "otdel_id"]);
                 }
             }
+        }
 
-            if (field.type === "select" && fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
-                const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-                preloadData[status_field_key] = preloadOG[status_field_key];
-                const statuses = preloadData[status_field_key];
-                if (!statuses) return;
+        if (field.type === "select" && fieldName === "status_id" && (page_name === "order" || page_name === "main")) {
+            const status_field_key = TABLE_PAGES_CONFIG["status"].singular;
+            preloadData[status_field_key] = preloadOG[status_field_key];
+            const statuses = preloadData[status_field_key];
+            if (!statuses) return;
 
-                const default_status_id = Object.keys(preloadData["Статус"]).find(
-                    id => preloadData["Статус"][id].name.toLowerCase().startsWith("открыт")
-                        || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
-                );
-                const currStatusId = `${itemData?.["status_id"] || default_status_id}`;
-                const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
+            const default_status_id = Object.keys(preloadData["Статус"]).find(
+                id => preloadData["Статус"][id].name.toLowerCase().startsWith("открыт")
+                    || preloadData["Статус"][id].name.toLowerCase().startsWith("актив")
+            );
+            const currStatusId = `${itemData?.["status_id"] || default_status_id}`;
+            const currStatus = preloadData[status_field_key]?.[currStatusId] || {};
 
-                // divide statuses into these:
-                const openStatus = {};
-                const closedStatus = {};
-                const type1Statuses = {};
-                const type3Statuses = {};
-                const currStatusObj = {};
-                if (Object.keys(currStatus).length !== 0)
-                    currStatusObj[currStatusId] = currStatus;
+            // divide statuses into these:
+            const openStatus = {};
+            const closedStatus = {};
+            const type1Statuses = {};
+            const type3Statuses = {};
+            const currStatusObj = {};
+            if (Object.keys(currStatus).length !== 0)
+                currStatusObj[currStatusId] = currStatus;
 
-                Object.entries(statuses).forEach(([id, item]) => {
-                    if (item.name.toLowerCase().includes("открыт")) {
-                        openStatus[id] = item;
-                    } else if (item.name.toLowerCase().includes("закрыт")) {
-                        closedStatus[id] = item;
-                    } else if (item.type === 1) {
-                        type1Statuses[id] = item;
-                    } else if (item.type === 3) {
-                        type3Statuses[id] = item;
-                    }
-                });
-
-                preloadData[status_field_key] = { ...currStatusObj };
-                if ((!itemData) || (itemData && (itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, ""))))) {
-                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...type3Statuses };
-                    if (itemData)
-                        preloadData[status_field_key] = { ...preloadData[status_field_key], ...closedStatus, };
-                    else
-                        preloadData[status_field_key] = { ...preloadData[status_field_key], ...openStatus, };
-                } else {
-                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...type1Statuses, };
+            Object.entries(statuses).forEach(([id, item]) => {
+                if (item.name.toLowerCase().includes("открыт")) {
+                    openStatus[id] = item;
+                } else if (item.name.toLowerCase().includes("закрыт")) {
+                    closedStatus[id] = item;
+                } else if (item.type === 1) {
+                    type1Statuses[id] = item;
+                } else if (item.type === 3) {
+                    type3Statuses[id] = item;
                 }
+            });
+
+            preloadData[status_field_key] = { ...currStatusObj };
+            if ((!itemData) || (itemData && (itemData["creator_id"] === Number(localStorage.getItem("user_id").replace(/"/g, ""))))) {
+                preloadData[status_field_key] = { ...preloadData[status_field_key], ...type3Statuses };
+                if (itemData)
+                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...closedStatus, };
+                else
+                    preloadData[status_field_key] = { ...preloadData[status_field_key], ...openStatus, };
+            } else {
+                preloadData[status_field_key] = { ...preloadData[status_field_key], ...type1Statuses, };
             }
-            let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
-            if ((fieldName === "type" && page_name === "position") || (page_name === "order_rule" && fieldName === "position_type")) {
-                preloadOptions = preloadData?.["position_type_id"];
-            }
-            if (field.type === "select") {
-                return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
-                        <label>
-                            {field.label}
-                            {field.required && <span style={{ color: 'red' }}> *</span>}
-                        </label>
-                        <select
-                            disabled={disabled_fields.includes(field.label)}
-                            {...register(fieldName, getValidationRules(field))}
-                            onChange={(e) => { onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true }); }}
-                        >
-                            <option value="">
-                                Выберите {field.label.toLowerCase()}
-                            </option>
-                            {Object.entries(preloadOptions).map(([id, values]) => (
-                                <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[values["name"]] || 'inherit' } : {}}>
-                                    {["Привелигия"].includes(field.label) ? values["description"] : values["name"]}
-                                </option>
-                            ))}
-                        </select>
-                        {errors[fieldName] && (
-                            <p className="field-error" >{errors[fieldName].message}</p>
-                        )}
-                    </div>
-                );
-            }
-
-            if (field.type === "search_select") {
-                return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
-                        <SearchSelect
-                            field={field}
-                            register={register}
-                            errors={errors}
-                            setErrors={setErr}
-                            setValue={setValue}
-                            disabled_fields={disabled_fields}
-                            fieldName={fieldName}
-                            defaultValue={itemData?.[fieldName] || ""}
-                        />
-                    </div>
-                );
-            }
-
-            if (field.type === "multiselect") {
-                let options = preloadOptions; // preloadData?.[field.label] || {}
-
-                if (field.label === "Привелигия") {
-                    if (page_name === "user")
-                        options = IndividualPrivileges;
-                    // === 2. Group privileges into categories ===
-                    const groups = {
-                        others: {},
-                        create: {},
-                        read: {},
-                        update: {},
-                        delete_: {},
-                        scope: {},
-                        order_create: {},
-                        order_update: {},
-                    };
-
-                    Object.entries(options).forEach(([id, item]) => {
-                        if (item.name.endsWith(":create")) groups.create[id] = item;
-                        else if (item.name.endsWith(":read")) groups.read[id] = item;
-                        else if (item.name.endsWith(":update")) groups.update[id] = item;
-                        else if (item.name.endsWith(":delete")) groups.delete_[id] = item;
-                        else if (item.name.startsWith("scope:")) groups.scope[id] = item;
-                        else if (item.name.startsWith("order:create")) groups.order_create[id] = item;
-                        else if (item.name.startsWith("order:update")) groups.order_update[id] = item;
-                        else groups.others[id] = item;
-                    });
-
-                    const ordered_groups = {
-                        1: groups.others,
-                        2: groups.create,
-                        3: groups.read,
-                        4: groups.update,
-                        5: groups.delete_,
-                        6: groups.scope,
-                        7: groups.order_create,
-                        8: groups.order_update,
-                    };
-
-                    const togglePermission = (id) => {
-                        if (disabled_fields.includes(field.label)) return;
-
-                        setSelected((prev) => {
-                            const newSet = new Set(prev);
-                            if (newSet.has(id)) newSet.delete(id);
-                            else newSet.add(id);
-                            return newSet;
-                        });
-                    };
-
-                    const moveAllToSelected = () => {
-                        const allIds = Object.keys(options);
-                        setSelected(new Set(allIds));
-                    };
-
-                    const moveAllToAvailable = () => {
-                        setSelected(new Set());
-                    };
-
-                    const isChecked = (id) => selected.has(id);
-
-                    const renderCheckbox = (id, item) => (
-                        <label
-                            key={id}
-                            className={`checkbox-item ${disabled_fields.includes(field.label) ? "checkbox-disabled" : ""}`}
-                            title={item?.status === "denied" ? "Заблокированная привелигия" : item?.source === "individual" ? "Индивидуально назначенная привелигия" : ""}
-                        >
-                            <input
-                                type="checkbox"
-                                value={id}
-                                checked={selected.has(id)}
-                                disabled={disabled_fields.includes(field.label)}
-                                onChange={() => togglePermission(id)}
-                            />
-
-                            {item?.status === "denied" && <LockedIcon />}
-                            {item?.source === "individual" && <UnlockedIcon />}
-
-                            {page_name === "user" ? (
-                                <span className="checkbox-label">
-                                    {item.description}
-                                </span>
-                            ) : (
-                                <span className="checkbox-label">{item.description}</span>
-                            )}
-                        </label>
-                    );
-
-                    // === 3. Helper to filter items by search ===
-                    const matchesSearch = (item, search) =>
-                        item.description.toLowerCase().includes(search.toLowerCase().trim());
-
-                    return (
-                        <div className="privileges-wrapper">
-                            {/* Sticky Header */}
-                            <div className="privileges-header">
-                                <div className="search-block">
-                                    <p>Недоступные</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Поиск..."
-                                        value={availableSearch}
-                                        onChange={(e) => setAvailableSearch(e.target.value)}
-                                        className="privilege-search"
-                                    />
-                                </div>
-
-                                <div className="button-block">
-                                    <button
-                                        type="button"
-                                        onClick={moveAllToSelected}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                        title="Добавить все"
-                                    >
-                                        {">>>"}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={moveAllToAvailable}
-                                        disabled={disabled_fields.includes(field.label)}
-                                        className="privilege-button"
-                                        title="Удалить все"
-                                    >
-                                        {"<<<"}
-                                    </button>
-                                </div>
-
-                                <div className="search-block">
-                                    <p>Доступные</p>
-                                    <input
-                                        type="text"
-                                        placeholder="Поиск..."
-                                        value={assignedSearch}
-                                        onChange={(e) => setAssignedSearch(e.target.value)}
-                                        className="privilege-search"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Content Rows */}
-                            <div className="privileges-columns">
-                                {/* Left: Available */}
-                                <div className="privilege-column">
-                                    {Object.entries(ordered_groups).map(([, group]) =>
-                                        Object.entries(group)
-                                            .filter(([id, item]) => !isChecked(id) && matchesSearch(item, availableSearch))
-                                            .map(([id, item]) => renderCheckbox(id, item))
-                                    )}
-                                </div>
-
-                                {/* Right: Assigned */}
-                                <div className="privilege-column">
-                                    {Object.entries(ordered_groups).map(([, group]) =>
-                                        Object.entries(group)
-                                            .filter(([id, item]) => isChecked(id) && matchesSearch(item, assignedSearch))
-                                            .map(([id, item]) => renderCheckbox(id, item))
-                                    )}
-                                </div>
-                            </div>
-
-                            {errors[fieldName] && (
-                                <p className="field-error" >{errors[fieldName].message}</p>
-                            )}
-                        </div>
-                    );
-                } else {
-                    // For showing selected values in the header
-                    const selectedValues = itemData?.[fieldName] || [];
-
-                    const selectedLabels = Object.entries(options)
-                        .filter(([val]) => selectedValues.includes(Number(val)))
-                        .map(([, label]) =>
-                            ["Привелигия"].includes(field.label)
-                                ? label.description
-                                : label.name
-                        );
-
-                    let displayText = selectedLabels.length > 0
-                        ? selectedLabels.join(", ")
-                        : "Выбрать...";
-
-                    if (displayText.length > 64 && field.width !== "100%" && index !== Object.keys(config).length - 1) {
-                        displayText = displayText.slice(0, 64) + "...";
-                    }
-
-                    return (
-                        <div
-                            key={fieldName}
-                            className="edit-form-field"
-                            style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}
-                        >
-                            <label>
-                                {field.label}
-                                {field.required && <span style={{ color: 'red' }}> *</span>}
-                            </label>
-
-                            <div className="multi-select-dropdown" ref={(el) => { if (el) dropdownRefs.current[fieldName] = el; }}>
-                                <div className="multi-select-header" onClick={() => toggleDropdown(fieldName)}>
-                                    <span className="multi-select-values">{displayText}</span>
-                                    <span className="multi-select-arrow">{openDropdowns[fieldName] ? "▲" : "▼"}</span>
-                                </div>
-
-                                {openDropdowns[fieldName] && (
-                                    <div className="multi-select-options">
-                                        <input
-                                            type="text"
-                                            className="multi-select-search"
-                                            placeholder="Поиск..."
-                                            value={searchTerms[fieldName] || ""}
-                                            onChange={(e) => handleSearchChange(fieldName, e.target.value)}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-
-                                        {Object.entries(options)
-                                            .filter(([, label]) => {
-                                                const search = (searchTerms[fieldName] || "").toLowerCase();
-
-                                                const text = ["Привелигия"].includes(field.label)
-                                                    ? label.description
-                                                    : label.name;
-
-                                                return text.toLowerCase().includes(search);
-                                            })
-                                            .map(([val, label]) => (
-                                                <label key={val} className="multi-select-option">
-                                                    <input
-                                                        type="checkbox"
-                                                        value={val}
-                                                        {...register(fieldName, getValidationRules(field))}
-                                                        disabled={disabled_fields.includes(field.label)}
-                                                    />
-                                                    <span>
-                                                        {["Привелигия"].includes(field.label)
-                                                            ? label.description
-                                                            : label.name}
-                                                    </span>
-                                                </label>
-                                            ))}
-
-                                        {Object.entries(options).length === 0 && (
-                                            <div className="multi-select-empty">Ничего не найдено</div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    );
-                }
-            }
-            if (field.type === "textarea" && fieldName === "comment") {
-                const handleFileInputClick = () => {
-                    const fileInput = fileInputRefs.current[`${fieldName}_attachment`];
-                    if (fileInput) {
-                        fileInput.click();
-                    }
-                };
-                return (
-                    <div
-                        key={fieldName}
-                        className="edit-form-field"
-                        style={{
-                            position: "relative",
-                            width: field.width ? `calc(${field.width} - 14px)` : undefined,
-                        }}
-                    >
-                        <label>
-                            {field.label}
-                            {field.required && <span style={{ color: 'red' }}> *</span>}
-                        </label>
-
-                        <textarea
-                            disabled={disabled_fields.includes(field.label)}
-                            {...register(fieldName, getValidationRules(field))}
-                            style={{ width: "100%", paddingRight: "40px" }} // padding right for icon space
-                        />
-
-                        <input
-                            type="file"
-                            style={{ display: "none" }}
-                            {...register(`${fieldName}_attachment`)} // separate field name for attachment
-                            ref={(el) => {
-                                register(`${fieldName}_attachment`).ref(el);
-                                fileInputRefs.current[`${fieldName}_attachment`] = el;
-                            }}
-                        />
-
-                        <div
-                            onClick={handleFileInputClick}
-                            style={{
-                                position: "absolute",
-                                bottom: "24px",
-                                right: "24px",
-                                cursor: "pointer",
-                            }}
-                        >
-                            <PaperClipIcon />
-                        </div>
-
-                        {errors[fieldName] && (
-                            <p className="field-error" >{errors[fieldName].message}</p>
-                        )}
-                    </div>
-                );
-            }
-
-            if ((field.type === "file" || field.type === "file_list") && fieldName === "file") {
-                return null; // skip rendering this field cuz its inside the comment textarea
-            }
-
-            if (field.type === "file" || field.type === "file_list") {
-                return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
-                        <label>
-                            {field.label}
-                            {field.required && <span style={{ color: 'red' }}> *</span>}
-                        </label>
-                        <input
-                            disabled={disabled_fields.includes(field.label)}
-                            type="file"
-                            {...register(fieldName, getValidationRules(field))}
-                            multiple={field.type === "file_list"}
-                        />
-                        {errors[fieldName] && (
-                            <p className="field-error" >{errors[fieldName].message}</p>
-                        )}
-                    </div>
-                );
-            }
-
-            if (field.type === "checkbox") {
-                return (
-                    <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
-                        <label className="checkbox-item">
-                            <input
-                                type="checkbox"
-                                {...register(fieldName, getValidationRules(field))}
-                                defaultChecked={itemData?.[fieldName] || false}
-                                disabled={disabled_fields.includes(field.label)}
-                            />
-                            <span>
-                                {field.label}
-                                {field.required && <span style={{ color: 'red' }}> *</span>}
-                            </span>
-                        </label>
-                        {errors[fieldName] && (
-                            <p className="field-error" >{errors[fieldName].message}</p>
-                        )}
-                    </div>
-                );
-            }
-
+        }
+        let preloadOptions = dynamicOptions[fieldName] || preloadData?.[preload_title] || {};
+        if ((fieldName === "type" && page_name === "position") || (page_name === "order_rule" && fieldName === "position_type")) {
+            preloadOptions = preloadData?.["position_type_id"];
+        }
+        if (field.type === "select") {
             return (
                 <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
                     <label>
                         {field.label}
                         {field.required && <span style={{ color: 'red' }}> *</span>}
                     </label>
-                    {field.type === "textarea" ? (
-                        <textarea
-                            disabled={disabled_fields.includes(field.label)}
-                            {...register(fieldName, getValidationRules(field))}
-                            rows={4}
-                        />
-                    ) : (
-                        <input
-                            type={field.type || "text"}
-                            {...register(fieldName, getValidationRules(field))}
-                            disabled={disabled_fields.includes(field.label)}
-                            onInput={
-                                field.label.toLowerCase() === "имя"
-                                    ? (e) => { const capitalized = capitalizeName(e.target.value); e.target.value = capitalized; }
-                                    : undefined
-                            }
-                        />
-                    )}
+                    <select
+                        disabled={disabled_fields.includes(field.label)}
+                        {...register(fieldName, getValidationRules(field))}
+                        onChange={(e) => { onOptionChange(fieldName); setValue(fieldName, e.target.value, { shouldValidate: true }); }}
+                    >
+                        <option value="">
+                            Выберите {field.label.toLowerCase()}
+                        </option>
+                        {Object.entries(preloadOptions).map(([id, values]) => (
+                            <option key={id} value={id} style={field.label === "Приоритет" ? { color: priority_colors[values["name"]] || 'inherit' } : {}}>
+                                {["Привелигия"].includes(field.label) ? values["description"] : values["name"]}
+                            </option>
+                        ))}
+                    </select>
                     {errors[fieldName] && (
                         <p className="field-error" >{errors[fieldName].message}</p>
                     )}
                 </div>
             );
-        })
-    let status_field_key = null;
-    let status_name = null;
-    if ((page_name === "order" || page_name === "main") && itemData) {
-        status_field_key = TABLE_PAGES_CONFIG["status"].singular;
-        status_name = preloadData?.[status_field_key]?.[itemData.status_id]?.name;
-    }
+        }
+
+        if (field.type === "search_select") {
+            return (
+                <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+                    <SearchSelect
+                        field={field}
+                        register={register}
+                        errors={errors}
+                        setErrors={setErr}
+                        setValue={setValue}
+                        disabled_fields={disabled_fields}
+                        fieldName={fieldName}
+                        defaultValue={itemData?.[fieldName] || ""}
+                    />
+                </div>
+            );
+        }
+
+        if (field.type === "multiselect") {
+            let options = preloadOptions; // preloadData?.[field.label] || {}
+
+            if (field.label === "Привелигия") {
+                if (page_name === "user")
+                    options = IndividualPrivileges;
+                // === 2. Group privileges into categories ===
+                const groups = {
+                    others: {},
+                    create: {},
+                    read: {},
+                    update: {},
+                    delete_: {},
+                    scope: {},
+                    order_create: {},
+                    order_update: {},
+                };
+
+                Object.entries(options).forEach(([id, item]) => {
+                    if (item.name.endsWith(":create")) groups.create[id] = item;
+                    else if (item.name.endsWith(":read")) groups.read[id] = item;
+                    else if (item.name.endsWith(":update")) groups.update[id] = item;
+                    else if (item.name.endsWith(":delete")) groups.delete_[id] = item;
+                    else if (item.name.startsWith("scope:")) groups.scope[id] = item;
+                    else if (item.name.startsWith("order:create")) groups.order_create[id] = item;
+                    else if (item.name.startsWith("order:update")) groups.order_update[id] = item;
+                    else groups.others[id] = item;
+                });
+
+                const ordered_groups = {
+                    1: groups.others,
+                    2: groups.create,
+                    3: groups.read,
+                    4: groups.update,
+                    5: groups.delete_,
+                    6: groups.scope,
+                    7: groups.order_create,
+                    8: groups.order_update,
+                };
+
+                const togglePermission = (id) => {
+                    if (disabled_fields.includes(field.label)) return;
+
+                    setSelected((prev) => {
+                        const newSet = new Set(prev);
+                        if (newSet.has(id)) newSet.delete(id);
+                        else newSet.add(id);
+                        return newSet;
+                    });
+                };
+
+                const moveAllToSelected = () => {
+                    const allIds = Object.keys(options);
+                    setSelected(new Set(allIds));
+                };
+
+                const moveAllToAvailable = () => {
+                    setSelected(new Set());
+                };
+
+                const isChecked = (id) => selected.has(id);
+
+                const renderCheckbox = (id, item) => (
+                    <label
+                        key={id}
+                        className={`checkbox-item ${disabled_fields.includes(field.label) ? "checkbox-disabled" : ""}`}
+                        title={item?.status === "denied" ? "Заблокированная привелигия" : item?.source === "individual" ? "Индивидуально назначенная привелигия" : ""}
+                    >
+                        <input
+                            type="checkbox"
+                            value={id}
+                            checked={selected.has(id)}
+                            disabled={disabled_fields.includes(field.label)}
+                            onChange={() => togglePermission(id)}
+                        />
+
+                        {item?.status === "denied" && <LockedIcon />}
+                        {item?.source === "individual" && <UnlockedIcon />}
+
+                        {page_name === "user" ? (
+                            <span className="checkbox-label">
+                                {item.description}
+                            </span>
+                        ) : (
+                            <span className="checkbox-label">{item.description}</span>
+                        )}
+                    </label>
+                );
+
+                // === 3. Helper to filter items by search ===
+                const matchesSearch = (item, search) =>
+                    item.description.toLowerCase().includes(search.toLowerCase().trim());
+
+                return (
+                    <div className="privileges-wrapper">
+                        {/* Sticky Header */}
+                        <div className="privileges-header">
+                            <div className="search-block">
+                                <p>Недоступные</p>
+                                <input
+                                    type="text"
+                                    placeholder="Поиск..."
+                                    value={availableSearch}
+                                    onChange={(e) => setAvailableSearch(e.target.value)}
+                                    className="privilege-search"
+                                />
+                            </div>
+
+                            <div className="button-block">
+                                <button
+                                    type="button"
+                                    onClick={moveAllToSelected}
+                                    disabled={disabled_fields.includes(field.label)}
+                                    className="privilege-button"
+                                    title="Добавить все"
+                                >
+                                    {">>>"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={moveAllToAvailable}
+                                    disabled={disabled_fields.includes(field.label)}
+                                    className="privilege-button"
+                                    title="Удалить все"
+                                >
+                                    {"<<<"}
+                                </button>
+                            </div>
+
+                            <div className="search-block">
+                                <p>Доступные</p>
+                                <input
+                                    type="text"
+                                    placeholder="Поиск..."
+                                    value={assignedSearch}
+                                    onChange={(e) => setAssignedSearch(e.target.value)}
+                                    className="privilege-search"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Content Rows */}
+                        <div className="privileges-columns">
+                            {/* Left: Available */}
+                            <div className="privilege-column">
+                                {Object.entries(ordered_groups).map(([, group]) =>
+                                    Object.entries(group)
+                                        .filter(([id, item]) => !isChecked(id) && matchesSearch(item, availableSearch))
+                                        .map(([id, item]) => renderCheckbox(id, item))
+                                )}
+                            </div>
+
+                            {/* Right: Assigned */}
+                            <div className="privilege-column">
+                                {Object.entries(ordered_groups).map(([, group]) =>
+                                    Object.entries(group)
+                                        .filter(([id, item]) => isChecked(id) && matchesSearch(item, assignedSearch))
+                                        .map(([id, item]) => renderCheckbox(id, item))
+                                )}
+                            </div>
+                        </div>
+
+                        {errors[fieldName] && (
+                            <p className="field-error" >{errors[fieldName].message}</p>
+                        )}
+                    </div>
+                );
+            } else {
+                // For showing selected values in the header
+                const selectedValues = itemData?.[fieldName] || [];
+
+                const selectedLabels = Object.entries(options)
+                    .filter(([val]) => selectedValues.includes(Number(val)))
+                    .map(([, label]) =>
+                        ["Привелигия"].includes(field.label)
+                            ? label.description
+                            : label.name
+                    );
+
+                let displayText = selectedLabels.length > 0
+                    ? selectedLabels.join(", ")
+                    : "Выбрать...";
+
+                if (displayText.length > 64 && field.width !== "100%" && index !== Object.keys(config).length - 1) {
+                    displayText = displayText.slice(0, 64) + "...";
+                }
+
+                return (
+                    <div
+                        key={fieldName}
+                        className="edit-form-field"
+                        style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}
+                    >
+                        <label>
+                            {field.label}
+                            {field.required && <span style={{ color: 'red' }}> *</span>}
+                        </label>
+
+                        <div className="multi-select-dropdown" ref={(el) => { if (el) dropdownRefs.current[fieldName] = el; }}>
+                            <div className="multi-select-header" onClick={() => toggleDropdown(fieldName)}>
+                                <span className="multi-select-values">{displayText}</span>
+                                <span className="multi-select-arrow">{openDropdowns[fieldName] ? "▲" : "▼"}</span>
+                            </div>
+
+                            {openDropdowns[fieldName] && (
+                                <div className="multi-select-options">
+                                    <input
+                                        type="text"
+                                        className="multi-select-search"
+                                        placeholder="Поиск..."
+                                        value={searchTerms[fieldName] || ""}
+                                        onChange={(e) => handleSearchChange(fieldName, e.target.value)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+
+                                    {Object.entries(options)
+                                        .filter(([, label]) => {
+                                            const search = (searchTerms[fieldName] || "").toLowerCase();
+
+                                            const text = ["Привелигия"].includes(field.label)
+                                                ? label.description
+                                                : label.name;
+
+                                            return text.toLowerCase().includes(search);
+                                        })
+                                        .map(([val, label]) => (
+                                            <label key={val} className="multi-select-option">
+                                                <input
+                                                    type="checkbox"
+                                                    value={val}
+                                                    {...register(fieldName, getValidationRules(field))}
+                                                    disabled={disabled_fields.includes(field.label)}
+                                                />
+                                                <span>
+                                                    {["Привелигия"].includes(field.label)
+                                                        ? label.description
+                                                        : label.name}
+                                                </span>
+                                            </label>
+                                        ))}
+
+                                    {Object.entries(options).length === 0 && (
+                                        <div className="multi-select-empty">Ничего не найдено</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+        }
+        if (field.type === "textarea" && fieldName === "comment") {
+            const handleFileInputClick = () => {
+                const fileInput = fileInputRefs.current[`${fieldName}_attachment`];
+                if (fileInput) {
+                    fileInput.click();
+                }
+            };
+            return (
+                <div
+                    key={fieldName}
+                    className="edit-form-field"
+                    style={{
+                        position: "relative",
+                        width: field.width ? `calc(${field.width} - 14px)` : undefined,
+                    }}
+                >
+                    <label>
+                        {field.label}
+                        {field.required && <span style={{ color: 'red' }}> *</span>}
+                    </label>
+
+                    <textarea
+                        disabled={disabled_fields.includes(field.label)}
+                        {...register(fieldName, getValidationRules(field))}
+                        style={{ width: "100%", paddingRight: "40px" }} // padding right for icon space
+                    />
+
+                    <input
+                        type="file"
+                        style={{ display: "none" }}
+                        {...register(`${fieldName}_attachment`)} // separate field name for attachment
+                        ref={(el) => {
+                            register(`${fieldName}_attachment`).ref(el);
+                            fileInputRefs.current[`${fieldName}_attachment`] = el;
+                        }}
+                    />
+
+                    <div
+                        onClick={handleFileInputClick}
+                        style={{
+                            position: "absolute",
+                            bottom: "24px",
+                            right: "24px",
+                            cursor: "pointer",
+                        }}
+                    >
+                        <PaperClipIcon />
+                    </div>
+
+                    {errors[fieldName] && (
+                        <p className="field-error" >{errors[fieldName].message}</p>
+                    )}
+                </div>
+            );
+        }
+
+        if ((field.type === "file" || field.type === "file_list") && fieldName === "file") {
+            return null; // skip rendering this field cuz its inside the comment textarea
+        }
+
+        if (field.type === "file" || field.type === "file_list") {
+            return (
+                <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+                    <label>
+                        {field.label}
+                        {field.required && <span style={{ color: 'red' }}> *</span>}
+                    </label>
+                    <input
+                        disabled={disabled_fields.includes(field.label)}
+                        type="file"
+                        {...register(fieldName, getValidationRules(field))}
+                        multiple={field.type === "file_list"}
+                    />
+                    {errors[fieldName] && (
+                        <p className="field-error" >{errors[fieldName].message}</p>
+                    )}
+                </div>
+            );
+        }
+
+        if (field.type === "checkbox") {
+            return (
+                <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+                    <label className="checkbox-item">
+                        <input
+                            type="checkbox"
+                            {...register(fieldName, getValidationRules(field))}
+                            defaultChecked={itemData?.[fieldName] || false}
+                            disabled={disabled_fields.includes(field.label)}
+                        />
+                        <span>
+                            {field.label}
+                            {field.required && <span style={{ color: 'red' }}> *</span>}
+                        </span>
+                    </label>
+                    {errors[fieldName] && (
+                        <p className="field-error" >{errors[fieldName].message}</p>
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <div key={fieldName} className="edit-form-field" style={field.width ? { width: `calc(${field.width} - 14px)` } : {}}>
+                <label>
+                    {field.label}
+                    {field.required && <span style={{ color: 'red' }}> *</span>}
+                </label>
+                {field.type === "textarea" ? (
+                    <textarea
+                        disabled={disabled_fields.includes(field.label)}
+                        {...register(fieldName, getValidationRules(field))}
+                        rows={4}
+                    />
+                ) : (
+                    <input
+                        type={field.type || "text"}
+                        {...register(fieldName, getValidationRules(field))}
+                        disabled={disabled_fields.includes(field.label)}
+                        onInput={
+                            field.label.toLowerCase() === "имя"
+                                ? (e) => { const capitalized = capitalizeName(e.target.value); e.target.value = capitalized; }
+                                : undefined
+                        }
+                    />
+                )}
+                {errors[fieldName] && (
+                    <p className="field-error" >{errors[fieldName].message}</p>
+                )}
+            </div>
+        );
+    })
+    const fieldNames = Object.values(config).map(field => field.label);
     const form_element =
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate id="editForm">
             {form_content}
             <div className="modal-buttons">
-                {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт")))) &&
+                {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && disabled_fields.length === fieldNames.length && disabled_fields.every(v => fieldNames.includes(v))))) &&
                     <button id="confirmBtn" type="submit" disabled={isSubmitting}>
                         {isSubmitting ? "Загрузка..." : "Сохранить"}
                     </button>
                 }
                 <button id="cancelBtn" onClick={onClose}>
-                    {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && status_name.toLowerCase().includes("закрыт"))))
+                    {!((page_name === "order" || page_name === "main") && ((!itemData && orderType === "") || (itemData && disabled_fields.length === fieldNames.length && disabled_fields.every(v => fieldNames.includes(v)))))
                         ? "Отмена" : "Закрыть"}
                 </button>
             </div>

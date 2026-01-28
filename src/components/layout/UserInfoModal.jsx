@@ -72,6 +72,9 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
         await logout();
         localStorage.setItem("user_id", null);
         localStorage.setItem("permissions", null);
+        localStorage.setItem("user_otdel_ids", null);
+        localStorage.setItem("user_branch_id", null);
+        localStorage.setItem("user_office_id", null);
         localStorage.setItem("user_department_id", null);
         setLogoutLoading(false);
         onClose();
@@ -117,6 +120,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
         { id: "department", label: "Департамент", value: userData.department_name || "-" },
         { id: "otdel", label: "Отдел", value: userData.otdel_name || "-" },
         { id: "branch", label: "Филиал", value: userData.branch_short_name || userData.branch_name || "-" },
+        { id: "office", label: "Офис", value: userData.office_name || "-" },
     ];
 
     const handleChange = (e) => {

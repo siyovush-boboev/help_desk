@@ -563,7 +563,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 200px;
+  width: 280px;
 }
 
 .user-text-info>div>label {

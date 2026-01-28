@@ -32,12 +32,12 @@ export default function Header() {
                     position_name,
                     department_id,
                     department_name,
-                    // otdel_id,
+                    otdel_ids,
                     otdel_name,
-                    // branch_id,
+                    branch_id,
                     branch_name,
-                    // office_id,
-                    // office_name,
+                    office_id,
+                    office_name,
                     email,
                     phone_number,
                     photo_url,
@@ -49,19 +49,20 @@ export default function Header() {
                 setUserDetails({
                     id,
                     fio,
-                    position_name,
                     department_id,
-                    department_name,
-                    otdel_name,
+                    position_name,
+                    office_name,
                     branch_name,
+                    otdel_name,
+                    department_name,
                     email,
                     phone_number,
                     photo_url
                 });
                 localStorage.setItem("user_department_id", JSON.stringify(department_id));
-                // localStorage.setItem("user_otdel_id", JSON.stringify(otdel_id));
-                // localStorage.setItem("user_branch_id", JSON.stringify(branch_id));
-                // localStorage.setItem("user_branch_id", JSON.stringify(office_id));
+                localStorage.setItem("user_otdel_ids", JSON.stringify(otdel_ids));
+                localStorage.setItem("user_branch_id", JSON.stringify(branch_id));
+                localStorage.setItem("user_office_id", JSON.stringify(office_id));
                 localStorage.setItem("user_id", JSON.stringify(id));
             } catch (err) {
                 console.error("Failed to load header data:", err);

@@ -23,9 +23,9 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование заявки": "name",
       "Статус": "status_id",
       "Приоритет": "priority_id",
-      "Заявитель": null,
+      "Заявитель": "creator_id",
       "Дата создания": "created_at",
-      "Исполнитель": null,
+      "Исполнитель": "executor_id",
       "Срок": "duration",
       "Оборудование": "equipment_id",
       "Тип оборудования": "equipment_type_id",
@@ -120,7 +120,6 @@ export const TABLE_PAGES_CONFIG = {
       "№": null,
       "Наименование": "name",
       "Департамент": "department_id",
-      "Отдел": "otdel_id",
       "Филиал": "branch_id",
       "Статус": "status_id",
       "Действия": null
@@ -359,7 +358,7 @@ export const FORM_CONFIG = {
   status: {
     name: { label: "Наименование", type: "text", required: true },
     type: { label: "Тип", type: "number", required: true },
-    icon_big: { label: "Иконка (большая)", type: "file", required: false },
+    // icon_big: { label: "Иконка (большая)", type: "file", required: false },
     icon_small: { label: "Иконка (маленькая)", type: "file", required: false },
   },
   priority: {
