@@ -139,7 +139,7 @@ export default function Users() {
                 onSort={handleSort}
                 showEdit={showEdit}
                 showDelete={showDelete}
-                showPermissionsEdit={true}
+                showPermissionsEdit={showEdit}
                 onPermissionsEdit={(id) =>
                     onCreate(
                         setModalContent,

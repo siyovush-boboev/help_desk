@@ -46,7 +46,7 @@ export const TABLE_PAGES_CONFIG = {
     plural: "Пользователи",
     resource: "user",
     permissions_resource: "user/permission",
-    preload: ["department", "otdel", "branch", "office", "role", "status", "position", "permission"],
+    preload: ["department", "otdel", "branch", "office", "role", "status", "position", "position_type", "permission"],
     columns: {
       "№": null,
       "Имя": "fio",
@@ -56,6 +56,7 @@ export const TABLE_PAGES_CONFIG = {
       "Телефон": "phone_number",
       "E-mail": "email",
       "Должность": "position_ids",
+      "Тип должности": "position_type_id",
       "Статус": "status_id",
       "Действия": null
     },
@@ -65,6 +66,8 @@ export const TABLE_PAGES_CONFIG = {
       { id: "role_id", label: "Роль" },
       { id: "branch_id", label: "Филиал" },
       { id: "office_id", label: "Офис ЦБО" },
+      { id: "status_id", label: "Статус" },
+      { id: "position_id", label: "Должность" },
     ]
   },
   status: {
@@ -423,8 +426,8 @@ export const DEPENDANT_FIELDS = {
   desc: {
     department_id: ["otdel_ids", "executor_id", "otdel_id"],
     otdel_id: ["executor_id"],
-    branch_id: ["office_id", "equipment_id", "executor_id"],
-    office_id: ["equipment_id", "executor_id"],
+    branch_id: ["office_id", "equipment_id"],
+    office_id: ["equipment_id"],
     equipment_type_id: ["equipment_id"]
   },
 };

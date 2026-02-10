@@ -18,7 +18,7 @@ const Login = () => {
 
     const passwordRef = useRef(null);
     const [err, setErr] = useState("");
-    const [username, setUsername] = useState("");
+    const [username, setUsername] = useState(localStorage.getItem("username") || "");
     const [password, setPassword] = useState("");
     // const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +35,7 @@ const Login = () => {
 
             if (data.reset_token) {
                 setErr(data.message);
+                localStorage.setItem("username", username);
                 navigate(`/password-change?login=${encodeURIComponent(username)}&token=${encodeURIComponent(data.reset_token)}`);
             }
             else if (res.data.status === false) {
@@ -43,6 +44,7 @@ const Login = () => {
             else {
                 setAccessToken(data.accessToken);
                 localStorage.setItem("permissions", JSON.stringify(data.permissions));
+                localStorage.setItem("username", username);
                 setAuthFailed(false);
                 navigate(next);
             }
@@ -60,9 +62,9 @@ const Login = () => {
         <AuthContainer header_text={"Войти в личный кабинет"}>
             <form id="auth-form" onSubmit={handleLogin}>
                 <AuthInput
-                    label={"E-mail"}
+                    label={"Логин"}
                     name={"login"}
-                    placeholder={"Введите ваш email"}
+                    placeholder={"Введите ваш логин"}
                     value={username}
                     set_func={setUsername}
                     required={true}

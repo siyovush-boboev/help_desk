@@ -242,22 +242,21 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
                         dependentLabel = "Пользователь";
                     const rawOptions = preloadData[dependentLabel] || {};
-                    const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);
-
-                    // set filtered options
-                    setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
-
-                    // also clear value
-                    setValue(dependentField, "");
-
-                    // recursively reset all downstream deps too
-                    if (DEPENDANT_FIELDS.desc[dependentField]) onOptionChange(dependentField);
+                    if (!(dependentField === "executor_id" && ["branch_id", "office_id"].includes(fieldName))){
+                        const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);    
+                        // set filtered options
+                        setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
+                        // also clear value
+                        setValue(dependentField, "");
+                        // recursively reset all downstream deps too
+                        if (DEPENDANT_FIELDS.desc[dependentField]) onOptionChange(dependentField);
+                    }
                 });
             }
             return;
         }
 
-        const origin_id = Number(origin_val);
+        // const origin_id = Number(origin_val);
         setTriggeredFields(prev => new Set(prev.add(fieldName)));
 
         const asc = (fieldName) => {
@@ -265,10 +264,10 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 let origin_label = origin_select.previousSibling.textContent.trim();
                 if (origin_label === "Заявитель" || origin_label === "Исполнитель")
                     origin_label = "Пользователь";
-                const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
+                // const option_to_select_id = preloadData[origin_label][origin_id]?.[dependentField];
                 const dependentSelect = document.querySelector(`select[name="${dependentField}"]`);
                 if (dependentSelect) {
-                    setValue(dependentField, option_to_select_id);
+                    // setValue(dependentField, option_to_select_id);
                     if (DEPENDANT_FIELDS.asc[dependentField])
                         asc(dependentField);
                 }
@@ -281,10 +280,12 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
                     dependentLabel = "Пользователь";
                 const rawOptions = preloadData[dependentLabel] || {};
-                const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);
-                setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
-                if (DEPENDANT_FIELDS.desc[dependentField])
-                    desc(dependentField);
+                if (!(dependentField === "executor_id" && ["branch_id", "office_id"].includes(fieldName))){
+                    const filtered = filter_with_all_field_names(fieldName, dependentField, rawOptions);
+                    setDynamicOptions(prev => ({ ...prev, [dependentField]: filtered }));
+                    if (DEPENDANT_FIELDS.desc[dependentField])
+                        desc(dependentField);
+                }
             });
         };
 

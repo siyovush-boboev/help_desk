@@ -73,6 +73,7 @@ export default function DataTable({
     };
     // for handling sorting arrows properly
     const searchParams = Object.fromEntries(new URLSearchParams(window.location.search));
+    let hidden_rows_count = 0;
 
     return (
         <div className="table-wrapper">
@@ -114,6 +115,7 @@ export default function DataTable({
                                 const status = pageData[colName]?.[status_id];
                                 if (status?.name === "Закрыто") {
                                     hideRow = !showClosed;
+                                    hidden_rows_count += !showClosed;
                                     make_green = true;
                                 }
                                 const icon = <img src={BASE_URL + status?.["icon_small"]} alt="" className="status-icon" />;
@@ -128,9 +130,6 @@ export default function DataTable({
                             else if (colName === "CHECKMARK") {
                                 if (!showDelete) return;
                                 return <td key={i + colName}><input type="checkbox" /></td>;
-                            }
-                            else if (colName === "№") {
-                                return <td key={i + colName}>{i + 1}</td>;
                             }
                             else if (colName === "Действия") {
                                 if (showEdit || showDelete)
@@ -197,12 +196,20 @@ export default function DataTable({
                                 const sum = (data[i]["open"] || 0) + (data[i]["closed"] || 0);
                                 main_page_sums["total"] += sum;
                                 return <td key={i + colName}>{sum}</td>;
-                            } else if ((field?.includes("_id") && (colName in pageData)) || (field === "type" && "position_type_id" in pageData)) {
+                            } else if ((field?.includes("_id") && (colName in pageData)) || ((field === "type" || field === "position_type_id") && "position_type_id" in pageData)) {
                                 if (field === "type") {
                                     colName = "position_type_id";
                                 }
-                                let field_content = ""
-                                if (Array.isArray(item[field]) && item[field].length > 0) {
+                                let field_content = "";
+                                if (field === "position_type_id") {
+                                    item["position_ids"].forEach(position_id => {
+                                        const position_type = pageData["Должность"][position_id]?.["type"];
+                                        if (position_type) {
+                                            field_content += pageData["position_type_id"][position_type]?.name + " ";
+                                        }
+                                    });
+                                }
+                                else if (Array.isArray(item[field]) && item[field].length > 0) {
                                     const role_strings = [];
                                     item[field].forEach(id => { role_strings.push(pageData[colName][id]?.name || ""); });
                                     field_content = role_strings.join(", ");
@@ -216,6 +223,9 @@ export default function DataTable({
                                 return <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
                                     {field_content || ""}
                                 </td>;
+                            }
+                            else if (colName === "№") {
+                                return <td key={i + colName}>{i + 1 - hidden_rows_count}</td>;
                             }
 
                             return <td key={i + colName}>{item[field] || ""}</td>;
