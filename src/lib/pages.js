@@ -143,8 +143,6 @@ export const TABLE_PAGES_CONFIG = {
       "Наименование": "name",
       "Адрес": "address",
       "Дата открытия": "open_date",
-      "Почтовый индекс": "email_index",
-      "Короткое наименование": "short_name",
       "Статус": "status_id",
       "Действия": null
     },
@@ -312,7 +310,7 @@ export const TABLE_PAGES_CONFIG = {
 export const FORM_CONFIG = {
   order: {
     order_type_id: { label: "Тип заявки", type: "select", required: true },
-    name: { label: "Наименование заявки", type: "text", required: true, min: 5, width: "100%" },
+    name: { label: "Наименование заявки", type: "text", required: true, min: 3, width: "100%" },
     comment: { label: "Комментарий", type: "textarea", required: false, min: 3, width: "100%" },
     department_id: { label: "Департамент", type: "select", required: false, width: "33%" },
     otdel_id: { label: "Отдел", type: "select", required: false, width: "33%" },
@@ -382,8 +380,6 @@ export const FORM_CONFIG = {
   branch: {
     name: { label: "Наименование", type: "text", required: true },
     address: { label: "Адрес", type: "text", required: false, width: "100%" },
-    short_name: { label: "Короткое наименование", type: "text", required: false },
-    email_index: { label: "Почтовый индекс", type: "text", required: false },
     open_date: { label: "Дата открытия", type: "date", required: false },
     status_id: { label: "Статус", type: "select", required: true },
   },

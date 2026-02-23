@@ -1552,7 +1552,7 @@ button:not(.user-info-close-button) {
 .alerts-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   margin: 0.75rem 0;
 }
 
@@ -1561,6 +1561,7 @@ button:not(.user-info-close-button) {
   display: flex;
   padding: 0.75rem;
   align-items: center;
+  flex: 1 1 300px;
 }
 
 .alert-text {
@@ -1585,7 +1586,6 @@ button:not(.user-info-close-button) {
 
 .kpi-container {
   display: grid;
-  /* 4 columns on large screens */
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
   margin: 1rem 0;
@@ -1597,11 +1597,8 @@ button:not(.user-info-close-button) {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
   height: 150px;
-  min-width: 320px;
-  max-width: 420px;
-
+  min-width: 300px;
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 12px;
@@ -1617,9 +1614,26 @@ button:not(.user-info-close-button) {
   width: 100%;
 }
 
+.kpi-trend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .kpi-trend-score {
   font-size: 24px;
   font-weight: 700;
+}
+
+.trend-subtext {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.personal-score, .trend-text {
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .tabs-switch {
@@ -1668,7 +1682,7 @@ button:not(.user-info-close-button) {
   border-radius: 8px;
   flex: 1;
   gap: 12px;
-  min-width: 320px;
+  min-width: 300px;
 }
 
 .stat-item:has(.categories-container) {
@@ -1687,6 +1701,7 @@ button:not(.user-info-close-button) {
 .stat-title>p:first-child,
 .stat-title>p:nth-child(2) {
   margin-bottom: 4px;
+  text-align: center  ;
 }
 
 .stat-title>p:nth-child(2) {
@@ -1750,7 +1765,7 @@ button:not(.user-info-close-button) {
 .category-item> :nth-child(2) {
   border: 2px solid var(--table-header-bg);
   border-radius: 12px;
-  padding: 4px;
+  padding: 4px 6px;
 }
 
 .category-item:hover {
@@ -1785,6 +1800,8 @@ button:not(.user-info-close-button) {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .activity-item {
@@ -1792,7 +1809,7 @@ button:not(.user-info-close-button) {
   flex-wrap: wrap;
   gap: 4px;
   flex-direction: column;
-  flex: 1 1 200px;
+  flex: 1 1 300px;
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 6px;

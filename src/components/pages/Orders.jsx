@@ -33,7 +33,7 @@ export default function Orders() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
-    const is_my_orders_page = searchParams.get("participant") === "me";
+    const is_my_orders_page = (searchParams.get("participant") && "participant") || (searchParams.get("assigned") && "assigned");
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -48,7 +48,13 @@ export default function Orders() {
     }, [searchParams]);
 
     const handleSearch = (term) => {
-        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
+        setSearchParams({ ...Object.fromEntries(searchParams), search: term, page: 1, limit, withPagination: true });
+    };
+    const onFilterApply = (newFilters) => {
+        const flat = {};
+        Object.entries(newFilters).forEach(([k, v]) => { if (Array.isArray(v)) flat[`filter[${k}]`] = v.join(","); });
+        setSearchParams({ ...newFilters, ...flat });
+        closeModal();
     };
 
     const handleSort = (column, direction) => {
@@ -67,7 +73,6 @@ export default function Orders() {
             withPagination: true,
             page: 1,
             limit,
-            ...(is_my_orders_page ? { participant: "me" } : {}),
         });
     };
 
@@ -108,7 +113,12 @@ export default function Orders() {
                         });
                     }
                     setShowClosed(zakritoSelected);
-                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery, ...(is_my_orders_page ? { participant: "me" } : {}) });
+                    console.log("flat", flat);
+                    if (is_my_orders_page) {
+                        if      (searchParams.get("participant"))   flat["participant"] = searchParams.get("participant");
+                        else if (searchParams.get("assigned"))      flat["assigned"] = searchParams.get("assigned");
+                    }
+                    setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery, });
                     closeModal();
                 }}
                 onClose={closeModal}
@@ -151,6 +161,7 @@ export default function Orders() {
                 setShowClosed={setShowClosed}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
+                createdOrdersProps={is_my_orders_page ? [filtersFromUrl, onFilterApply] : [{}, () => { }]}
                 refk={setRefreshKey}
             />
 
@@ -184,10 +195,10 @@ export default function Orders() {
                 totalPages={data?.pagination?.total_pages || 1}
                 limit={limit || data?.pagination?.limit || 20}
                 onPageChange={(page) => {
-                    setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page, limit, search: searchQuery, withPagination: true, });
                 }}
                 onPageSizeChange={(size) => {
-                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true, ...(is_my_orders_page ? { participant: "me" } : {}) });
+                    setSearchParams({ ...Object.fromEntries(searchParams), page: 1, limit: size, search: searchQuery, withPagination: true,  });
                 }}
             />
 

@@ -37,6 +37,12 @@ export default function Navbar() {
         href: `${MAIN_NAVBAR_LINKS["order"].href}&participant=me`,
     };
 
+    // MAIN_NAVBAR_LINKS["created_orders"] = {
+    //     ...MAIN_NAVBAR_LINKS["order"],
+    //     label: "Назначенные мне",
+    //     href: `${MAIN_NAVBAR_LINKS["order"].href}&assigned=me`,
+    // };
+
     MAIN_NAVBAR_LINKS["order"].label = "Все заявки";
 
     const collectionPages = Object.entries(TABLE_PAGES_CONFIG).filter(
@@ -72,6 +78,10 @@ export default function Navbar() {
             {permissions.includes("order:view") &&
                 <NavbarLink {...MAIN_NAVBAR_LINKS["my_orders"]} key="my_orders" />
             }
+
+            {/* {permissions.includes("order:view") &&
+                <NavbarLink {...MAIN_NAVBAR_LINKS["created_orders"]} key="created_orders" />
+            } */}
 
             {permissions.includes("order:view") &&
                 <NavbarLink {...MAIN_NAVBAR_LINKS["order"]} key="order" />

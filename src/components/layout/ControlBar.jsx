@@ -15,11 +15,16 @@ export default function ControlBar({
     onCreate,
     onSearch,
     equipmentProps = [{}, {}, () => { }],
+    createdOrdersProps = [{}, () => { }],
     refk = () => { },
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
-    const [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
+
+    let [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
+    if (Object.keys(createdOrdersProps).length > 0){
+        [filtersFromUrl, onFilterApply] = createdOrdersProps;
+    }
 
     useEffect(() => {
         setSearchValue(initialSearchValue);
@@ -80,6 +85,24 @@ export default function ControlBar({
                         <option key={key} value={key}>{type.name}</option>
                     ))}
                 </select>
+            )}
+
+            {Object.keys(createdOrdersProps[0]).length > 0 && (
+                <button onClick={
+                    () => {
+                        const new_filters = { ...filtersFromUrl };
+                        if (new_filters["participant"]){
+                            delete new_filters["participant"];
+                            new_filters["assigned"] = "me";
+                        } else {
+                            delete new_filters["assigned"];
+                            new_filters["participant"] = "me";
+                        }
+                        onFilterApply(new_filters);
+                    }
+                }>
+                    {filtersFromUrl["assigned"] ? "Созданные мной" : "Назначенные мне"}
+                </button>
             )}
 
             {showShowHide && (

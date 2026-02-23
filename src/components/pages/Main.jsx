@@ -117,11 +117,11 @@ function Alert({ type, count }) {
 }
 
 
-function KPIBlock({ title, trend_score, trend_text = "" }) {
+function KPIBlock({ title, trend_score, trend_text = "", personal_score = 0 }) {
     const contents = {
-        total_orders: ["Всего заявок", <ApplicationsDarkIcon />],
-        open_orders: ["Открытые заявки", <ClockIcon />],
-        resolved_orders: ["Решённые заявки", <CheckMarkIcon />],
+        total_orders: ["Всего заявок", <ApplicationsDarkIcon />, "{} ваших заявок"],
+        open_orders: ["Открытые заявки", <ClockIcon />, "{} назначено вам"],
+        resolved_orders: ["Решённые заявки", <CheckMarkIcon />, "{} решено вами"],
         sla_compliance: ["Соблюдение SLA", <ShieldIcon />],
         avg_response_time: ["Среднее время ответа", <WatchIcon />],
         avg_resolve_time: ["Среднее время решения", <ClockIcon />],
@@ -139,11 +139,13 @@ function KPIBlock({ title, trend_score, trend_text = "" }) {
             </div>
             <div className="kpi-trend">
                 <p className="kpi-trend-score">{trend_score}</p>
-                <p>
-                    {trend_text.startsWith("+") ? <ArrowUpIcon /> : trend_text.startsWith("-") ? <ArrowDownIcon /> : null}
-                    &nbsp;
-                    {trend_text}
-                </p>
+                <div className="trend-subtext">
+                    <p className="trend-text">
+                        {trend_text.startsWith("+") ? <ArrowUpIcon /> : trend_text.startsWith("-") ? <ArrowDownIcon /> : null}
+                        {trend_text}
+                    </p>
+                    <p className="personal-score">{contents?.[title]?.[2]?.replace("{}", personal_score)}</p>
+                </div>
             </div>
         </div>
     );
@@ -209,7 +211,7 @@ function CategoriesBlock({ categories }) {
                 categories?.map((category, index) => (
                     <div key={index} className="category-item">
                         <p>{category.group_name}</p>
-                        <code>{category.count}</code>
+                        <span>{category.count}</span>
                     </div>
                 ))
             }
@@ -265,7 +267,7 @@ export default function Main() {
 
             <ControlBar
                 showCreate={permissions.includes("order:create")}
-                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey, PAGE_NAME)}
+                onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey, "order")}
             />
 
             <div className="alerts-container">
@@ -279,7 +281,9 @@ export default function Main() {
             <div className="kpi-container">
                 {
                     Object.entries(kpis).map(([title, block]) => (
-                        <KPIBlock key={title} title={title} trend_score={block?.formatted || block} trend_text={block?.trend_text || ""} />
+                        <KPIBlock key={title} title={title} trend_score={block?.formatted || block}
+                                  trend_text={block?.trend_text || ""} personal_score={block?.personal}
+                        />
                     ))
                 }
             </div>

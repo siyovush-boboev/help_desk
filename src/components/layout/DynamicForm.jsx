@@ -165,9 +165,11 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             if (rule) {
                 const fields_to_check = ["department_id", "otdel_id", "branch_id", "office_id"];
                 const fields_to_disable = [];
+                const triggered_fields = [];
                 // set values from rule
                 fields_to_check.forEach(field => {
                     if (rule[field]) {
+                        triggered_fields.push(field);
                         setValue(field, rule[field]);
                         // find the field label and add it to fields_to_disable
                         const field_label = config[field]?.label;
@@ -175,8 +177,9 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                     }
                 })
                 setDisabledFields([...disabled_fields, ...fields_to_disable]);
-                console.log("Disabled fields:", [...disabled_fields, ...fields_to_disable]);
-                onOptionChange("otdel_id");
+                triggered_fields.forEach(field => {
+                    onOptionChange(field);
+                })
             } else {
                 setDisabledFields(getDisabledFields(itemData, config, preloadData, permissions));
             }
@@ -236,7 +239,6 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         // If empty string (reset trigger)
         if (origin_val === "" && (itemData?.[fieldName])) {
             if (DEPENDANT_FIELDS.desc[fieldName]) {
-                console.log("resetting", fieldName, itemData[fieldName]);
                 DEPENDANT_FIELDS.desc[fieldName].forEach(dependentField => {
                     let dependentLabel = config[dependentField]?.label || dependentField;
                     if (dependentLabel === "Заявитель" || dependentLabel === "Исполнитель")
@@ -349,7 +351,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         if (page_name === "order" || page_name === "main") {
             if (!itemData && !orderType && fieldName !== "order_type_id")
                 return;
-            if (itemData && fieldName === "order_type_id")
+            if ((itemData || orderType) && fieldName === "order_type_id")
                 return;
             if (itemData && !orderType) {
                 setOrderType(itemData["order_type_id"]);
