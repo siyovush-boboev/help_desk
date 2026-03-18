@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo } from "react";
+import { useEffect, useState, useContext, useMemo, useRef } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import ControlBar from "../layout/ControlBar";
@@ -8,6 +8,8 @@ import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages.js";
 import { onDelete, loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers.jsx";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import FiltersModal from "../layout/FiltersForm";
+import axios from "../../lib/contexts/axiosInstance";
+import { UserInfoCloseIcon } from "../ui/icons";
 
 export default function Collections() {
     let { collectionName } = useParams(); // auto updates on URL change
@@ -28,6 +30,8 @@ export default function Collections() {
     const limit = parseInt(searchParams.get("limit")) || 20;
     const searchQuery = searchParams.get("search") || "";
     const [refreshKey, setRefreshKey] = useState(0);
+    const [importLoading, setImportLoading] = useState(false);
+    const importInputRef = useRef(null);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
 
@@ -109,6 +113,56 @@ export default function Collections() {
         );
     };
 
+    const canImportEquipment = collectionName === "equipment" && permissions.includes("equipment:import");
+
+    const showImportResult = (text) => {
+        setModalContent(
+            <div className="user-info-modal-content">
+                <button className="user-info-close-button" onClick={closeModal}>
+                    <UserInfoCloseIcon />
+                </button>
+                <div className="user-info-main-container">
+                    <p>{text}</p>
+                </div>
+            </div>
+        );
+    };
+
+    const onImportClick = () => {
+        if (importLoading) return;
+        importInputRef.current?.click();
+    };
+
+    const onImportFileSelected = async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("files", file);
+
+        try {
+            setImportLoading(true);
+            await axios.post("/equipment-import", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            showImportResult("Импорт выполнен");
+            setRefreshKey((prev) => prev + 1);
+        } catch (err) {
+            console.error(err);
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                err?.message ||
+                "Ошибка импорта";
+            showImportResult(msg);
+        } finally {
+            setImportLoading(false);
+        }
+    };
+
     const navigate = useNavigate();
     if (!(permissions.includes(`${collectionName}:update`) || permissions.includes(`${collectionName}:create`) || permissions.includes(`${collectionName}:delete`))) {
         navigate("/dashboard");
@@ -147,6 +201,20 @@ export default function Collections() {
                     ? [preload["Тип оборудования"], filtersFromUrl, onFilterApply]
                     : [{}, {}, () => { }]
                 }
+                extraButtons={canImportEquipment ? (
+                    <>
+                        <input
+                            ref={importInputRef}
+                            type="file"
+                            accept=".xlsx,.xls"
+                            style={{ display: "none" }}
+                            onChange={onImportFileSelected}
+                        />
+                        <button onClick={onImportClick} disabled={importLoading}>
+                            {importLoading ? "Импорт..." : "Импорт"}
+                        </button>
+                    </>
+                ) : null}
                 refk={setRefreshKey}
             />
 

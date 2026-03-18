@@ -169,7 +169,7 @@ export function onDelete(setModalContent, closeModal, id = null, url, trigger_ta
 }
 
 
-export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field = false, setRefreshKey = null) {
+export async function onCreateSubmit(new_data, itemData, closeModal, url, has_file_field = false, setRefreshKey = () => {}) {
     if (has_file_field)
         new_data["_files"] = {};
 
@@ -346,7 +346,6 @@ export async function onCreateSubmit(new_data, itemData, closeModal, url, has_fi
                     // No file changes, send as JSON
                     await axios.put(`/${url}/${new_data.id}`, changedFields);
                 }
-
 
                 setRefreshKey(prev => prev + 1);
             } else {

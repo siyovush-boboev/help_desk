@@ -38,7 +38,8 @@ export const TABLE_PAGES_CONFIG = {
       { id: "department_id", label: "Департамент" },
       { id: "otdel_id", label: "Отдел" },
       { id: "branch_id", label: "Филиал" },
-      { id: "office_id", label: "Офис ЦБО" }
+      { id: "office_id", label: "Офис ЦБО" },
+      { id: "order_type_id", label: "Тип заявки" },
     ]
   },
   user: {

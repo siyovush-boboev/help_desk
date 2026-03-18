@@ -1,26 +1,38 @@
 import { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import ControlBar from "../layout/ControlBar";
 import { loadDataPreload, loadDataTable, onCreate } from "../../lib/utils/helpers";
 import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
 import { ModalContext } from "../../lib/contexts/ModalContext";
 import { ExclaimIcon, ClockIcon, ApplicationsDarkIcon, CheckMarkIcon, ShieldIcon, WatchIcon, UsersDarkIcon, ThunderIcon, ArrowUpIcon, ArrowDownIcon } from "../ui/icons";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+} from "recharts";
 
 
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 const COLORS = [
-    "#4285F4",
-    "#34A853",
-    "#FBBC05",
-    "#EA4335",
-    "#A142F4",
-    "#F44292",
-    "#2BB7DA",
-    "#9AA0A6",
+    "var(--primary-color)",
+    "var(--secondary-color)",
+    "var(--button-hover)",
+    "#057b7e",
+    "#1bbec0",
+    "#0b6a6c",
+    "#8adfe0",
+    "#3aa8aa",
 ];
-
+// 
 
 function StatusPieChart({ dataFromApi }) {
     if (!dataFromApi || dataFromApi.length === 0) return null;
@@ -32,39 +44,175 @@ function StatusPieChart({ dataFromApi }) {
         percent: ((item.count / total) * 100).toFixed(1),
     }));
 
-    return (
-        <div style={{ height: 300, width: "100%" }}>
-            <ResponsiveContainer width="100%" height={300} minHeight={300}>
-                <PieChart>
-                    <Pie
-                        data={dataWithPercent}
-                        dataKey="count"
-                        nameKey="group_name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={120}
-                        label={({ name, percent }) => `${name}: ${(
-                            percent
-                        )}%`} // labels inside slices
-                    >
-                        {dataWithPercent.map((entry, index) => (
-                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
+    const RADIAN = Math.PI / 180;
+    const renderLabel = ({ cx, cy, midAngle, outerRadius, payload }) => {
+        const radius = outerRadius + 22;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+        const name = payload?.group_name ?? "";
+        const pctNum = total > 0 ? (Number(payload?.count || 0) / total) * 100 : 0;
+        const pct = `${pctNum.toFixed(1)}%`;
 
-                    <Tooltip
-                        formatter={(value, name, props) => {
-                            return [`${value}`, `${props.payload.group_name}`];
-                        }}
-                    />
-                </PieChart>
+        return (
+            <text
+                x={x}
+                y={y}
+                fill="var(--text-color)"
+                textAnchor={x > cx ? "start" : "end"}
+                dominantBaseline="central"
+                fontSize={13}
+            >
+                <tspan x={x} dy="-0.3em">{name}</tspan>
+                <tspan x={x} dy="1.2em" fill="var(--text-secondary)">{pct}</tspan>
+            </text>
+        );
+    };
+
+    return (
+        <div className="pie-chart-block">
+            <div className="pie-chart-canvas">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart margin={{ top: 10, right: 24, bottom: 10, left: 24 }}>
+                        <Pie
+                            data={dataWithPercent}
+                            dataKey="count"
+                            nameKey="group_name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={84}
+                            labelLine
+                            label={renderLabel}
+                        >
+                            {dataWithPercent.map((entry, index) => (
+                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+
+                        <Tooltip
+                            formatter={(value, name, props) => {
+                                return [`${value}`, `${props.payload.group_name}`];
+                            }}
+                        />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+}
+
+function WeeklyVolumeChart({ dataFromApi }) {
+    if (!Array.isArray(dataFromApi) || dataFromApi.length === 0) return null;
+
+    return (
+        <div style={{ height: 200, width: "100%" }}>
+            <ResponsiveContainer width="100%" height={200} minHeight={200}>
+                <BarChart data={dataFromApi}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="label" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip formatter={(value) => [`${value}`, "Заявок"]} />
+                    <Bar dataKey="value" fill="var(--primary-color)" radius={[6, 6, 0, 0]} />
+                </BarChart>
             </ResponsiveContainer>
+        </div>
+    );
+}
+
+function ExecutorsBlock({ dataFromApi }) {
+    if (!Array.isArray(dataFromApi) || dataFromApi.length === 0) return null;
+
+    const maxCount = Math.max(...dataFromApi.map((e) => Number(e.count) || 0), 0) || 1;
+
+    return (
+        <div className="executors-container">
+            {dataFromApi.map((e, idx) => {
+                const nameRaw = e.group_name || "";
+                const name = nameRaw.length > 46 ? `${nameRaw.slice(0, 44)}…` : nameRaw;
+                const count = Number(e.count) || 0;
+                const pct = Math.max(0, Math.min(100, (count / maxCount) * 100));
+
+                const userId = e.user_id;
+                const link = userId ? `/order?filter[executor_id]=${encodeURIComponent(userId)}&withPagination=true&page=1&limit=20` : null;
+
+                return (
+                    <Link
+                        key={idx}
+                        className={`executor-item ${link ? "executor-item-link" : ""}`}
+                        to={link || "#"}
+                        onClick={(ev) => {
+                            if (!link) ev.preventDefault();
+                        }}
+                    >
+                        <div className="executor-item-head">
+                            <p className="executor-name">{name}</p>
+                            <span className="executor-count">{count}</span>
+                        </div>
+                        <div className="progress-bar executor-progress">
+                            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+                        </div>
+                    </Link>
+                );
+            })}
+        </div>
+    );
+}
+
+/* Deprecated: replaced by `ExecutorsBlock` (list + progress bars)
+function ExecutorBarChart({ dataFromApi }) {
+    if (!Array.isArray(dataFromApi) || dataFromApi.length === 0) return null;
+
+    const data = dataFromApi.map((e) => ({
+        name: (e.group_name || "").length > 24 ? `${e.group_name.slice(0, 22)}…` : e.group_name,
+        count: e.count,
+    }));
+
+    return (
+        <div style={{ height: 340, width: "100%" }}>
+            <ResponsiveContainer width="100%" height={340} minHeight={340}>
+                <BarChart data={data} layout="vertical" margin={{ left: 40, right: 16 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" allowDecimals={false} />
+                    <YAxis type="category" dataKey="name" width={140} />
+                    <Tooltip formatter={(value) => [`${value}`, "Заявок"]} />
+                    <Bar dataKey="count" fill="#34A853" radius={[0, 6, 6, 0]} />
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+}
+*/
+
+function TimeGroupsBlock({ groups }) {
+    if (!Array.isArray(groups) || groups.length === 0) return null;
+
+    const maxSeconds = Math.max(...groups.map((g) => Number(g.avg_seconds) || 0), 0) || 1;
+
+    return (
+        <div className="time-groups-container">
+            {groups.map((g, idx) => {
+                const pct = Math.max(0, Math.min(100, ((Number(g.avg_seconds) || 0) / maxSeconds) * 100));
+                return (
+                    <div key={idx} className="time-group-item">
+                        <span>
+                            <p>{g.group_name}</p>
+                            <p>{g.avg_time_formatted}</p>
+                        </span>
+                        <div className="progress-bar time-group-progress">
+                            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
 
 function StatBlock({ title, children }) {
     const contents = {
+        weekly_volume: ["Объём заявок за 14 дней"],
+        time_by_priority: ["Среднее время по приоритетам"],
+        time_by_order_type: ["Среднее время по типам заявок"],
+        count_by_executor: ["Заявки по исполнителям", "Кликните по исполнителю — откроются заявки с только с ним"],
         last_activity: ["Недавняя активность"],
         top_categories: ["Топ категорий заявок"],
         count_by_status: ["Количество по статусам", "Текущее состояние заявок"],
@@ -206,7 +354,7 @@ function ActivityBlock({ activities }) {
 
 function CategoriesBlock({ categories }) {
     return (
-        <div className="categories-container">
+        <div className="categories-container categories-container-scroll">
             {
                 categories?.map((category, index) => (
                     <div key={index} className="category-item">
@@ -255,10 +403,11 @@ export default function Main() {
     const { alerts, kpis } = data["body"];
     const tabs = {
         "Обзор": ["last_activity", "top_categories", "count_by_status"],
+        "Тренды": ["weekly_volume"],
+        "Производительность": ["time_by_order_type", "time_by_priority"],
+        "Исполнители": ["count_by_executor"],
         "Департаменты": ["departments"],
         "Филиалы": ["branches"],
-        // "Тренды": [],
-        // "Производительность": [],
     };
 
     return (
@@ -311,6 +460,10 @@ export default function Main() {
                                     <ActivityBlock activities={data["body"][stat]} />
                                     : stat === "top_categories" ? <CategoriesBlock categories={data["body"][stat]} />
                                         : stat === "count_by_status" ? <StatusPieChart dataFromApi={data["body"][stat]} />
+                                            : stat === "weekly_volume" ? <WeeklyVolumeChart dataFromApi={data["body"][stat]} />
+                                                : stat === "time_by_priority" ? <TimeGroupsBlock groups={data["body"][stat]} />
+                                                    : stat === "time_by_order_type" ? <TimeGroupsBlock groups={data["body"][stat]} />
+                                                        : stat === "count_by_executor" ? <ExecutorsBlock dataFromApi={data["body"][stat]} />
                                             : null
                             }
                         </StatBlock>
@@ -318,7 +471,7 @@ export default function Main() {
                 }
             </div>
 
-            {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+            {/* {import.meta.env.DEV && <pre>{JSON.stringify(data, null, 2)}</pre>} */}
         </>
     );
 }

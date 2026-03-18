@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import axios from "../../lib/contexts/axiosInstance";
 
 
@@ -11,43 +12,84 @@ function getCorrectSpelling(n) {
 }
 
 
-export default function DeleteForm({ data, onClose, id = null, url, trigger_table_reload }) {
-    const prepped_data = [];
-    data.forEach((item) => { prepped_data.push(item.getAttribute("row-id")); });
+export default function DeleteForm({
+    data = [],
+    onClose,
+    id = null,
+    url,
+    trigger_table_reload
+}) {
+    const [loading, setLoading] = useState(false);
 
-    if (prepped_data.length === 0 && id)
-        prepped_data.push(id);
+    const prepped_data = useMemo(() => {
+        const ids = (data ?? [])
+            .map(item => item?.getAttribute?.("row-id"))
+            .filter(id => id != null && id !== "");
 
-    function deleteItem(itemId) {
-        axios.delete(`/${url}/${itemId}`).then(() => trigger_table_reload())
-            .catch((error) => console.error(`Error deleting item with id ${itemId}:`, error));
-    }
-
-    const handleDelete = (e) => {
-        if (prepped_data.length !== 0) {
-            prepped_data.forEach((itemId) => { deleteItem(itemId); });
+        if (ids.length === 0 && id != null) {
+            return [id];
         }
-        else if (id) {
-            deleteItem(id);
-        }
+
+        return ids;
+    }, [data, id]);
+
+    const deleteItem = (itemId) => {
+        return axios.delete(`/${url}/${itemId}`);
+    };
+
+    const handleDelete = async (e) => {
         e.stopPropagation();
-        onClose();
-    }
 
-    if (prepped_data.length !== 0) {
-        return (
-            <div className="modal-form">
+        if (prepped_data.length === 0 || loading) return;
 
-                <p>Вы уверены что хотите удалить элемент с id&nbsp;
-                    {prepped_data[0]}{(data.length > 1) && ` и еще ${getCorrectSpelling(data.length - 1)}`}?
-                </p>
+        try {
+            setLoading(true);
 
-                <div className="modal-buttons">
-                    <button id="confirmBtn" onClick={handleDelete}>Подтвердить</button>
-                    <button id="cancelBtn" onClick={(e) => (e.stopPropagation(), onClose())}>Отмена</button>
-                </div>
+            await Promise.all(prepped_data.map(deleteItem));
 
+            if (typeof trigger_table_reload === "function") {
+                trigger_table_reload();
+            }
+
+            onClose?.();
+        } catch (error) {
+            console.error("Error deleting items:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (prepped_data.length === 0) return null;
+
+    return (
+        <div className="modal-form">
+            <p>
+                Вы уверены что хотите удалить элемент с id&nbsp;
+                {prepped_data[0]}
+                {prepped_data.length > 1 &&
+                    ` и еще ${getCorrectSpelling(prepped_data.length - 1)}`}?
+            </p>
+
+            <div className="modal-buttons">
+                <button
+                    id="confirmBtn"
+                    onClick={handleDelete}
+                    disabled={loading}
+                >
+                    {loading ? "Удаление..." : "Подтвердить"}
+                </button>
+
+                <button
+                    id="cancelBtn"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (!loading) onClose?.();
+                    }}
+                    disabled={loading}
+                >
+                    Отмена
+                </button>
             </div>
-        );
-    }
+        </div>
+    );
 }

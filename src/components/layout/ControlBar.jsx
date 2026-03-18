@@ -7,6 +7,7 @@ export default function ControlBar({
     showCreate = false,
     showFilters = false,
     showShowHide = false,
+    extraButtons = null,
     initialSearchValue = "",
     showClosed,
     setShowClosed,
@@ -22,7 +23,7 @@ export default function ControlBar({
     const [showClear, setShowClear] = useState(false);
 
     let [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
-    if (Object.keys(createdOrdersProps).length > 0){
+    if (Object.keys(createdOrdersProps?.[0] || {}).length > 0){
         [filtersFromUrl, onFilterApply] = createdOrdersProps;
     }
 
@@ -67,6 +68,8 @@ export default function ControlBar({
             )}
 
             <button onClick={() => refk(prev => prev + 1)}>Обновить данные</button>
+
+            {extraButtons}
 
             {Object.keys(equipmentTypes).length > 0 && (
                 <select

@@ -218,7 +218,7 @@ export default function DataTable({
                                     field_content = pageData[colName]?.[item[field]]?.name;
                                 }
                                 else if (field in item || field.replace("_id", "") in item) {
-                                    field_content = item[field.replace("_id", "")]?.["name"]
+                                    field_content = (item[field] || item[field.replace("_id", "")])?.["name"]
                                 }
                                 return <td key={i + colName} style={colName === "Приоритет" ? { color: priority_colors[field_content] } : {}}>
                                     {field_content || ""}
