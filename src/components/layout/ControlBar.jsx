@@ -7,6 +7,7 @@ export default function ControlBar({
     showCreate = false,
     showFilters = false,
     showShowHide = false,
+    showPeriodSelector = false,
     extraButtons = null,
     initialSearchValue = "",
     showClosed,
@@ -15,17 +16,47 @@ export default function ControlBar({
     onFilter,
     onCreate,
     onSearch,
+    onPeriodChange,
     equipmentProps = [{}, {}, () => { }],
     createdOrdersProps = [{}, () => { }],
+    periodProps = [{}, () => { }],
     refk = () => { },
 }) {
     const [searchValue, setSearchValue] = useState(initialSearchValue);
     const [showClear, setShowClear] = useState(false);
+    const [selectedOrderFilter, setSelectedOrderFilter] = useState("created");
+    const [selectedPeriod, setSelectedPeriod] = useState("");
+    const [customDateFrom, setCustomDateFrom] = useState("");
+    const [customDateTo, setCustomDateTo] = useState("");
 
     let [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
+    let [periodFilters, onPeriodApply] = periodProps;
     if (Object.keys(createdOrdersProps?.[0] || {}).length > 0){
         [filtersFromUrl, onFilterApply] = createdOrdersProps;
     }
+
+    // Sync the selected filter with URL params
+    useEffect(() => {
+        if (Object.keys(createdOrdersProps[0]).length > 0) {
+            const filter = filtersFromUrl["created"] ? "created" : 
+                          filtersFromUrl["assigned"] ? "assigned" : 
+                          filtersFromUrl["involved"] ? "involved" : "created";
+            setSelectedOrderFilter(filter);
+        }
+    }, [filtersFromUrl, createdOrdersProps]);
+
+    // Sync period selector with URL params
+    useEffect(() => {
+        if (showPeriodSelector && periodFilters) {
+            const period = periodFilters["period"] || "month";
+            const dateFrom = periodFilters["date_from"] || "";
+            const dateTo = periodFilters["date_to"] || "";
+            
+            setSelectedPeriod(period);
+            setCustomDateFrom(dateFrom);
+            setCustomDateTo(dateTo);
+        }
+    }, [periodFilters, showPeriodSelector]);
 
     useEffect(() => {
         setSearchValue(initialSearchValue);
@@ -91,21 +122,105 @@ export default function ControlBar({
             )}
 
             {Object.keys(createdOrdersProps[0]).length > 0 && (
-                <button onClick={
-                    () => {
+                <select
+                    className="orders-filter-select"
+                    onChange={(e) => {
+                        const filterType = e.target.value;
                         const new_filters = { ...filtersFromUrl };
-                        if (new_filters["participant"]){
-                            delete new_filters["participant"];
+                        delete new_filters["created"];
+                        delete new_filters["assigned"];
+                        delete new_filters["involved"];
+                        
+                        if (filterType === "created") {
+                            new_filters["created"] = "me";
+                        } else if (filterType === "assigned") {
                             new_filters["assigned"] = "me";
-                        } else {
-                            delete new_filters["assigned"];
-                            new_filters["participant"] = "me";
+                        } else if (filterType === "involved") {
+                            new_filters["involved"] = "me";
                         }
+                        setSelectedOrderFilter(filterType);
                         onFilterApply(new_filters);
-                    }
-                }>
-                    {filtersFromUrl["assigned"] ? "Созданные мной" : "Назначенные мне"}
-                </button>
+                    }}
+                    value={selectedOrderFilter}
+                >
+                    <option value="created">Созданные мной</option>
+                    <option value="assigned">Назначенные мне</option>
+                    <option value="involved">Участвовал</option>
+                </select>
+            )}
+
+            {showPeriodSelector && (
+                <div className="period-selector-container">
+                    <select
+                        className="period-select"
+                        onChange={(e) => {
+                            const period = e.target.value;
+                            setSelectedPeriod(period);
+                            
+                            if (period !== "custom") {
+                                // For preset periods, only send period parameter
+                                const newFilters = {
+                                    period: period,
+                                    date_from: null,
+                                    date_to: null
+                                };
+                                setCustomDateFrom("");
+                                setCustomDateTo("");
+                                onPeriodApply(newFilters);
+                            }
+                            // For custom period, don't call API yet - wait for user to select dates
+                        }}
+                        value={selectedPeriod}
+                    >
+                        <option value="today">Сегодня</option>
+                        <option value="7d">7 дней</option>
+                        <option value="14d">14 дней</option>
+                        <option value="30d">30 дней</option>
+                        <option value="month">Месяц</option>
+                        <option value="custom">Произвольный</option>
+                    </select>
+                    
+                    {selectedPeriod === "custom" && (
+                        <div className="custom-date-inputs">
+                            <input
+                                type="date"
+                                placeholder="Дата от"
+                                value={customDateFrom}
+                                onChange={(e) => {
+                                    const dateFrom = e.target.value;
+                                    setCustomDateFrom(dateFrom);
+                                    
+                                    // Only call API if both dates are filled for custom period
+                                    if (dateFrom && customDateTo) {
+                                        const newFilters = { ...periodFilters };
+                                        newFilters["period"] = "custom";
+                                        newFilters["date_from"] = dateFrom;
+                                        newFilters["date_to"] = customDateTo;
+                                        onPeriodApply(newFilters);
+                                    }
+                                }}
+                            />
+                            <input
+                                type="date"
+                                placeholder="Дата до"
+                                value={customDateTo}
+                                onChange={(e) => {
+                                    const dateTo = e.target.value;
+                                    setCustomDateTo(dateTo);
+                                    
+                                    // Only call API if both dates are filled for custom period
+                                    if (customDateFrom && dateTo) {
+                                        const newFilters = { ...periodFilters };
+                                        newFilters["period"] = "custom";
+                                        newFilters["date_from"] = customDateFrom;
+                                        newFilters["date_to"] = dateTo;
+                                        onPeriodApply(newFilters);
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
             )}
 
             {showShowHide && (

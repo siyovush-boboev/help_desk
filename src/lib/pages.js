@@ -56,6 +56,7 @@ export const TABLE_PAGES_CONFIG = {
       "Филиал": "branch_id",
       "Телефон": "phone_number",
       "E-mail": "email",
+      "Логин": "username",
       "Должность": "position_ids",
       "Тип должности": "position_type_id",
       "Статус": "status_id",

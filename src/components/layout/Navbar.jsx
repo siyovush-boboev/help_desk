@@ -34,7 +34,7 @@ export default function Navbar() {
     MAIN_NAVBAR_LINKS["my_orders"] = {
         ...MAIN_NAVBAR_LINKS["order"],
         label: "Мои заявки",
-        href: `${MAIN_NAVBAR_LINKS["order"].href}&participant=me`,
+        href: `${MAIN_NAVBAR_LINKS["order"].href}&created=me`,
     };
 
     // MAIN_NAVBAR_LINKS["created_orders"] = {

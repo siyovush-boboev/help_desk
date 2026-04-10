@@ -33,7 +33,7 @@ export default function Orders() {
     const [refreshKey, setRefreshKey] = useState(0);
     const showDelete = permissions.includes(config["resource"] + ":delete");
     const showEdit = (permissions.includes(config["resource"] + ":update") && Object.keys(config.columns).includes("Действия"));
-    const is_my_orders_page = (searchParams.get("participant") && "participant") || (searchParams.get("assigned") && "assigned");
+    const is_my_orders_page = (searchParams.get("created") && "created") || (searchParams.get("assigned") && "assigned") || (searchParams.get("involved") && "involved");
 
     const filtersFromUrl = useMemo(() => {
         const filters = {};
@@ -115,8 +115,9 @@ export default function Orders() {
                     setShowClosed(zakritoSelected);
                     console.log("flat", flat);
                     if (is_my_orders_page) {
-                        if      (searchParams.get("participant"))   flat["participant"] = searchParams.get("participant");
-                        else if (searchParams.get("assigned"))      flat["assigned"] = searchParams.get("assigned");
+                        if      (searchParams.get("created"))   flat["created"] = searchParams.get("created");
+                        else if (searchParams.get("assigned"))  flat["assigned"] = searchParams.get("assigned");
+                        else if (searchParams.get("involved"))  flat["involved"] = searchParams.get("involved");
                     }
                     setSearchParams({ ...flat, withPagination: true, page: 1, limit, search: searchQuery, });
                     closeModal();

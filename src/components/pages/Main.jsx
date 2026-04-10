@@ -1,4 +1,5 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import ControlBar from "../layout/ControlBar";
@@ -23,14 +24,26 @@ import {
 const PAGE_NAME = "main";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
 const COLORS = [
-    "var(--primary-color)",
-    "var(--secondary-color)",
-    "var(--button-hover)",
-    "#057b7e",
-    "#1bbec0",
-    "#0b6a6c",
-    "#8adfe0",
-    "#3aa8aa",
+    "#e6194b",
+    "#3cb44b",
+    "#ffe119",
+    "#4363d8",
+    "#f58231",
+    "#911eb4",
+    "#46f0f0",
+    "#f032e6",
+    "#bcf60c",
+    "#fabebe",
+    "#008080",
+    "#e6beff",
+    "#9a6324",
+    "#fffac8",
+    "#800000",
+    "#aaffc3",
+    "#808000",
+    "#ffd8b1",
+    "#000075",
+    "#808080",
 ];
 // 
 
@@ -378,6 +391,35 @@ export default function Main() {
     const [refreshKey, setRefreshKey] = useState(0);
     const permissions = JSON.parse(localStorage.getItem("permissions")) || [];
     const [activeTab, setActiveTab] = useState(0);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const periodFilters = useMemo(() => {
+        const filters = {};
+        for (const [key, value] of searchParams.entries()) {
+            if (["period", "date_from", "date_to"].includes(key)) {
+                filters[key] = value;
+            }
+        }
+        return filters;
+    }, [searchParams]);
+
+    const handlePeriodChange = (newFilters) => {
+        const newSearchParams = new URLSearchParams(searchParams);
+        
+        // Clear all period-related params first
+        newSearchParams.delete("period");
+        newSearchParams.delete("date_from");
+        newSearchParams.delete("date_to");
+        
+        // Then set only the ones that have values
+        Object.keys(newFilters).forEach(key => {
+            if (newFilters[key] !== null && newFilters[key] !== "") {
+                newSearchParams.set(key, newFilters[key]);
+            }
+        });
+        
+        setSearchParams(newSearchParams);
+    };
 
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config)
@@ -385,8 +427,8 @@ export default function Main() {
     }, []);
 
     useEffect(() => {
-        loadDataTable(setData, setLoading, setError, config);
-    }, [refreshKey]);
+        loadDataTable(setData, setLoading, setError, config, periodFilters);
+    }, [refreshKey, periodFilters]);
 
     if (loading || !preloadLoaded) return <div className="loader-wrapper"><div className="loader-black"></div></div>;
     if (error) return <div className="loader-wrapper"><div className="loader-wrapper"><p>{error}</p></div></div>;
@@ -416,7 +458,9 @@ export default function Main() {
 
             <ControlBar
                 showCreate={permissions.includes("order:create")}
+                showPeriodSelector={true}
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], TABLE_PAGES_CONFIG["order"]["resource"], null, false, setRefreshKey, "order")}
+                periodProps={[periodFilters, handlePeriodChange]}
             />
 
             <div className="alerts-container">

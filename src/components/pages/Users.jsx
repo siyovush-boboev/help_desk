@@ -8,6 +8,8 @@ import { TABLE_PAGES_CONFIG, FORM_CONFIG } from "../../lib/pages";
 import { loadDataPreload, loadDataTable, onDelete, onCreate } from "../../lib/utils/helpers";
 import { ModalContext } from "../../lib/contexts/ModalContext";
 import FiltersModal from "../layout/FiltersForm";
+import { UserInfoCloseIcon } from "../ui/icons";
+import BindAdLinkForm from "../layout/BindAdLinkForm";
 
 const PAGE_NAME = "user";
 const config = TABLE_PAGES_CONFIG[PAGE_NAME];
@@ -84,6 +86,36 @@ export default function Users() {
         });
     };
 
+    const canBindAdLink = permissions.includes("user:manage_ad_link");
+
+    const showBindResult = (text) => {
+        setModalContent(
+            <div className="user-info-modal-content">
+                <button className="user-info-close-button" onClick={closeModal}>
+                    <UserInfoCloseIcon />
+                </button>
+                <div className="user-info-main-container">
+                    <p>{text}</p>
+                </div>
+            </div>
+        );
+    };
+
+    const onBindAdLinkClick = () => {
+        const params = {};
+        for (const [key, value] of searchParams.entries()) {
+            if (key.startsWith("filter[")) params[key] = value;
+        }
+
+        setModalContent(
+            <BindAdLinkForm
+                params={params}
+                onClose={closeModal}
+                onResult={showBindResult}
+            />
+        );
+    };
+
     useEffect(() => {
         loadDataPreload(setPreload, setError, TABLE_PAGES_CONFIG, config).then(() => setPreloadLoaded(true));
     }, []);
@@ -115,6 +147,9 @@ export default function Users() {
                 onCreate={() => onCreate(setModalContent, closeModal, preload, FORM_CONFIG[PAGE_NAME], config["resource"], null, false, setRefreshKey, PAGE_NAME)}
                 onSearch={handleSearch}
                 initialSearchValue={searchQuery}
+                extraButtons={canBindAdLink ? (
+                    <button onClick={onBindAdLinkClick}>Привязать</button>
+                ) : null}
                 refk={setRefreshKey}
             />
 
