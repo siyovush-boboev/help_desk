@@ -170,30 +170,6 @@ function ExecutorsBlock({ dataFromApi }) {
     );
 }
 
-/* Deprecated: replaced by `ExecutorsBlock` (list + progress bars)
-function ExecutorBarChart({ dataFromApi }) {
-    if (!Array.isArray(dataFromApi) || dataFromApi.length === 0) return null;
-
-    const data = dataFromApi.map((e) => ({
-        name: (e.group_name || "").length > 24 ? `${e.group_name.slice(0, 22)}…` : e.group_name,
-        count: e.count,
-    }));
-
-    return (
-        <div style={{ height: 340, width: "100%" }}>
-            <ResponsiveContainer width="100%" height={340} minHeight={340}>
-                <BarChart data={data} layout="vertical" margin={{ left: 40, right: 16 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" allowDecimals={false} />
-                    <YAxis type="category" dataKey="name" width={140} />
-                    <Tooltip formatter={(value) => [`${value}`, "Заявок"]} />
-                    <Bar dataKey="count" fill="#34A853" radius={[0, 6, 6, 0]} />
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
-*/
 
 function TimeGroupsBlock({ groups }) {
     if (!Array.isArray(groups) || groups.length === 0) return null;

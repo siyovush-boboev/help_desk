@@ -878,7 +878,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
                 {form_element}
                 <div className="error-message">{err && <p>{err}</p>}</div>
             </div>
-            {show_history && itemData && <OrderHistory history={history} data={itemData} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]} />}
+            {show_history && itemData && <OrderHistory history={history} status_preload={preloadData?.[TABLE_PAGES_CONFIG["status"].singular]} />}
         </div>
     );
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { BASE_URL } from "../../lib/constants";
 
 
-export default function OrderHistory({ history, data, status_preload }) {
+export default function OrderHistory({ history, status_preload }) {
     const orderHistoryRef = useRef(null);
 
     useEffect(() => {
@@ -59,11 +59,11 @@ export default function OrderHistory({ history, data, status_preload }) {
             if (typeof line === "string") {
                 if (line.startsWith(attachment_line_suffix)) {
                     const fileName = line.replace(attachment_line_suffix, "");
-                    const file_url = data?.attachments.find(att => att.file_name === fileName)?.url || "";
+                    const file_url = [entry.attachment].find(att => att?.file_name === fileName)?.url || "";
                     return (
                         <>
                             {attachment_line_suffix}
-                            <a key={fileName} href={BASE_URL + file_url} target="_blank" rel="noopener noreferrer">
+                            <a key={fileName} href={file_url} target="_blank" rel="noopener noreferrer">
                                 {fileName}
                             </a>
                         </>

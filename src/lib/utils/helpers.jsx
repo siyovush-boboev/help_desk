@@ -44,6 +44,11 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
         // map each key -> either from cache or fresh fetch
         await Promise.all(
             config.preload.map(async (key) => {
+                let params = '';
+                if (key.includes("?")) {
+                    [key, params] = key.split('?');
+                    params = "?" + params;
+                }
                 let resource = TABLE_PAGES_CONFIG?.[key]?.["resource"];
                 let singularKey = TABLE_PAGES_CONFIG?.[key]?.singular || key;
                 let cacheKey = `preload_${resource}`;
@@ -65,7 +70,7 @@ export const loadDataPreload = async (setPreload, setError, TABLE_PAGES_CONFIG, 
                 }
 
                 // fetch fresh if no cache or expired
-                const resp = await axios.get("/" + resource);
+                const resp = await axios.get("/" + resource + params);
                 let raw_data = resp.data.body;
                 if ("pagination" in raw_data) raw_data = raw_data["list"];
 

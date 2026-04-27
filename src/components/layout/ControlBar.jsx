@@ -16,7 +16,6 @@ export default function ControlBar({
     onFilter,
     onCreate,
     onSearch,
-    onPeriodChange,
     equipmentProps = [{}, {}, () => { }],
     createdOrdersProps = [{}, () => { }],
     periodProps = [{}, () => { }],
@@ -26,8 +25,8 @@ export default function ControlBar({
     const [showClear, setShowClear] = useState(false);
     const [selectedOrderFilter, setSelectedOrderFilter] = useState("created");
     const [selectedPeriod, setSelectedPeriod] = useState("");
-    const [customDateFrom, setCustomDateFrom] = useState("");
-    const [customDateTo, setCustomDateTo] = useState("");
+    const [tempCustomDateFrom, setTempCustomDateFrom] = useState("");
+    const [tempCustomDateTo, setTempCustomDateTo] = useState("");
 
     let [equipmentTypes, filtersFromUrl, onFilterApply] = equipmentProps;
     let [periodFilters, onPeriodApply] = periodProps;
@@ -53,8 +52,8 @@ export default function ControlBar({
             const dateTo = periodFilters["date_to"] || "";
             
             setSelectedPeriod(period);
-            setCustomDateFrom(dateFrom);
-            setCustomDateTo(dateTo);
+            setTempCustomDateFrom(dateFrom);
+            setTempCustomDateTo(dateTo);
         }
     }, [periodFilters, showPeriodSelector]);
 
@@ -164,8 +163,6 @@ export default function ControlBar({
                                     date_from: null,
                                     date_to: null
                                 };
-                                setCustomDateFrom("");
-                                setCustomDateTo("");
                                 onPeriodApply(newFilters);
                             }
                             // For custom period, don't call API yet - wait for user to select dates
@@ -185,39 +182,49 @@ export default function ControlBar({
                             <input
                                 type="date"
                                 placeholder="Дата от"
-                                value={customDateFrom}
+                                value={tempCustomDateFrom}
+                                max={tempCustomDateTo || new Date().toISOString().split('T')[0]}
                                 onChange={(e) => {
-                                    const dateFrom = e.target.value;
-                                    setCustomDateFrom(dateFrom);
-                                    
-                                    // Only call API if both dates are filled for custom period
-                                    if (dateFrom && customDateTo) {
-                                        const newFilters = { ...periodFilters };
-                                        newFilters["period"] = "custom";
-                                        newFilters["date_from"] = dateFrom;
-                                        newFilters["date_to"] = customDateTo;
-                                        onPeriodApply(newFilters);
-                                    }
+                                    setTempCustomDateFrom(e.target.value);
                                 }}
                             />
                             <input
                                 type="date"
                                 placeholder="Дата до"
-                                value={customDateTo}
+                                value={tempCustomDateTo}
+                                min={tempCustomDateFrom}
                                 onChange={(e) => {
-                                    const dateTo = e.target.value;
-                                    setCustomDateTo(dateTo);
-                                    
-                                    // Only call API if both dates are filled for custom period
-                                    if (customDateFrom && dateTo) {
-                                        const newFilters = { ...periodFilters };
-                                        newFilters["period"] = "custom";
-                                        newFilters["date_from"] = customDateFrom;
-                                        newFilters["date_to"] = dateTo;
+                                    setTempCustomDateTo(e.target.value);
+                                }}
+                            />
+                            <button
+                                className="custom-period-apply-btn"
+                                onClick={() => {
+                                    if (tempCustomDateFrom) {
+                                        const today = new Date().toISOString().split('T')[0];
+                                        const endDate = tempCustomDateTo || today;
+                                        
+                                        const newFilters = {
+                                            period: "custom",
+                                            date_from: tempCustomDateFrom,
+                                            date_to: endDate
+                                        };
                                         onPeriodApply(newFilters);
                                     }
                                 }}
-                            />
+                                disabled={!tempCustomDateFrom}
+                            >
+                                Применить
+                            </button>
+                            <button
+                                className="custom-period-reset-btn"
+                                onClick={() => {
+                                    setTempCustomDateFrom("");
+                                    setTempCustomDateTo("");
+                                }}
+                            >
+                                Отмена
+                            </button>
                         </div>
                     )}
                 </div>

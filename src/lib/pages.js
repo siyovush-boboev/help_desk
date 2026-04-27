@@ -3,7 +3,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Дашборд",
     plural: "Дашборд",
     resource: "dashboard",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user?fields=id,fio,status_id,department_id,otdel_id,branch_id,office_id", "order_type", "order_rule"],
     columns: {
       "№": null,
       "Наименование": "name",
@@ -16,7 +16,7 @@ export const TABLE_PAGES_CONFIG = {
     singular: "Заявка",
     plural: "Заявки",
     resource: "order",
-    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user", "position", "order_type", "order_rule"],
+    preload: ["department", "otdel", "status", "priority", "branch", "office", "equipment", "equipment_type", "user?fields=id,fio,status_id,department_id,otdel_id,branch_id,office_id", "order_type", "order_rule"],
     columns: {
       "CHECKMARK": null,
       "№": null,
@@ -47,7 +47,7 @@ export const TABLE_PAGES_CONFIG = {
     plural: "Пользователи",
     resource: "user",
     permissions_resource: "user/permission",
-    preload: ["department", "otdel", "branch", "office", "role", "status", "position", "position_type", "permission"],
+    preload: ["department", "otdel", "branch", "office", "role", "status", "position?fields=id,name,status_id,type", "position_type", "permission"],
     columns: {
       "№": null,
       "Имя": "fio",
@@ -65,7 +65,7 @@ export const TABLE_PAGES_CONFIG = {
     filters: [
       { id: "department_id", label: "Департамент" },
       { id: "otdel_id", label: "Отдел" },
-      { id: "role_id", label: "Роль" },
+      // { id: "role_id", label: "Роль" },
       { id: "branch_id", label: "Филиал" },
       { id: "office_id", label: "Офис ЦБО" },
       { id: "status_id", label: "Статус" },

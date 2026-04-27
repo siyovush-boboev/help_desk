@@ -294,6 +294,41 @@ svg {
   background-color: var(--white);
 }
 
+.custom-period-apply-btn,
+.custom-period-reset-btn {
+  min-width: 90px;
+  min-height: 32px;
+  padding: 4px 12px;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 0 12px var(--button-shadow);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.custom-period-reset-btn {
+  background-color: transparent;
+  color: var(--black);
+  border: 1px solid var(--input-border);
+}
+
+.custom-period-apply-btn:hover:not(:disabled) {
+  color: var(--secondary-color);
+  transition: 0.5s;
+}
+
+.custom-period-reset-btn:hover {
+  color: var(--secondary-color);
+  transition: 0.5s;
+}
+
+.custom-period-apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 input[type="checkbox"] {
   accent-color: var(--primary-color);
   cursor: pointer;
