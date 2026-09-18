@@ -1,7 +1,6 @@
 import { useState, useContext, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
 import { AuthContext } from "../../lib/contexts/authContext";
@@ -30,7 +29,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const res = await axios.post(API_BASE_URL + "/auth/login", { login: username, password }, { withCredentials: true });
+            const res = await axios.post("/auth/login", { login: username, password }, { withCredentials: true });
             const data = await res.data.body;
 
             if (data.reset_token) {

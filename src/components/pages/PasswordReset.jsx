@@ -3,7 +3,6 @@ import AuthContainer from "../layout/AuthContainer";
 import AuthInput from "../ui/AuthInput";
 import { hide_credentials, isValidCredsInput } from "../../lib/utils/helpers";
 import axios from "../../lib/contexts/axiosInstance";
-import { API_BASE_URL } from "../../lib/constants";
 import ConfirmCode from "./ConfirmCode";
 
 
@@ -21,7 +20,7 @@ export default function PasswordReset() {
             const method = credentials.includes('@') ? 'email' : 'phone';
             console.log("valid data:", credentials, "method:", method);
             try {
-                const res = await axios.post(`${API_BASE_URL}/auth/password/request`, { login: credentials });
+                const res = await axios.post(`/auth/password/request`, { login: credentials });
                 console.log(res);
                 if (res?.status) {
                     setNextStep(method);

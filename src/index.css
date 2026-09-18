@@ -1245,6 +1245,18 @@ option {
   margin: 8px 0;
 }
 
+@media (max-width: 480px) {
+  .input-code {
+    width: 36px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .input-code-container {
+    gap: 6px;
+  }
+}
+
 .resend-timer {
   margin: 20px 0;
   text-align: center;

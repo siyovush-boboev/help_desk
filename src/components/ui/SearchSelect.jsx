@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import axios from "../../lib/contexts/axiosInstance";
-import { API_BASE_URL } from "../../lib/constants";
 
 
 const fieldData = {
@@ -21,9 +20,7 @@ function getProperty(obj, propName) {
 
 
 function getURL(field_name, params = {}) {
-  let url = `${API_BASE_URL}`;
-
-  url += fieldData?.[field_name]?.url || "";
+  let url = fieldData?.[field_name]?.url || "";
 
   if (Object.keys(params).length === 0)
     return url;

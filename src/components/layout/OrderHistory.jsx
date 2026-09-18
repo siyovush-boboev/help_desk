@@ -1,10 +1,19 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { BASE_URL } from "../../lib/constants";
+import { downloadFile } from "../../lib/utils/helpers";
 
 
 export default function OrderHistory({ history, status_preload }) {
     const orderHistoryRef = useRef(null);
+    const [downloadError, setDownloadError] = useState("");
+
+    const handleAttachmentClick = (e, file_url, fileName) => {
+        e.preventDefault();
+        if (!file_url) return;
+        setDownloadError("");
+        downloadFile(file_url, fileName, setDownloadError, "Нет доступа к вложению");
+    };
 
     useEffect(() => {
         if (orderHistoryRef.current) {
@@ -63,7 +72,11 @@ export default function OrderHistory({ history, status_preload }) {
                     return (
                         <>
                             {attachment_line_suffix}
-                            <a key={fileName} href={file_url} target="_blank" rel="noopener noreferrer">
+                            <a
+                                key={fileName}
+                                href={file_url}
+                                onClick={(e) => handleAttachmentClick(e, file_url, fileName)}
+                            >
                                 {fileName}
                             </a>
                         </>
@@ -98,6 +111,7 @@ export default function OrderHistory({ history, status_preload }) {
     return (
         <div className="order-history-wrapper">
             <p>Жизненный цикл</p>
+            {downloadError && <p className="field-error">{downloadError}</p>}
             <div className="order-history" ref={orderHistoryRef}>
                 {history.map((entry, idx) => (
                     <div key={idx} className="history-entry">

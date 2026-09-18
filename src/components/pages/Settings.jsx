@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Breadcrumbs from "../layout/Breadcrumbs";
 import axios from "../../lib/contexts/axiosInstance";
-import { API_BASE_URL } from "../../lib/constants";
 import { CopyIcon, TelegramIcon } from "../ui/icons";
 import QRCode from "react-qr-code";
 
@@ -64,7 +63,7 @@ export default function Settings() {
 
             // Check connection status
             try {
-                const response = await axios.get(API_BASE_URL + "/profile/telegram");
+                const response = await axios.get("/profile/telegram");
                 const data = response?.data?.body;
                 if (data?.linked) {
                     setTelegramStatus({ enabled: data.enabled || false, linked: true });
@@ -80,7 +79,7 @@ export default function Settings() {
 
     const fetchTelegramStatus = async () => {
         try {
-            const response = await axios.get(API_BASE_URL + "/profile/telegram");
+            const response = await axios.get("/profile/telegram");
             const data = response?.data?.body;
             if (data) {
                 setTelegramStatus({ enabled: data.enabled || false, linked: data.linked || false });
@@ -95,7 +94,7 @@ export default function Settings() {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.post(API_BASE_URL + "/profile/telegram/generate-token");
+            const response = await axios.post("/profile/telegram/generate-token");
             console.log("Full response:", response);
             console.log("Response body:", response?.data?.body);
             const data = response?.data?.body;
@@ -115,7 +114,7 @@ export default function Settings() {
         setUnlinking(true);
         setError("");
         try {
-            await axios.delete(API_BASE_URL + "/profile/telegram");
+            await axios.delete("/profile/telegram");
             setTelegramStatus(prev => ({ ...prev, linked: false }));
             setTokenData(null);
         } catch (err) {

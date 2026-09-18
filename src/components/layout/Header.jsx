@@ -4,7 +4,7 @@ import { TABLE_PAGES_CONFIG } from "../../lib/pages.js";
 import { ModalContext } from "../../lib/contexts/ModalContext.js";
 import { loadDataPreload, onSandwitchClick } from "../../lib/utils/helpers.jsx";
 import axiosInstance from "../../lib/contexts/axiosInstance.js";
-import { API_BASE_URL, BASE_URL } from "../../lib/constants.js";
+import { BASE_URL } from "../../lib/constants.js";
 
 import person_svg from "../../assets/svg/person.svg";
 import header_logo from "../../assets/images/header-logo.webp";
@@ -24,7 +24,7 @@ export default function Header() {
                     preload: ["department"]
                 });
 
-                const res = await axiosInstance.get(`${API_BASE_URL}/auth/me`);
+                const res = await axiosInstance.get("/auth/me");
                 const data = res.data.body;
                 let {
                     id,

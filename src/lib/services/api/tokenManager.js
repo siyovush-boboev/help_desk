@@ -23,6 +23,16 @@ export function clearAccessToken() {
   tokenExpiry = null;
 }
 
+// Cached profile/permission data keyed off the access token; stale once it's gone.
+export function clearUserLocalStorage() {
+  localStorage.removeItem("permissions");
+  localStorage.removeItem("user_id");
+  localStorage.removeItem("user_otdel_ids");
+  localStorage.removeItem("user_branch_id");
+  localStorage.removeItem("user_office_id");
+  localStorage.removeItem("user_department_id");
+}
+
 // Checks if token expiring within the next X seconds
 export function willTokenExpireSoon(thresholdMs = 3 * 1000) {
   if (!tokenExpiry) return false;

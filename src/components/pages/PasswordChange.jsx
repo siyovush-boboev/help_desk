@@ -5,7 +5,6 @@ import AuthContainer from "../layout/AuthContainer";
 import { AuthContext } from "../../lib/contexts/authContext";
 import axios from "../../lib/contexts/axiosInstance";
 import { validate_confirmation, isValidCredsInput } from "../../lib/utils/helpers";
-import { API_BASE_URL } from "../../lib/constants";
 import { PasswordShow, PasswordHide } from "../ui/icons";
 
 
@@ -59,7 +58,7 @@ export default function PasswordChange() {
         setLoading(true);
 
         try {
-            const res = await axios.post(`${API_BASE_URL}/auth/password/reset`, {
+            const res = await axios.post(`/auth/password/reset`, {
                 token: confirmation,
                 new_password: password,
             });
@@ -67,7 +66,7 @@ export default function PasswordChange() {
             if (res.status === 200) {
                 setErr("Пароль успешно изменен");
                 try {
-                    const res = await axios.post(API_BASE_URL + "/auth/login", { login, password }, { withCredentials: true });
+                    const res = await axios.post("/auth/login", { login, password }, { withCredentials: true });
                     const data = await res.data.body;
 
                     if (res.data.status === false) {

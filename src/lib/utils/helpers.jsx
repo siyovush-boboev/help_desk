@@ -427,9 +427,9 @@ export function isValidCredsInput(input, cred_type = null, blank = true) {
 
 export function validate_confirmation(confirmation) {
     // valid token:
-    // 1.   4 digit string
+    // 1.   6 digit string
     // 2.   a hash string with 32 characters consisting of a-f, A-F, 0-9
-    if (/^\d{4}$/.test(confirmation) || /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(confirmation)) return true;
+    if (/^\d{6}$/.test(confirmation) || /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(confirmation)) return true;
     return false;
 }
 
@@ -625,10 +625,16 @@ export const convertRFCtoLocalDatetimeInput = (rfcDate) => {
 export const cleanString = (str) => str.replace(/[^a-zA-Z0-9]/g, "_");
 
 
-export const downloadFile = async (url, filename, setError) => {
+export const downloadFile = async (url, filename, setError, forbiddenMessage = "Нет доступа к файлу") => {
     try {
-        // Make the GET request with responseType as 'blob'
-        const response = await axios.get(url, {
+        // url may be root-relative (e.g. "/api/attachment/5/download", already including
+        // the "/api" prefix) — resolve it against the current origin so it's treated as an
+        // absolute URL and axios doesn't also prepend its own "/api" baseURL on top of it.
+        const absoluteUrl = new URL(url, window.location.origin).href;
+
+        // Make the GET request with responseType as 'blob'. The shared axios instance
+        // attaches the Authorization: Bearer <accessToken> header automatically.
+        const response = await axios.get(absoluteUrl, {
             responseType: 'blob'
         });
 
@@ -651,7 +657,12 @@ export const downloadFile = async (url, filename, setError) => {
         URL.revokeObjectURL(link.href);
 
     } catch (error) {
-        setError(error?.response?.data?.message || "Не удалось отправить запрос. Попробуйте позже или проверьте подключение к интернету");
+        const status = error?.response?.status;
+        if (status === 401 || status === 403) {
+            setError(forbiddenMessage);
+        } else {
+            setError(error?.response?.data?.message || "Не удалось отправить запрос. Попробуйте позже или проверьте подключение к интернету");
+        }
         console.error('Error downloading the file:', error);
     }
 };

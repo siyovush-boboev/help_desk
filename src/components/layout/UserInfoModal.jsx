@@ -2,11 +2,11 @@ import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../lib/contexts/authContext";
 
-import { BASE_URL, API_BASE_URL } from "../../lib/constants";
 import { TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { UserInfoCloseIcon } from "../ui/icons";
 import axios from "../../lib/contexts/axiosInstance";
 import { isValidCredsInput, capitalizeName } from "../../lib/utils/helpers";
+import { clearUserLocalStorage } from "../../lib/services/api/tokenManager";
 
 export default function UserInfoModal({ userId, onClose, data = null, details_state = null }) {
     const [userData, setUserData] = useState(data);
@@ -53,7 +53,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const url = `${API_BASE_URL}/${TABLE_PAGES_CONFIG["user"]["resource"]}/${userId}`;
+                const url = `/${TABLE_PAGES_CONFIG["user"]["resource"]}/${userId}`;
                 const res = await axios.get(url);
                 const data = res.data;
                 setUserData(data["body"]);
@@ -70,12 +70,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
     const handleLogout = async () => {
         setLogoutLoading(true);
         await logout();
-        localStorage.setItem("user_id", null);
-        localStorage.setItem("permissions", null);
-        localStorage.setItem("user_otdel_ids", null);
-        localStorage.setItem("user_branch_id", null);
-        localStorage.setItem("user_office_id", null);
-        localStorage.setItem("user_department_id", null);
+        clearUserLocalStorage();
         setLogoutLoading(false);
         onClose();
         navigate("/login");
@@ -175,7 +170,7 @@ export default function UserInfoModal({ userId, onClose, data = null, details_st
             formData.append("data", JSON.stringify(data2send));
         }
         try {
-            const url = `${API_BASE_URL}/auth/me`;
+            const url = `/auth/me`;
             setLogoutLoading(true);
             await axios.put(url, formData, {
                 headers: {

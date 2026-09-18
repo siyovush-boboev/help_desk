@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { DEPENDANT_FIELDS, TABLE_PAGES_CONFIG } from "../../lib/pages";
 import { getDefaultValues, getValidationRules, getDisabledFields, capitalizeName } from "../../lib/utils/helpers";
-import { API_BASE_URL, priority_colors } from "../../lib/constants";
+import { priority_colors } from "../../lib/constants";
 import axios from "../../lib/contexts/axiosInstance";
 import OrderHistory from "./OrderHistory";
 import { OrderIcon, PaperClipIcon, LockedIcon, UnlockedIcon } from "../ui/icons";
@@ -88,7 +88,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
         const fetchHistory = async () => {
             try {
                 const res = await axios.get(
-                    `${API_BASE_URL}/${TABLE_PAGES_CONFIG["order"]["resource"]}/${itemData.id}/history`
+                    `/${TABLE_PAGES_CONFIG["order"]["resource"]}/${itemData.id}/history`
                 );
                 const history = res.data?.body || [];
                 setHistory(history)
@@ -110,7 +110,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const res = await axios.get(`${API_BASE_URL}/user/permission/${itemData.id}`);
+                const res = await axios.get(`/user/permission/${itemData.id}`);
                 const has_access = res.data.body.has_access;
                 setSelected(new Set(has_access.map(item => item.id).map(String)));
 
@@ -146,7 +146,7 @@ export default function DynamicForm({ config, preloadData, onSubmit, onClose, it
             await onSubmit(data); // call the real submit fn
         } catch (err) {
             console.error("Submit error:", err);
-            setErr(err?.response?.data?.message || "Ошибка при отправке формы");
+            setErr(err?.response?.data?.message || err?.response?.data?.error || "Ошибка при отправке формы");
         } finally {
             setIsSubmitting(false);
         }

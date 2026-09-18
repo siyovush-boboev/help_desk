@@ -7,8 +7,10 @@ import axios from "../../lib/contexts/axiosInstance";
 
 
 
+const CODE_LENGTH = 6;
+
 export default function ConfirmCode({ login }) {
-    const [code, setCode] = useState(["", "", "", ""]);
+    const [code, setCode] = useState(Array(CODE_LENGTH).fill(""));
     const inputsRef = useRef([]);
     const navigate = useNavigate();
 
@@ -34,7 +36,7 @@ export default function ConfirmCode({ login }) {
         newCode[idx] = val;
         setCode(newCode);
 
-        if (val && idx < 3) inputsRef.current[idx + 1].focus();
+        if (val && idx < CODE_LENGTH - 1) inputsRef.current[idx + 1].focus();
     };
 
     const handleKeyDown = (e, idx) => {
@@ -48,7 +50,7 @@ export default function ConfirmCode({ login }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-        if (codeStr.length < 4) return setError("Введите полный 4-значный код");
+        if (!/^\d{6}$/.test(codeStr)) return setError("Введите полный шестизначный код");
 
         setLoading(true);
         try {
@@ -74,7 +76,7 @@ export default function ConfirmCode({ login }) {
             if (res?.status) {
                 setResendTimer(60);
                 setCanResend(false);
-                setCode(["", "", "", ""]);
+                setCode(Array(CODE_LENGTH).fill(""));
                 inputsRef.current[0].focus();
             } else {
                 setError(res?.response?.data?.message || "Не удалось отправить код");
@@ -89,7 +91,7 @@ export default function ConfirmCode({ login }) {
     return (
         <AuthContainer header_text={"Подтвердите код"}>
             <p>
-                Для продолжения введите 4-значный код, который мы отправили вам по SMS на ваш номер телефона {hide_credentials(login, "phone")}.
+                Введите шестизначный код из Telegram, который мы отправили на ваш номер телефона {hide_credentials(login, "phone")}.
             </p>
 
             <form onSubmit={handleSubmit} id="auth-form">
@@ -115,7 +117,7 @@ export default function ConfirmCode({ login }) {
 
                 <button
                     type="submit"
-                    disabled={codeStr.length < 4 || loading}
+                    disabled={codeStr.length < CODE_LENGTH || loading}
                     className="btn-submit"
                 >
                     {loading ? <div className="loader-white" /> : "Продолжить"}

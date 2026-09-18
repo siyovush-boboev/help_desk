@@ -1,11 +1,23 @@
 import axios from "axios";
 import {
   getAccessToken,
-  // setAccessToken,
-  // clearAccessToken,
+  clearAccessToken,
+  clearUserLocalStorage,
   willTokenExpireSoon,
 } from "../services/api/tokenManager";
 import { API_BASE_URL } from "../constants";
+
+// Requests that happen while the user has no valid session yet (or is getting one) —
+// excluded from token attachment and from the global 401 -> redirect-to-login handling.
+const PUBLIC_AUTH_PATHS = [
+  "login",
+  "refresh_token",
+  "password-reset",
+  "password-change",
+  "password/request",
+  "password/verify_phone",
+  "password/reset",
+];
 
 const instance = axios.create({
   baseURL: API_BASE_URL,
@@ -33,17 +45,8 @@ const instance = axios.create({
 // ✅ Request Interceptor
 instance.interceptors.request.use(
   async (config) => {
-    const exclude_paths = [
-      "login",
-      "refresh_token",
-      "password-reset",
-      "password-change",
-      "password/request",
-      "password/verify_phone",
-      "password/reset",
-    ];
     // Не трогаем запросы логина и обновления токена
-    if (exclude_paths.some((path) => config.url?.includes(path))) {
+    if (PUBLIC_AUTH_PATHS.some((path) => config.url?.includes(path))) {
       return config;
     }
 
@@ -70,32 +73,25 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor (повторяет запрос при 401 один раз)
-// instance.interceptors.response.use(
-//   (res) => res,
-//   async (err) => {
-//     const originalRequest = err.config;
+// ✅ Response Interceptor — on 401, drop the local session and send the user back to login.
+// (403 is left alone here: it means "authenticated but not allowed", which callers
+// should handle inline instead of forcing a global logout.)
+instance.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    const isAuthErr = error.response?.status === 401;
+    const isPublicAuthRequest = PUBLIC_AUTH_PATHS.some((path) => error.config?.url?.includes(path));
 
-//     const isAuthErr = err.response?.status === 401;
-//     // const notRetrying = !originalRequest?._retry;
-//     const notLoginOrRefresh =
-//       !originalRequest.url.includes("/auth/login") &&
-//       !originalRequest.url.includes("/auth/refresh_token");
+    if (isAuthErr && !isPublicAuthRequest) {
+      clearAccessToken();
+      clearUserLocalStorage();
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login";
+      }
+    }
 
-//     if (isAuthErr && notLoginOrRefresh) {
-//       // originalRequest._retry = true;
-//       try {
-//         console.log("Getting new token and retrying request with new token...");
-//         const newToken = await refreshToken();
-//         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-//         return instance(originalRequest);
-//       } catch (e) {
-//         return Promise.reject(e);
-//       }
-//     }
-
-//     return Promise.reject(err);
-//   }
-// );
+    return Promise.reject(error);
+  }
+);
 
 export default instance;
